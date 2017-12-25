@@ -41,9 +41,7 @@ OOMDetector is a memory monitoring component for iOS which provides you with OOM
 
 \-(BOOL)startMallocStackMonitor:(size_t)threshholdInBytes needAutoDumpWhenOverflow:(BOOL)needAutoDump dumpLimit:(double)dumpLimit sampleInterval:(NSTimeInterval)sampleInterval;
     
-// 开启VMStackMonitor用以监控非直接通过malloc方式分配的内存
-// 因为startVMStackMonitor:方法用到了私有API __syscall_logger会带来app store审核不通过的风险，此方法默认只在DEBUG模式下生效，如果
-// 需要在RELEASE模式下也可用，请打开USE_VM_LOGGER_FORCEDLY宏，但是切记在提交appstore前将此宏关闭，否则可能会审核不通过
+// 开启VMStackMonitor用以监控非直接通过malloc方式分配的内存因为startVMStackMonitor:方法用到了私有API __syscall_logger会带来app store审核不通过的风险，此方法默认只在DEBUG模式下生效，如果需要在RELEASE模式下也可用，请打开USE_VM_LOGGER_FORCEDLY宏，但是切记在提交appstore前将此宏关闭，否则可能会审核不通过
 
 \-(BOOL)startVMStackMonitor:(size_t)threshHoldInbytes;
     
@@ -112,9 +110,7 @@ OOMDetector是一个iOS内存监控组件，应用此组件可以帮助你轻松
 
 \-(BOOL)startMallocStackMonitor:(size_t)threshholdInBytes needAutoDumpWhenOverflow:(BOOL)needAutoDump dumpLimit:(double)dumpLimit sampleInterval:(NSTimeInterval)sampleInterval;
     
-// 开启VMStackMonitor用以监控非直接通过malloc方式分配的内存
-// 因为startVMStackMonitor:方法用到了私有API __syscall_logger会带来app store审核不通过的风险，此方法默认只在DEBUG模式下生效，如果
-// 需要在RELEASE模式下也可用，请打开USE_VM_LOGGER_FORCEDLY宏，但是切记在提交appstore前将此宏关闭，否则可能会审核不通过
+// 开启VMStackMonitor用以监控非直接通过malloc方式分配的内存因为startVMStackMonitor:方法用到了私有API __syscall_logger会带来app store审核不通过的风险，此方法默认只在DEBUG模式下生效，如果需要在RELEASE模式下也可用，请打开USE_VM_LOGGER_FORCEDLY宏，但是切记在提交appstore前将此宏关闭，否则可能会审核不通过
 
 \-(BOOL)startVMStackMonitor:(size_t)threshHoldInbytes;
     
