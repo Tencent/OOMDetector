@@ -57,6 +57,7 @@ OOMDetector is a memory monitoring component for iOS which provides you with OOM
 ## Help
 
 ## License
+OOMDetector is under the MIT license. See the [LICENSE](master/LICENSE) file for details.
 
 ## --------------------------------------------------------------------------------
 
