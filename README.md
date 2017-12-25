@@ -59,6 +59,12 @@ OOMDetector is a memory monitoring component for iOS which provides you with OOM
 \-(void)fileData:(NSData *)data extra:(NSDictionary<NSString *,NSString *> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler;
 @end
 
+### PS
+If you come across link errors like "Undefined symbols for architecture arm64:
+  "std::__1::__next_prime(unsigned long)"", do as follows:
+  
+Build Settings -> Linking -> Other Linker Flags -> -lc++
+
 
 ## Changes Log
 
@@ -128,6 +134,11 @@ OOMDetector是一个iOS内存监控组件，应用此组件可以帮助你轻松
 \-(void)fileData:(NSData *)data extra:(NSDictionary<NSString *,NSString *> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler;
 @end
 
+### PS
+如果你遇到类似"Undefined symbols for architecture arm64:
+  "std::__1::__next_prime(unsigned long)""的链接问题, 你可以做如下设置:
+  
+Build Settings -> Linking -> Other Linker Flags -> -lc++
 
 ## 变更记录
 暂无
