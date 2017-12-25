@@ -1,0 +1,143 @@
+//
+//  OOMDetector.h
+//  QQLeak
+//
+//  Created by rosen on 16/11/1.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+//  version:1.4
+//  增加log回调，修复vmlogger为空时的crash
+//  增加RDMUUID
+//  屏蔽私有API
+//
+
+#ifndef OOMDetector_h
+#define OOMDetector_h
+
+#import <Foundation/Foundation.h>
+
+/*! @brief 单次堆内存分配超过限制后的回调
+ *
+ * @param bytes 分配的内存值（bytes）
+ * @param stack 分配堆栈信息
+ */
+typedef void (*ChunkMallocCallback)(size_t bytes, NSString *stack);
+
+/*! @brief 用于输出SDK内存调试log的回调
+ *
+ * @param bytes 分配的内存值（bytes）
+ * @param stack 分配堆栈信息
+ */
+typedef void (*logCallback)(char *info);
+
+@interface OOMDetector : NSObject
+
++(OOMDetector *)getInstance;
+
+/*! @brief 配置上报的uin
+ *
+ */
+-(void)setUin:(NSString *)uin;
+
+/*! @brief 设置appVersion
+ *
+ * @param appversion APP版本号
+ */
+-(void)setAppversion:(NSString *)appversion;
+
+/*! @brief 设置产品ID
+ *
+ * @param pID 请在work.sng.local/product/common上查询对应产品ID
+ */
+-(void)setPID:(NSString *)pID;
+
+/*! @brief 注册SDK内部日志回调
+ *
+ * @param logCallBack 用于打印日志的函数指针,SDK内部通过该指针打印调试日志
+ */
+-(void)registerLogCallback:(logCallback)logger;
+
+/*! @brief 开始app最大内存统计，自动上报app单次生命周期内的最大物理内存(无性能开销）
+ *
+ * @param overFlowLimit 为当前机型设置触定的阀值（mb），APM通过该阀值计算触顶率
+ */
+-(void)startMaxMemoryStatistic:(double)overFlowLimit;
+
+/*! @brief 开始堆内存堆栈监控，成功则返回YES(有一定性能开销，建议增加控制策略选择性打开,不要和QQLeak的startStackLogging功能同时开启）
+ *
+ * @param threshHoldInbytes 堆内存阀值（bytes），大于该阀值的分配堆栈将被输出到log（多次重复调用相同堆栈将被合并，并累加size）
+ * @param needAutoDump 如果设置为YES，当app占用的内存超过dumpLimit时，自动执行dump堆栈操作
+ * @param dumpLimit 只有needAutoDump设置为YES，app占用的内存超过dumpLimit（Mb）时，自动执行dump堆栈操作
+ * @param sampleInterval 检测内存的间隔（单位s），手Q中该值为0.1
+ */
+-(BOOL)startMallocStackMonitor:(size_t)threshHoldInbytes needAutoDumpWhenOverflow:(BOOL)needAutoDump dumpLimit:(double)dumpLimit sampleInterval:(NSTimeInterval)sampleInterval;
+
+/*! @brief 关闭堆内存堆栈监控
+ *
+ */
+-(void)stopMallocStackMonitor;
+
+/*! @brief 设置系统的私有API __syscall_logger，因为__syscall_logger是系统私有API，该功能不要在appstore版本打开
+ *
+ */
+-(void)setVMLogger:(void**)logger;
+
+/*! @brief 开始VM内存堆栈监控，只有设置了__syscall_logger该功能才会生效，成功则返回YES(有一定性能开销，建议增加控制策略选择性打开）
+ *
+ * @param threshHoldInbytes VM内存监控阀值（bytes），大于该阀值的堆栈将被输出到log（多次重复调用相同堆栈将被合并，并累加size）
+ */
+-(BOOL)startVMStackMonitor:(size_t)threshHoldInbytes;
+
+/*! @brief 关闭堆内存监控，该功能不要在appstore版本打开
+ *
+ */
+-(void)stopVMStackMonitor;
+
+/*! @brief 开始单次超大堆内存分配监控，成功则返回YES(阀值设置较大时，性能开销几乎影响不计，手Q在灰度和CI全量开启该开关，阀值为50M）
+ *
+ * @param threshHoldInbytes 单次超大堆内存监控阀值（bytes）,超过改阀值的内存将会自动上报至APM，并通过delegate给出相关信息
+ * @param callback 传入单次堆内存分配超过限制时的回调函数指针
+ *
+ */
+-(BOOL)startSingleChunkMallocDetector:(size_t)threshHoldInbytes callback:(ChunkMallocCallback)callback;
+
+/*! @brief 关闭单次超大堆内存分配监控
+ *
+ */
+-(void)stopSingleChunkMallocDetector;
+
+/*! @brief 立即将内存中纪录的分配堆栈信息写入磁盘，当前log路径可通过currentStackLogDir获取
+ * 说明:当需要立即纪录当前内存中的分配信息时候调用
+ */
+-(void)flush_allocation_stack;
+
+/*! @brief 调用该接口上报所有缓存的log至APM平台，建议在启动的时候调用(注意：该方法只在自动上报版本有效）
+ *  说明：dump数据存储在Library/OOMDetector目录中，上报成功后自动删除
+ */
+-(void)uploadAllStackToAPM;
+
+/*! @brief 将内存中纪录的分配堆栈信息以log形式写入磁盘，当前log路径可通过currentStackLogDir获取
+ *
+ */
+-(void)setMaxStackDepth:(size_t)depth;
+
+/*! @brief 设置在堆栈中是否需要显示系统函数，建议打开
+ *
+ * @param isNeedSys YES表示需要系统方法堆栈
+ */
+-(void)setNeedSystemStack:(BOOL)isNeedSys;
+
+/*! @brief 设置是否需要纪录只有纯系统函数的堆栈，按需打开
+ *
+ * @param isNeedStackWithoutAppStack YES表示需要纪录只有纯系统函数的堆栈
+ */
+-(void)setNeedStacksWithoutAppStack:(BOOL)isNeedStackWithoutAppStack;
+
+/*! @brief 当前log路径
+ *
+ */
+-(NSString *)currentStackLogDir;
+
+@end
+
+#endif /* OOMDetector_h */

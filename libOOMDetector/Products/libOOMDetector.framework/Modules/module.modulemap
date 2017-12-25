@@ -1,0 +1,6 @@
+framework module libOOMDetector {
+  umbrella header "libOOMDetector.h"
+
+  export *
+  module * { export * }
+}

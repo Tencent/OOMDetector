@@ -1,0 +1,11 @@
+//
+//  OOMDetectorLogger.m
+//  MacTest
+//
+//  Created by rosen on 16/11/10.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#import "OOMDetectorLogger.h"
+
+logCallback oom_logger;

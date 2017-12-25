@@ -1,0 +1,209 @@
+//
+//  APMFileUploadCenter.m
+//  lianxi
+//
+//  Created by rosen on 16/3/17.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "QQLeakFileUploadCenter.h"
+#import "QQLeakDeviceInfo.h"
+#import <CommonCrypto/CommonDigest.h>
+#import "APMConfigureCenter.h"
+
+extern bool ISUPLOAD;
+static QQLeakFileUploadCenter *center;
+static NSString *const FILE_UPLOAD_URL = @"https://access-sngapm.qcloud.com/chunkupload.php";
+static NSString *const FILE_UPLOAD_NEW_URL = @"https://sngapm.qq.com/entrance/uploadFile/";
+static const NSUInteger TIMEOUT_INTERVAL    = 20;
+static NSUInteger fragmentsize = 1048576;   //1Mb
+
+@implementation QQLeakFileUploadCenter
+
++(QQLeakFileUploadCenter *)defaultCenter{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        center = [[QQLeakFileUploadCenter alloc] init];
+    });
+    return center;
+}
+
+-(void)uploadFileData:(NSData *)data uin:(NSString *)uin pid:(NSString *)pID plugin:(NSString *)plugin extra:(NSDictionary<NSString*,NSString*> *)extra completionHandler:(void (^)(NSURLResponse *response, NSData *data, NSError *error))completionHandler
+{
+    if(data){
+        NSUInteger length = data.length;
+        NSString *md5 = [self getMD5:data];
+        NSUInteger fragment_count = length/fragmentsize + 1;
+        for(NSUInteger i = 0;i < fragment_count;i++){
+            NSUInteger fragmentLength = MIN(length - i*fragmentsize,fragmentsize);
+            void *buffer = malloc(fragmentLength);
+            NSRange range = NSMakeRange(i*fragmentsize, fragmentLength);
+            [data getBytes:buffer range:range];
+            NSData *fragmentData = [NSData dataWithBytes:buffer length:fragmentLength];
+            free(buffer);
+            if(fragmentData){
+                [self uploadFragmentData:fragmentData totalLength:length md5:md5 range:range uin:uin pid:pID plugin:plugin occurTime:[[NSDate date] timeIntervalSince1970] extra:extra  completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                    if(completionHandler){
+                        completionHandler(response, data, error);
+                    }
+                }];
+            }
+        }
+    }
+#ifdef BUILD_FOR_OTHER_APP
+     //上报新架构
+    if(ISUPLOAD){
+        [self UplaodFormDataFile:data uin:uin pid:pID plugin:plugin extra:extra completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+            if(completionHandler){
+                completionHandler(response, data, error);
+            }
+        }];
+    }
+#endif
+}
+
+-(void)uploadFragmentData:(NSData *)data totalLength:(NSUInteger)length md5:(NSString *)md5 range:(NSRange)range uin:(NSString *)uin pid:(NSString *)pID plugin:(NSString *)plugin occurTime:(NSTimeInterval)occurTime extra:(NSDictionary<NSString*,NSString*> *)extra completionHandler:(void (^)(NSURLResponse *response, NSData *data, NSError *error))completionHandler
+{
+    NSURL *url = [self getURL:uin pid:pID plugin:plugin occurTime:occurTime extra:extra];
+    NSURLRequest *request = [self getFragmentRequest:data totalLength:length md5:md5 range:range url:url];
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data,NSURLResponse *response,NSError *error){
+        completionHandler(response,data,error);
+    }];
+    [task resume];
+}
+
+-(NSURLRequest *)getFragmentRequest:(NSData *)data totalLength:(NSUInteger)length md5:(NSString *)md5 range:(NSRange)range url:(NSURL *)url
+{
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setTimeoutInterval:TIMEOUT_INTERVAL];
+    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+    [request setHTTPShouldHandleCookies:NO];
+    [request addValue:@"application/octet-stream" forHTTPHeaderField:@"Content-Type"];
+    [request addValue:[NSString stringWithFormat:@"%lu",(unsigned long)length] forHTTPHeaderField:@"Content-Length"];
+    [request addValue:md5 forHTTPHeaderField:@"Session-ID"];
+    [request addValue:[NSString stringWithFormat:@"bytes %lu-%lu/%lu",(unsigned long)range.location,(unsigned long)(range.location+range.length - 1),(unsigned long)length] forHTTPHeaderField:@"X-Content-Range"];
+    [request addValue:[NSString stringWithFormat:@"attachment; filename=\"%@\"",[NSString stringWithFormat:@"rainbow%@.log.zip",md5]] forHTTPHeaderField:@"Content-Disposition"];
+    [request addValue:@"no-cache" forHTTPHeaderField:@"Cache-Control"];
+    request.HTTPBody = data;
+    return request;
+}
+
+-(NSURL *)getURL:(NSString *)uin pid:(NSString *)pID plugin:(NSString *)plugin occurTime:(NSTimeInterval)occurTime extra:(NSDictionary<NSString*,NSString*> *)extra
+{
+    NSMutableString *str = [[[NSMutableString alloc] initWithString:FILE_UPLOAD_URL] autorelease];
+    [str appendFormat:@"?p_id=%@",(pID == nil) ? @"" : pID];
+    [str appendFormat:@"&plugin=%@",plugin];
+    [str appendFormat:@"&qq=%@",(uin == nil) ? @"" : uin];
+    [str appendFormat:@"&cputype=%@",[QQLeakDeviceInfo cpuType]];
+    [str appendFormat:@"&occurTime=%lf",occurTime];
+    for(NSString *key in extra){
+        [str appendFormat:@"&%@=%@",key,[extra objectForKey:key]];
+    }
+    return [NSURL URLWithString:[str stringByAddingPercentEncodingWithAllowedCharacters:[NSMutableCharacterSet                                                                  URLQueryAllowedCharacterSet]]];
+}
+
+-(NSString *)getMD5:(NSData *)data
+{
+    unsigned char r[CC_MD5_DIGEST_LENGTH];
+    CC_MD5([data bytes], (CC_LONG)[data length], r);
+    NSString *md5 = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                          r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
+    return md5;
+}
+
+#pragma -mark form/data Upload
+//form/data格式上传文件
+- (void) UplaodFormDataFile:(NSData *)data uin:(NSString *)uin pid:(NSString *)pID plugin:(NSString *)plugin extra:(NSDictionary<NSString*,NSString*> *)extra completionHandler:(void (^)(NSURLResponse *response, NSData *data, NSError *error))completionHandler
+{
+    NSString * version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+    NSDictionary *dic = @{
+                                 @"p_id" : pID,
+                                 @"uin" : uin,
+                                 @"plugin" : plugin,
+                                 @"device" : [QQLeakDeviceInfo platform],
+                                 @"version" : version,
+                                 @"api_ver" : @"1",
+                                 @"plugin_ver": @"1",
+                                 @"client_identify":[self getMD5:data],
+                                 @"os" : [[NSProcessInfo processInfo] operatingSystemVersionString],
+                                 @"arch" :[QQLeakDeviceInfo cpuType]
+                                 };
+    [self uploadFileWithURL:FILE_UPLOAD_NEW_URL params:dic fileKey:@"file" fileData:data completeHander:^(NSURLResponse *response, NSData *data, NSError *error) {
+        if(completionHandler){
+            completionHandler(response, data, error);
+        }
+    }];
+}
+
+-(void)uploadFileWithURL:(NSString *)urlString params:(NSDictionary *)params fileKey:(NSString *)fileKey fileData:(NSData *)fileData completeHander:(void (^)(NSURLResponse *, NSData *, NSError *))completeHander{
+    NSMutableURLRequest *request;
+    NSURL *URL = [[NSURL alloc]initWithString:urlString];
+    request = [[NSMutableURLRequest alloc]initWithURL:URL cachePolicy:(NSURLRequestUseProtocolCachePolicy) timeoutInterval:30];
+    NSString *boundary = @"wfWiEWrgEFA9A78512weF7106A";
+    request.HTTPMethod = @"POST";
+    request.allHTTPHeaderFields = @{
+                                    @"Content-Type":[NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary]
+                                    };
+    //multipart/form-data格式按照构建上传数据
+    NSMutableData *postData = [[NSMutableData alloc]init];
+    for (NSString *key in params) {
+        NSString *pair = [NSString stringWithFormat:@"--%@\r\nContent-Disposition: form-data; name=\"%@\"\r\n\r\n",boundary,key];
+        [postData appendData:[pair dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        id value = [params objectForKey:key];
+        if ([value isKindOfClass:[NSString class]]) {
+            [postData appendData:[value dataUsingEncoding:NSUTF8StringEncoding]];
+        }else if ([value isKindOfClass:[NSData class]]){
+            [postData appendData:value];
+        }
+        [postData appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+    //文件部分
+    NSString *filename = @"filename";
+    NSString *contentType = @"application/octet-stream";
+    //AFContentTypeForPathExtension([filePath pathExtension]);
+    NSLog(@"contentType is %@",contentType);
+    NSString *filePair = [NSString stringWithFormat:@"--%@\r\nContent-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\nContent-Type: %@\r\n\r\n",boundary,fileKey,filename,contentType];
+    [postData appendData:[filePair dataUsingEncoding:NSUTF8StringEncoding]];
+    [postData appendData:fileData]; //加入文件的数据
+    [postData appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [postData appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    request.HTTPBody = postData;
+    [request setValue:[NSString stringWithFormat:@"%lu",(unsigned long)postData.length] forHTTPHeaderField:@"Content-Length"];
+    NSLog(@"request is \n%@\n",[[NSString alloc] initWithData:request.HTTPBody encoding:NSASCIIStringEncoding]);
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data,NSURLResponse *response,NSError *error){
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        NSString *content =[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if(error){
+            NSLog(@"upload file failed:%ld, domain:%@",(long)error.code, error.domain);
+        }
+        else if(httpResponse.statusCode < 200 || httpResponse.statusCode > 300){
+            NSLog(@"upload file failed, data is %@,http coded:%ld",content,(long)httpResponse.statusCode);
+        }
+        else {
+            NSLog(@"upload file success,data is %@,httpResponse is:%@",content,httpResponse);
+        }
+        completeHander(response,data,error);
+    }];
+    [task resume];
+}
+
+static inline NSString * AFContentTypeForPathExtension(NSString *extension) {
+#ifdef __UTTYPE__
+    NSString *UTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)extension, NULL);
+    NSString *contentType = (__bridge_transfer NSString *)UTTypeCopyPreferredTagWithClass((__bridge CFStringRef)UTI, kUTTagClassMIMEType);
+    if (!contentType) {
+        return @"application/octet-stream";
+    } else {
+        return contentType;
+    }
+#else
+#pragma unused (extension)
+    return @"application/octet-stream";
+#endif
+}
+
+
+@end

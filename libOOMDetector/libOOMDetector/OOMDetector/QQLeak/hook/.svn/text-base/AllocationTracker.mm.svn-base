@@ -1,0 +1,135 @@
+//
+//  AllocationTracker.mm
+//  QQLeak
+//
+//  Created by rosenluo on 15/10/13.
+//
+//
+
+#import <libkern/OSAtomic.h>
+#import <objc/runtime.h>
+#import "AllocationTracker.h"
+#include <string>
+#include <map>
+#include <set>
+#include <vector>
+#include <utility>
+#include <string.h>
+#include <execinfo.h>
+#include <pthread.h>
+#include "QQLeakChecker.h"
+#include "QQLeakStackLogging.h"
+#include "CObjcManager.h"
+
+static AllocationTracker *tracker;
+bool pausedTracking;
+
+@interface NSObject(MethodSwizzling)
++ (BOOL)swizzleMethod:(SEL)origSel withMethod:(SEL)altSel;
++ (BOOL)swizzleClassMethod:(SEL)origSel withClassMethod:(SEL)altSel;
+
+@end
+
+
+@implementation NSObject (MethodSwizzling)
+
++ (BOOL)swizzleMethod:(SEL)origSel withMethod:(SEL)altSel
+{
+    Method originMethod = class_getInstanceMethod(self, origSel);
+    Method newMethod = class_getInstanceMethod(self, altSel);
+    IMP originIMP = method_getImplementation(originMethod);
+    IMP newIMP = method_getImplementation(newMethod);
+    if (originMethod && newMethod) {
+        //2012年5月更新
+        if (class_addMethod(self, origSel, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))) {
+            class_replaceMethod(self, altSel, method_getImplementation(originMethod), method_getTypeEncoding(originMethod));
+        } else {
+            method_exchangeImplementations(originMethod, newMethod);
+        }
+        return YES;
+    }
+    return NO;
+}
+
++ (BOOL)swizzleClassMethod:(SEL)origSel withClassMethod:(SEL)altSel
+{
+    Class c = object_getClass((id)self);
+    return [c swizzleMethod:origSel withMethod:altSel];
+}
+
+@end
+
+@interface NSObject(AllocationTracker)
+
++ (id)Tracker_Alloc;
+
+@end
+
+@implementation NSObject(AllocationTracker)
+
++ (id)Tracker_Alloc{
+    if(!isClassInBlackList(self)){
+        markedThreadToTrackingNextMalloc(NULL);
+    }
+    id obj = [self Tracker_Alloc];
+#ifdef __enable_malloc_logger__
+    malloc_printf("alloc ptr:%p size:%lu name:%s thread:%lu\n",obj, (uint32_t)class_getInstanceSize([obj class]),class_getName([obj class]),mach_thread_self());
+#endif
+    return obj;
+}
+
+@end
+
+@interface AllocationTracker()
+{
+    BOOL _isTracking;
+}
+@end
+
+@implementation AllocationTracker
+
++(AllocationTracker *)getInstance{
+    static dispatch_once_t pred;
+    dispatch_once(&pred, ^{
+        tracker = [AllocationTracker new];
+    });
+    return tracker;
+}
+
+-(id)init{
+    if(self = [super init]){
+        [QQLeakChecker getInstance];
+    }
+    return self;
+}
+
+-(void)swizzleAllocationFunction{
+    [NSObject swizzleClassMethod:@selector(alloc) withClassMethod:@selector(Tracker_Alloc)];
+}
+
+-(void)beginRecord{
+    if(!_isTracking){
+        _isTracking = YES;
+       [self swizzleAllocationFunction];
+    }
+}
+
+-(void)stopRecord
+{
+    if(_isTracking){
+        _isTracking = NO;
+        [self swizzleAllocationFunction];
+    }
+}
+
+-(void)pausedRecord
+{
+    pausedTracking = true;
+}
+
+-(void)resumeRecord
+{
+    pausedTracking = false;
+}
+
+@end

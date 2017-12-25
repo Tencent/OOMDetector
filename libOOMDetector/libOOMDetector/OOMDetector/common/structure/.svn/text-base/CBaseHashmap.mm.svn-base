@@ -1,0 +1,59 @@
+//
+//  CBaseHashmap.m
+//  QQLeak
+//
+//  Created by rosen on 16/4/26.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#include "CBaseHashmap.h"
+
+extern malloc_zone_t *memory_zone;
+
+CBaseHashmap::CBaseHashmap(size_t entrys)
+{
+    entry_num = entrys;
+    hashmap_entry = (base_entry_t *)hashmap_malloc((entry_num)*sizeof(base_entry_t));
+    for(size_t i = 0; i < entry_num;i++){
+        base_entry_t *entry_tmp = hashmap_entry + i;
+        entry_tmp->root = NULL;
+    }
+    record_num = 0;
+    access_num = 0;
+    collision_num = 0;
+}
+
+CBaseHashmap::~CBaseHashmap(){
+    hashmap_free(hashmap_entry);
+}
+
+void *CBaseHashmap::hashmap_malloc(size_t size){
+    return memory_zone->malloc(memory_zone,size);
+}
+
+void CBaseHashmap::hashmap_free(void *ptr){
+    memory_zone->free(memory_zone,ptr);
+}
+
+base_entry_t *CBaseHashmap::getHashmapEntry()
+{
+    return hashmap_entry;
+}
+
+size_t CBaseHashmap::getEntryNum()
+{
+    return entry_num;
+}
+
+size_t CBaseHashmap::getRecordNum()
+{
+    return record_num;
+}
+size_t CBaseHashmap::getAccessNum()
+{
+    return access_num;
+}
+size_t CBaseHashmap::getCollisionNum()
+{
+    return collision_num;
+}

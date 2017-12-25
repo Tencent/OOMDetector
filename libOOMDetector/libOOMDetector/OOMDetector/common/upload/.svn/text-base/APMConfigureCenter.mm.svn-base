@@ -1,0 +1,71 @@
+//
+//  APMConfigureCenter.m
+//  QQBlue
+//
+//  Created by michaelbi on 2017/7/25.
+//  Copyright © 2017年 com.tencent. All rights reserved.
+//
+
+#import "APMConfigureCenter.h"
+
+static APMConfigureCenter *center;
+static NSString *const CONFIG_GET_URL = @"https://sngapm.tencent.com/appconfig/config/";
+static const NSUInteger TIMEOUT_INTERVAL    = 30;
+
+@implementation APMConfigureCenter
+
+
++(APMConfigureCenter *)defaultCenter{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        center = [[APMConfigureCenter alloc] init];
+    });
+    return center;
+}
+
+- (void)loadConfigs{
+    @try {
+        NSDictionary *congfigs = [[NSDictionary alloc]init];
+        NSString * CONFIGURE_URL = [CONFIG_GET_URL stringByAppendingString:@"2"];
+        NSLog(@"%@",CONFIGURE_URL);
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:CONFIGURE_URL]];
+        //[request setHTTPMethod:@"GET"];
+        [request setTimeoutInterval:TIMEOUT_INTERVAL];
+        [request setCachePolicy:NSURLRequestUseProtocolCachePolicy];
+        [request setHTTPShouldHandleCookies:NO];
+        [request addValue:[NSString stringWithFormat:@"application/json; charset=utf-8"] forHTTPHeaderField:@"Content-Type"];
+        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data,NSURLResponse *response,NSError *error){
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            NSString *content =[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            if(error){
+                NSLog(@"get config failed:%ld, domain:%@",(long)error.code, error.domain);
+            }
+            else if(httpResponse.statusCode < 200 || httpResponse.statusCode > 300){
+                NSLog(@"get config failed, data is %@,http coded:%ld",content,(long)httpResponse.statusCode);
+            }
+            else {
+                NSLog(@"get config success,data is %@,httpResponse is:%@",content,httpResponse);
+                NSDictionary *congfigs = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                NSLog(@"%@",congfigs);
+                [self parseConfigs:congfigs];
+            }
+        }];
+        [task resume];
+        
+    } @catch (NSException *exception) {
+        NSLog(@"捕捉异常：%@,%@",exception.name,exception.reason);
+        NSLog(@"%@",exception);
+    } @finally {
+    }
+}
+
+- (void)parseConfigs:(NSDictionary*)config{
+    NSNumber *num= [config objectForKey:@"host"];
+    int hostNum =[num intValue];
+    if(hostNum<=1)
+        ISUPLOAD = false;
+    if(ISUPLOAD)
+        NSLog(@"define newapm");
+}
+
+@end

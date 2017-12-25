@@ -1,0 +1,51 @@
+//
+//  CBaseHashmap.h
+//  QQLeak
+//
+//  Created by rosen on 16/4/26.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CBaseHashmap_h
+#define CBaseHashmap_h
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <malloc/malloc.h>
+#import <CommonCrypto/CommonDigest.h>
+#import "QQLeakPredefines.h"
+
+typedef enum
+{
+    QQLeakMode = 1,
+    OOMDetectorMode
+}monitor_mode;
+
+typedef struct base_entry_t
+{
+    void *root;
+}base_entry_t;
+
+class CBaseHashmap
+{
+public:
+    CBaseHashmap(size_t entrys);
+    virtual ~CBaseHashmap();
+    base_entry_t *getHashmapEntry();
+    size_t getEntryNum();
+    size_t getRecordNum();
+    size_t getAccessNum();
+    size_t getCollisionNum();
+protected:
+    void *hashmap_malloc(size_t size);
+    void hashmap_free(void *ptr);
+protected:
+    base_entry_t *hashmap_entry;
+    size_t  entry_num;
+    size_t	record_num;
+    size_t  access_num;
+    size_t  collision_num;
+};
+
+#endif /* CBaseHashmap_h */

@@ -1,0 +1,30 @@
+//
+//  CHeapChecker.h
+//  QQLeak
+//
+//  Created by rosenluo on 16/3/22.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef C_HEAP_CHECKER
+#define C_HEAP_CHECKER
+
+#include <stdio.h>
+#import <Foundation/Foundation.h>
+#include <pthread.h>
+#include <mach/mach.h>
+#include <malloc/malloc.h>
+#include "CMemoryChecker.h"
+
+class CHeapChecker : public CMemoryChecker
+{
+public:
+    CHeapChecker(){};
+    void startPtrCheck();
+private:
+    static void check_ptr_in_heap(task_t task, void *baton, unsigned type, vm_range_t *ptrs, unsigned count);
+    static void find_ptr_in_heap(task_t task, void *baton, unsigned type, vm_range_t *ptrs, unsigned count);
+    void enumerate_ptr_in_zone (void *baton, const malloc_zone_t *zone,vm_range_recorder_t recorder);
+};
+
+#endif

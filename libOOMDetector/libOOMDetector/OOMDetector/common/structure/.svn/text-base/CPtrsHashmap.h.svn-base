@@ -1,0 +1,40 @@
+//
+//  CPtrsHashmap.h
+//  QQLeak
+//
+//  Created by rosen on 16/4/28.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CPtrHashmap_h
+#define CPtrHashmap_h
+
+#include "CBaseHashmap.h"
+
+typedef struct base_ptr_log{
+    unsigned char *md5;
+    uint32_t size;
+} base_ptr_log;
+
+typedef struct ptr_log_t{
+    unsigned char  md5[16];
+    size_t size_or_refer;
+    vm_address_t address;
+    ptr_log_t *next;
+} ptr_log_t;
+
+class CPtrsHashmap : public CBaseHashmap
+{
+public:
+    CPtrsHashmap(size_t entrys):CBaseHashmap(entrys){};
+    BOOL insertPtr(vm_address_t addr,base_ptr_log *ptr_log);
+    BOOL removePtr(vm_address_t addr);
+    ptr_log_t *lookupPtr(vm_address_t addr);
+    ~CPtrsHashmap();
+protected:
+    ptr_log_t *create_hashmap_data(vm_address_t addr,base_ptr_log *base_ptr);
+    int compare(ptr_log_t *ptr_log,vm_address_t addr);
+    size_t hash_code(vm_address_t addr);
+};
+
+#endif /* CPtrHashmap_h */

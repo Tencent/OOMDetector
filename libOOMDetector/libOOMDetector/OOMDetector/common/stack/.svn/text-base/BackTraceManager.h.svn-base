@@ -1,0 +1,40 @@
+//
+//  BackTraceManager.h
+//  QQLeak
+//
+//  Created by rosen on 16/12/30.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef BackTraceManager_h
+#define BackTraceManager_h
+#import <Foundation/Foundation.h>
+#import <mach/vm_types.h>
+#import "execinfo.h"
+#import <CommonCrypto/CommonDigest.h>
+#import "QQLeakPredefines.h"
+#import "CMachOHelper.h"
+#import "CbaseHashmap.h"
+#include "CStacksHashmap.h"
+#include "CPtrsHashmap.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    typedef void (malloc_logger_t)(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t num_hot_frames_to_skip);
+    extern malloc_logger_t* malloc_logger;
+    extern size_t ptrs_hashmap_entrys;
+    extern CPtrsHashmap *ptrs_hashmap;
+    extern CStacksHashmap *stacks_hashmap;
+    extern OSSpinLock hashmap_spinlock;
+    extern malloc_zone_t *default_zone;
+    extern monitor_mode current_mode;
+    extern size_t ptrs_hashmap_entrys;
+    
+    size_t recordBacktrace(BOOL needSystemStack,size_t needAppStackCount,size_t backtrace_to_skip, vm_address_t **app_stack,unsigned char *md5);
+    
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* BackTraceManager_h */

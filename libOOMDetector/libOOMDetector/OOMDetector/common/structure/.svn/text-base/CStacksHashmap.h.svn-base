@@ -1,0 +1,49 @@
+//
+//  CStacksHashmap.h
+//  QQLeak
+//
+//  Created by rosen on 16/4/26.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CStacksHashmap_h
+#define CStacksHashmap_h
+
+#include "CBaseHashmap.h"
+
+typedef struct extra_t{
+    const char      *name;
+    uint32_t        size;
+}extra_t;
+
+typedef struct base_stack_t{
+    uint16_t            depth;
+    vm_address_t        **stack;
+    extra_t             extra;
+}base_stack_t;
+
+typedef struct merge_stack_t{
+    unsigned char       md5[16];
+    uint32_t            depth;
+    uint32_t            count;
+    vm_address_t        **stack;
+    merge_stack_t       *next;
+    extra_t             extra;
+} merge_stack_t;
+
+
+class CStacksHashmap : public CBaseHashmap
+{
+public:
+    CStacksHashmap(size_t entrys):CBaseHashmap(entrys){};
+    void insertStackAndIncreaseCountIfExist(unsigned char *md5,base_stack_t *stack);
+    void removeIfCountIsZero(unsigned char *md5, size_t size);
+    merge_stack_t *lookupStack(unsigned char *md5);
+    ~CStacksHashmap();
+protected:
+    merge_stack_t *create_hashmap_data(unsigned char *md5,base_stack_t *stack);
+    int compare(merge_stack_t *stack,unsigned char *md5);
+    size_t hash_code(void *key);
+};
+
+#endif /* CMergestackHashmap_h */

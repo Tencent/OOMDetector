@@ -1,0 +1,765 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		6B9A04F81FD5839A00414B1F /* libOOMAggregate */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 6B9A04FB1FD5839A00414B1F /* Build configuration list for PBXAggregateTarget "libOOMAggregate" */;
+			buildPhases = (
+				6B9A04FC1FD583A700414B1F /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = libOOMAggregate;
+			productName = libOOMAggregate;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		6B9A04671FD57C5700414B1F /* libOOMDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04651FD57C5700414B1F /* libOOMDetector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6B9A04B91FD57C8A00414B1F /* QQLeakPredefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A046F1FD57C8A00414B1F /* QQLeakPredefines.h */; };
+		6B9A04BA1FD57C8A00414B1F /* BackTraceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04711FD57C8A00414B1F /* BackTraceManager.h */; };
+		6B9A04BB1FD57C8A00414B1F /* BackTraceManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04721FD57C8A00414B1F /* BackTraceManager.mm */; };
+		6B9A04BC1FD57C8A00414B1F /* CMachOHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04731FD57C8A00414B1F /* CMachOHelper.h */; };
+		6B9A04BD1FD57C8A00414B1F /* CMachOHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04741FD57C8A00414B1F /* CMachOHelper.mm */; };
+		6B9A04BE1FD57C8A00414B1F /* CommonMallocLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04751FD57C8A00414B1F /* CommonMallocLogger.h */; };
+		6B9A04BF1FD57C8A00414B1F /* CommonMallocLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04761FD57C8A00414B1F /* CommonMallocLogger.mm */; };
+		6B9A04C01FD57C8A00414B1F /* CBaseHashmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04781FD57C8A00414B1F /* CBaseHashmap.h */; };
+		6B9A04C11FD57C8A00414B1F /* CBaseHashmap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04791FD57C8A00414B1F /* CBaseHashmap.mm */; };
+		6B9A04C21FD57C8A00414B1F /* CPtrsHashmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A047A1FD57C8A00414B1F /* CPtrsHashmap.h */; };
+		6B9A04C31FD57C8A00414B1F /* CPtrsHashmap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A047B1FD57C8A00414B1F /* CPtrsHashmap.mm */; };
+		6B9A04C41FD57C8A00414B1F /* CStacksHashmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A047C1FD57C8A00414B1F /* CStacksHashmap.h */; };
+		6B9A04C51FD57C8A00414B1F /* CStacksHashmap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A047D1FD57C8A00414B1F /* CStacksHashmap.mm */; };
+		6B9A04C61FD57C8A00414B1F /* QQLeakDataUploadCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A047F1FD57C8A00414B1F /* QQLeakDataUploadCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6B9A04C71FD57C8A00414B1F /* QQLeakDataUploadCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04801FD57C8A00414B1F /* QQLeakDataUploadCenter.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		6B9A04C81FD57C8A00414B1F /* QQLeakDeviceInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04811FD57C8A00414B1F /* QQLeakDeviceInfo.h */; };
+		6B9A04C91FD57C8A00414B1F /* QQLeakDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04821FD57C8A00414B1F /* QQLeakDeviceInfo.m */; };
+		6B9A04CA1FD57C8A00414B1F /* QQLeakFileUploadCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04831FD57C8A00414B1F /* QQLeakFileUploadCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6B9A04CB1FD57C8A00414B1F /* QQLeakFileUploadCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04841FD57C8A00414B1F /* QQLeakFileUploadCenter.mm */; };
+		6B9A04CC1FD57C8A00414B1F /* OOMDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04861FD57C8A00414B1F /* OOMDetector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6B9A04CD1FD57C8A00414B1F /* QQLeakChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04871FD57C8A00414B1F /* QQLeakChecker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6B9A04CE1FD57C8A00414B1F /* AllocationStackLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A048A1FD57C8A00414B1F /* AllocationStackLogger.h */; };
+		6B9A04CF1FD57C8A00414B1F /* AllocationStackLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A048B1FD57C8A00414B1F /* AllocationStackLogger.mm */; };
+		6B9A04D01FD57C8A00414B1F /* HighSpeedLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A048D1FD57C8A00414B1F /* HighSpeedLogger.h */; };
+		6B9A04D11FD57C8A00414B1F /* HighSpeedLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A048E1FD57C8A00414B1F /* HighSpeedLogger.mm */; };
+		6B9A04D21FD57C8A00414B1F /* OOMDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04901FD57C8A00414B1F /* OOMDetector.mm */; };
+		6B9A04D31FD57C8A00414B1F /* OOMDetectorLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04911FD57C8A00414B1F /* OOMDetectorLogger.h */; };
+		6B9A04D41FD57C8A00414B1F /* OOMDetectorLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04921FD57C8A00414B1F /* OOMDetectorLogger.mm */; };
+		6B9A04D51FD57C8A00414B1F /* MemoryIndicator.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04941FD57C8A00414B1F /* MemoryIndicator.h */; };
+		6B9A04D61FD57C8A00414B1F /* MemoryIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04951FD57C8A00414B1F /* MemoryIndicator.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		6B9A04D71FD57C8A00414B1F /* OOMStatisticsInfoCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04971FD57C8A00414B1F /* OOMStatisticsInfoCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6B9A04D81FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04981FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm */; };
+		6B9A04D91FD57C8A00414B1F /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A049B1FD57C8A00414B1F /* fishhook.c */; };
+		6B9A04DA1FD57C8A00414B1F /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A049C1FD57C8A00414B1F /* fishhook.h */; };
+		6B9A04DB1FD57C8A00414B1F /* AllocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A049E1FD57C8A00414B1F /* AllocationTracker.h */; };
+		6B9A04DC1FD57C8A00414B1F /* AllocationTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A049F1FD57C8A00414B1F /* AllocationTracker.mm */; };
+		6B9A04DD1FD57C8A00414B1F /* CMallocHook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04A01FD57C8A00414B1F /* CMallocHook.h */; };
+		6B9A04DE1FD57C8A00414B1F /* CMallocHook.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04A11FD57C8A00414B1F /* CMallocHook.mm */; };
+		6B9A04DF1FD57C8A00414B1F /* QQLeakChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04A31FD57C8A00414B1F /* QQLeakChecker.mm */; };
+		6B9A04E01FD57C8A00414B1F /* QQLeakStackLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04A41FD57C8A00414B1F /* QQLeakStackLogging.h */; };
+		6B9A04E11FD57C8A00414B1F /* QQLeakStackLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04A51FD57C8A00414B1F /* QQLeakStackLogging.mm */; };
+		6B9A04E21FD57C8A00414B1F /* CHeapChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04A71FD57C8A00414B1F /* CHeapChecker.h */; };
+		6B9A04E31FD57C8A00414B1F /* CHeapChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04A81FD57C8A00414B1F /* CHeapChecker.mm */; };
+		6B9A04E41FD57C8A00414B1F /* CMemoryChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04A91FD57C8A00414B1F /* CMemoryChecker.h */; };
+		6B9A04E51FD57C8A00414B1F /* CMemoryChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04AA1FD57C8A00414B1F /* CMemoryChecker.mm */; };
+		6B9A04E61FD57C8A00414B1F /* CRegisterChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04AB1FD57C8A00414B1F /* CRegisterChecker.h */; };
+		6B9A04E71FD57C8A00414B1F /* CRegisterChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04AC1FD57C8A00414B1F /* CRegisterChecker.mm */; };
+		6B9A04E81FD57C8A00414B1F /* CSegmentChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04AD1FD57C8A00414B1F /* CSegmentChecker.h */; };
+		6B9A04E91FD57C8A00414B1F /* CSegmentChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04AE1FD57C8A00414B1F /* CSegmentChecker.mm */; };
+		6B9A04EA1FD57C8A00414B1F /* CStackChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04AF1FD57C8A00414B1F /* CStackChecker.h */; };
+		6B9A04EB1FD57C8A00414B1F /* CStackChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04B01FD57C8A00414B1F /* CStackChecker.mm */; };
+		6B9A04EC1FD57C8A00414B1F /* CObjcManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04B21FD57C8A00414B1F /* CObjcManager.h */; };
+		6B9A04ED1FD57C8A00414B1F /* CObjcManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04B31FD57C8A00414B1F /* CObjcManager.mm */; };
+		6B9A04EE1FD57C8A00414B1F /* CLeakedHashmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04B51FD57C8A00414B1F /* CLeakedHashmap.h */; };
+		6B9A04EF1FD57C8A00414B1F /* CLeakedHashmap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04B61FD57C8A00414B1F /* CLeakedHashmap.mm */; };
+		6B9A04F01FD57C8A00414B1F /* CThreadTrackingHashmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04B71FD57C8A00414B1F /* CThreadTrackingHashmap.h */; };
+		6B9A04F11FD57C8A00414B1F /* CThreadTrackingHashmap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04B81FD57C8A00414B1F /* CThreadTrackingHashmap.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6B9A04621FD57C5700414B1F /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B9A04651FD57C5700414B1F /* libOOMDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libOOMDetector.h; sourceTree = "<group>"; };
+		6B9A04661FD57C5700414B1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6B9A046F1FD57C8A00414B1F /* QQLeakPredefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakPredefines.h; sourceTree = "<group>"; };
+		6B9A04711FD57C8A00414B1F /* BackTraceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackTraceManager.h; sourceTree = "<group>"; };
+		6B9A04721FD57C8A00414B1F /* BackTraceManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BackTraceManager.mm; sourceTree = "<group>"; };
+		6B9A04731FD57C8A00414B1F /* CMachOHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMachOHelper.h; sourceTree = "<group>"; };
+		6B9A04741FD57C8A00414B1F /* CMachOHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CMachOHelper.mm; sourceTree = "<group>"; };
+		6B9A04751FD57C8A00414B1F /* CommonMallocLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonMallocLogger.h; sourceTree = "<group>"; };
+		6B9A04761FD57C8A00414B1F /* CommonMallocLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CommonMallocLogger.mm; sourceTree = "<group>"; };
+		6B9A04781FD57C8A00414B1F /* CBaseHashmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBaseHashmap.h; sourceTree = "<group>"; };
+		6B9A04791FD57C8A00414B1F /* CBaseHashmap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CBaseHashmap.mm; sourceTree = "<group>"; };
+		6B9A047A1FD57C8A00414B1F /* CPtrsHashmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPtrsHashmap.h; sourceTree = "<group>"; };
+		6B9A047B1FD57C8A00414B1F /* CPtrsHashmap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CPtrsHashmap.mm; sourceTree = "<group>"; };
+		6B9A047C1FD57C8A00414B1F /* CStacksHashmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CStacksHashmap.h; sourceTree = "<group>"; };
+		6B9A047D1FD57C8A00414B1F /* CStacksHashmap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CStacksHashmap.mm; sourceTree = "<group>"; };
+		6B9A047F1FD57C8A00414B1F /* QQLeakDataUploadCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakDataUploadCenter.h; sourceTree = "<group>"; };
+		6B9A04801FD57C8A00414B1F /* QQLeakDataUploadCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QQLeakDataUploadCenter.mm; sourceTree = "<group>"; };
+		6B9A04811FD57C8A00414B1F /* QQLeakDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakDeviceInfo.h; sourceTree = "<group>"; };
+		6B9A04821FD57C8A00414B1F /* QQLeakDeviceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QQLeakDeviceInfo.m; sourceTree = "<group>"; };
+		6B9A04831FD57C8A00414B1F /* QQLeakFileUploadCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakFileUploadCenter.h; sourceTree = "<group>"; };
+		6B9A04841FD57C8A00414B1F /* QQLeakFileUploadCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QQLeakFileUploadCenter.mm; sourceTree = "<group>"; };
+		6B9A04861FD57C8A00414B1F /* OOMDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OOMDetector.h; sourceTree = "<group>"; };
+		6B9A04871FD57C8A00414B1F /* QQLeakChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakChecker.h; sourceTree = "<group>"; };
+		6B9A048A1FD57C8A00414B1F /* AllocationStackLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AllocationStackLogger.h; sourceTree = "<group>"; };
+		6B9A048B1FD57C8A00414B1F /* AllocationStackLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AllocationStackLogger.mm; sourceTree = "<group>"; };
+		6B9A048D1FD57C8A00414B1F /* HighSpeedLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HighSpeedLogger.h; sourceTree = "<group>"; };
+		6B9A048E1FD57C8A00414B1F /* HighSpeedLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HighSpeedLogger.mm; sourceTree = "<group>"; };
+		6B9A04901FD57C8A00414B1F /* OOMDetector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMDetector.mm; sourceTree = "<group>"; };
+		6B9A04911FD57C8A00414B1F /* OOMDetectorLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OOMDetectorLogger.h; sourceTree = "<group>"; };
+		6B9A04921FD57C8A00414B1F /* OOMDetectorLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMDetectorLogger.mm; sourceTree = "<group>"; };
+		6B9A04941FD57C8A00414B1F /* MemoryIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemoryIndicator.h; sourceTree = "<group>"; };
+		6B9A04951FD57C8A00414B1F /* MemoryIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemoryIndicator.m; sourceTree = "<group>"; };
+		6B9A04971FD57C8A00414B1F /* OOMStatisticsInfoCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OOMStatisticsInfoCenter.h; sourceTree = "<group>"; };
+		6B9A04981FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMStatisticsInfoCenter.mm; sourceTree = "<group>"; };
+		6B9A049B1FD57C8A00414B1F /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
+		6B9A049C1FD57C8A00414B1F /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
+		6B9A049E1FD57C8A00414B1F /* AllocationTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AllocationTracker.h; sourceTree = "<group>"; };
+		6B9A049F1FD57C8A00414B1F /* AllocationTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AllocationTracker.mm; sourceTree = "<group>"; };
+		6B9A04A01FD57C8A00414B1F /* CMallocHook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMallocHook.h; sourceTree = "<group>"; };
+		6B9A04A11FD57C8A00414B1F /* CMallocHook.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CMallocHook.mm; sourceTree = "<group>"; };
+		6B9A04A31FD57C8A00414B1F /* QQLeakChecker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QQLeakChecker.mm; sourceTree = "<group>"; };
+		6B9A04A41FD57C8A00414B1F /* QQLeakStackLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakStackLogging.h; sourceTree = "<group>"; };
+		6B9A04A51FD57C8A00414B1F /* QQLeakStackLogging.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QQLeakStackLogging.mm; sourceTree = "<group>"; };
+		6B9A04A71FD57C8A00414B1F /* CHeapChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHeapChecker.h; sourceTree = "<group>"; };
+		6B9A04A81FD57C8A00414B1F /* CHeapChecker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHeapChecker.mm; sourceTree = "<group>"; };
+		6B9A04A91FD57C8A00414B1F /* CMemoryChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMemoryChecker.h; sourceTree = "<group>"; };
+		6B9A04AA1FD57C8A00414B1F /* CMemoryChecker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CMemoryChecker.mm; sourceTree = "<group>"; };
+		6B9A04AB1FD57C8A00414B1F /* CRegisterChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRegisterChecker.h; sourceTree = "<group>"; };
+		6B9A04AC1FD57C8A00414B1F /* CRegisterChecker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CRegisterChecker.mm; sourceTree = "<group>"; };
+		6B9A04AD1FD57C8A00414B1F /* CSegmentChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSegmentChecker.h; sourceTree = "<group>"; };
+		6B9A04AE1FD57C8A00414B1F /* CSegmentChecker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CSegmentChecker.mm; sourceTree = "<group>"; };
+		6B9A04AF1FD57C8A00414B1F /* CStackChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CStackChecker.h; sourceTree = "<group>"; };
+		6B9A04B01FD57C8A00414B1F /* CStackChecker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CStackChecker.mm; sourceTree = "<group>"; };
+		6B9A04B21FD57C8A00414B1F /* CObjcManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CObjcManager.h; sourceTree = "<group>"; };
+		6B9A04B31FD57C8A00414B1F /* CObjcManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CObjcManager.mm; sourceTree = "<group>"; };
+		6B9A04B51FD57C8A00414B1F /* CLeakedHashmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLeakedHashmap.h; sourceTree = "<group>"; };
+		6B9A04B61FD57C8A00414B1F /* CLeakedHashmap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CLeakedHashmap.mm; sourceTree = "<group>"; };
+		6B9A04B71FD57C8A00414B1F /* CThreadTrackingHashmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CThreadTrackingHashmap.h; sourceTree = "<group>"; };
+		6B9A04B81FD57C8A00414B1F /* CThreadTrackingHashmap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CThreadTrackingHashmap.mm; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6B9A045E1FD57C5700414B1F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6B9A04581FD57C5700414B1F = {
+			isa = PBXGroup;
+			children = (
+				6B9A04641FD57C5700414B1F /* libOOMDetector */,
+				6B9A04631FD57C5700414B1F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6B9A04631FD57C5700414B1F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04621FD57C5700414B1F /* libOOMDetector.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6B9A04641FD57C5700414B1F /* libOOMDetector */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A046D1FD57C8A00414B1F /* OOMDetector */,
+				6B9A04651FD57C5700414B1F /* libOOMDetector.h */,
+				6B9A04661FD57C5700414B1F /* Info.plist */,
+			);
+			path = libOOMDetector;
+			sourceTree = "<group>";
+		};
+		6B9A046D1FD57C8A00414B1F /* OOMDetector */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A046E1FD57C8A00414B1F /* common */,
+				6B9A04851FD57C8A00414B1F /* Headers */,
+				6B9A04881FD57C8A00414B1F /* OOMDetector */,
+				6B9A04991FD57C8A00414B1F /* QQLeak */,
+			);
+			path = OOMDetector;
+			sourceTree = "<group>";
+		};
+		6B9A046E1FD57C8A00414B1F /* common */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A046F1FD57C8A00414B1F /* QQLeakPredefines.h */,
+				6B9A04701FD57C8A00414B1F /* stack */,
+				6B9A04771FD57C8A00414B1F /* structure */,
+				6B9A047E1FD57C8A00414B1F /* upload */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		6B9A04701FD57C8A00414B1F /* stack */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04711FD57C8A00414B1F /* BackTraceManager.h */,
+				6B9A04721FD57C8A00414B1F /* BackTraceManager.mm */,
+				6B9A04731FD57C8A00414B1F /* CMachOHelper.h */,
+				6B9A04741FD57C8A00414B1F /* CMachOHelper.mm */,
+				6B9A04751FD57C8A00414B1F /* CommonMallocLogger.h */,
+				6B9A04761FD57C8A00414B1F /* CommonMallocLogger.mm */,
+			);
+			path = stack;
+			sourceTree = "<group>";
+		};
+		6B9A04771FD57C8A00414B1F /* structure */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04781FD57C8A00414B1F /* CBaseHashmap.h */,
+				6B9A04791FD57C8A00414B1F /* CBaseHashmap.mm */,
+				6B9A047A1FD57C8A00414B1F /* CPtrsHashmap.h */,
+				6B9A047B1FD57C8A00414B1F /* CPtrsHashmap.mm */,
+				6B9A047C1FD57C8A00414B1F /* CStacksHashmap.h */,
+				6B9A047D1FD57C8A00414B1F /* CStacksHashmap.mm */,
+			);
+			path = structure;
+			sourceTree = "<group>";
+		};
+		6B9A047E1FD57C8A00414B1F /* upload */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A047F1FD57C8A00414B1F /* QQLeakDataUploadCenter.h */,
+				6B9A04801FD57C8A00414B1F /* QQLeakDataUploadCenter.mm */,
+				6B9A04811FD57C8A00414B1F /* QQLeakDeviceInfo.h */,
+				6B9A04821FD57C8A00414B1F /* QQLeakDeviceInfo.m */,
+				6B9A04831FD57C8A00414B1F /* QQLeakFileUploadCenter.h */,
+				6B9A04841FD57C8A00414B1F /* QQLeakFileUploadCenter.mm */,
+			);
+			path = upload;
+			sourceTree = "<group>";
+		};
+		6B9A04851FD57C8A00414B1F /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04861FD57C8A00414B1F /* OOMDetector.h */,
+				6B9A04871FD57C8A00414B1F /* QQLeakChecker.h */,
+			);
+			path = Headers;
+			sourceTree = "<group>";
+		};
+		6B9A04881FD57C8A00414B1F /* OOMDetector */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04891FD57C8A00414B1F /* allocation */,
+				6B9A048C1FD57C8A00414B1F /* logger */,
+				6B9A048F1FD57C8A00414B1F /* main */,
+				6B9A04931FD57C8A00414B1F /* memoryIndicator */,
+				6B9A04961FD57C8A00414B1F /* statistic */,
+			);
+			path = OOMDetector;
+			sourceTree = "<group>";
+		};
+		6B9A04891FD57C8A00414B1F /* allocation */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A048A1FD57C8A00414B1F /* AllocationStackLogger.h */,
+				6B9A048B1FD57C8A00414B1F /* AllocationStackLogger.mm */,
+			);
+			path = allocation;
+			sourceTree = "<group>";
+		};
+		6B9A048C1FD57C8A00414B1F /* logger */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A048D1FD57C8A00414B1F /* HighSpeedLogger.h */,
+				6B9A048E1FD57C8A00414B1F /* HighSpeedLogger.mm */,
+			);
+			path = logger;
+			sourceTree = "<group>";
+		};
+		6B9A048F1FD57C8A00414B1F /* main */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04901FD57C8A00414B1F /* OOMDetector.mm */,
+				6B9A04911FD57C8A00414B1F /* OOMDetectorLogger.h */,
+				6B9A04921FD57C8A00414B1F /* OOMDetectorLogger.mm */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		6B9A04931FD57C8A00414B1F /* memoryIndicator */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04941FD57C8A00414B1F /* MemoryIndicator.h */,
+				6B9A04951FD57C8A00414B1F /* MemoryIndicator.m */,
+			);
+			path = memoryIndicator;
+			sourceTree = "<group>";
+		};
+		6B9A04961FD57C8A00414B1F /* statistic */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04971FD57C8A00414B1F /* OOMStatisticsInfoCenter.h */,
+				6B9A04981FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm */,
+			);
+			path = statistic;
+			sourceTree = "<group>";
+		};
+		6B9A04991FD57C8A00414B1F /* QQLeak */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A049A1FD57C8A00414B1F /* extern */,
+				6B9A049D1FD57C8A00414B1F /* hook */,
+				6B9A04A21FD57C8A00414B1F /* main */,
+				6B9A04A61FD57C8A00414B1F /* memchecker */,
+				6B9A04B11FD57C8A00414B1F /* objc */,
+				6B9A04B41FD57C8A00414B1F /* structures */,
+			);
+			path = QQLeak;
+			sourceTree = "<group>";
+		};
+		6B9A049A1FD57C8A00414B1F /* extern */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A049B1FD57C8A00414B1F /* fishhook.c */,
+				6B9A049C1FD57C8A00414B1F /* fishhook.h */,
+			);
+			path = extern;
+			sourceTree = "<group>";
+		};
+		6B9A049D1FD57C8A00414B1F /* hook */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A049E1FD57C8A00414B1F /* AllocationTracker.h */,
+				6B9A049F1FD57C8A00414B1F /* AllocationTracker.mm */,
+				6B9A04A01FD57C8A00414B1F /* CMallocHook.h */,
+				6B9A04A11FD57C8A00414B1F /* CMallocHook.mm */,
+			);
+			path = hook;
+			sourceTree = "<group>";
+		};
+		6B9A04A21FD57C8A00414B1F /* main */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04A31FD57C8A00414B1F /* QQLeakChecker.mm */,
+				6B9A04A41FD57C8A00414B1F /* QQLeakStackLogging.h */,
+				6B9A04A51FD57C8A00414B1F /* QQLeakStackLogging.mm */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		6B9A04A61FD57C8A00414B1F /* memchecker */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04A71FD57C8A00414B1F /* CHeapChecker.h */,
+				6B9A04A81FD57C8A00414B1F /* CHeapChecker.mm */,
+				6B9A04A91FD57C8A00414B1F /* CMemoryChecker.h */,
+				6B9A04AA1FD57C8A00414B1F /* CMemoryChecker.mm */,
+				6B9A04AB1FD57C8A00414B1F /* CRegisterChecker.h */,
+				6B9A04AC1FD57C8A00414B1F /* CRegisterChecker.mm */,
+				6B9A04AD1FD57C8A00414B1F /* CSegmentChecker.h */,
+				6B9A04AE1FD57C8A00414B1F /* CSegmentChecker.mm */,
+				6B9A04AF1FD57C8A00414B1F /* CStackChecker.h */,
+				6B9A04B01FD57C8A00414B1F /* CStackChecker.mm */,
+			);
+			path = memchecker;
+			sourceTree = "<group>";
+		};
+		6B9A04B11FD57C8A00414B1F /* objc */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04B21FD57C8A00414B1F /* CObjcManager.h */,
+				6B9A04B31FD57C8A00414B1F /* CObjcManager.mm */,
+			);
+			path = objc;
+			sourceTree = "<group>";
+		};
+		6B9A04B41FD57C8A00414B1F /* structures */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04B51FD57C8A00414B1F /* CLeakedHashmap.h */,
+				6B9A04B61FD57C8A00414B1F /* CLeakedHashmap.mm */,
+				6B9A04B71FD57C8A00414B1F /* CThreadTrackingHashmap.h */,
+				6B9A04B81FD57C8A00414B1F /* CThreadTrackingHashmap.mm */,
+			);
+			path = structures;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		6B9A045F1FD57C5700414B1F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9A04E61FD57C8A00414B1F /* CRegisterChecker.h in Headers */,
+				6B9A04CA1FD57C8A00414B1F /* QQLeakFileUploadCenter.h in Headers */,
+				6B9A04CD1FD57C8A00414B1F /* QQLeakChecker.h in Headers */,
+				6B9A04CC1FD57C8A00414B1F /* OOMDetector.h in Headers */,
+				6B9A04D71FD57C8A00414B1F /* OOMStatisticsInfoCenter.h in Headers */,
+				6B9A04C61FD57C8A00414B1F /* QQLeakDataUploadCenter.h in Headers */,
+				6B9A04D51FD57C8A00414B1F /* MemoryIndicator.h in Headers */,
+				6B9A04BA1FD57C8A00414B1F /* BackTraceManager.h in Headers */,
+				6B9A04B91FD57C8A00414B1F /* QQLeakPredefines.h in Headers */,
+				6B9A04E01FD57C8A00414B1F /* QQLeakStackLogging.h in Headers */,
+				6B9A04E41FD57C8A00414B1F /* CMemoryChecker.h in Headers */,
+				6B9A04F01FD57C8A00414B1F /* CThreadTrackingHashmap.h in Headers */,
+				6B9A04CE1FD57C8A00414B1F /* AllocationStackLogger.h in Headers */,
+				6B9A04C01FD57C8A00414B1F /* CBaseHashmap.h in Headers */,
+				6B9A04EC1FD57C8A00414B1F /* CObjcManager.h in Headers */,
+				6B9A04671FD57C5700414B1F /* libOOMDetector.h in Headers */,
+				6B9A04D01FD57C8A00414B1F /* HighSpeedLogger.h in Headers */,
+				6B9A04C41FD57C8A00414B1F /* CStacksHashmap.h in Headers */,
+				6B9A04BC1FD57C8A00414B1F /* CMachOHelper.h in Headers */,
+				6B9A04E21FD57C8A00414B1F /* CHeapChecker.h in Headers */,
+				6B9A04C21FD57C8A00414B1F /* CPtrsHashmap.h in Headers */,
+				6B9A04EE1FD57C8A00414B1F /* CLeakedHashmap.h in Headers */,
+				6B9A04DA1FD57C8A00414B1F /* fishhook.h in Headers */,
+				6B9A04BE1FD57C8A00414B1F /* CommonMallocLogger.h in Headers */,
+				6B9A04D31FD57C8A00414B1F /* OOMDetectorLogger.h in Headers */,
+				6B9A04E81FD57C8A00414B1F /* CSegmentChecker.h in Headers */,
+				6B9A04C81FD57C8A00414B1F /* QQLeakDeviceInfo.h in Headers */,
+				6B9A04EA1FD57C8A00414B1F /* CStackChecker.h in Headers */,
+				6B9A04DD1FD57C8A00414B1F /* CMallocHook.h in Headers */,
+				6B9A04DB1FD57C8A00414B1F /* AllocationTracker.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		6B9A04611FD57C5700414B1F /* libOOMDetector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6B9A046A1FD57C5700414B1F /* Build configuration list for PBXNativeTarget "libOOMDetector" */;
+			buildPhases = (
+				6B9A045D1FD57C5700414B1F /* Sources */,
+				6B9A045E1FD57C5700414B1F /* Frameworks */,
+				6B9A045F1FD57C5700414B1F /* Headers */,
+				6B9A04601FD57C5700414B1F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libOOMDetector;
+			productName = libOOMDetector;
+			productReference = 6B9A04621FD57C5700414B1F /* libOOMDetector.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6B9A04591FD57C5700414B1F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0910;
+				TargetAttributes = {
+					6B9A04611FD57C5700414B1F = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					6B9A04F81FD5839A00414B1F = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 6B9A045C1FD57C5700414B1F /* Build configuration list for PBXProject "libOOMDetector" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6B9A04581FD57C5700414B1F;
+			productRefGroup = 6B9A04631FD57C5700414B1F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6B9A04611FD57C5700414B1F /* libOOMDetector */,
+				6B9A04F81FD5839A00414B1F /* libOOMAggregate */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6B9A04601FD57C5700414B1F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6B9A04FC1FD583A700414B1F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${ACTION}\" = \"build\" ]\nthen\nINSTALL_DIR=${SRCROOT}/Products/${PROJECT_NAME}.framework\n\nDEVICE_DIR=${BUILD_ROOT}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework\n\nSIMULATOR_DIR=${BUILD_ROOT}/${CONFIGURATION}-iphonesimulator/${PROJECT_NAME}.framework\n\n\nif [ -d \"${INSTALL_DIR}\" ]\nthen\nrm -rf \"${INSTALL_DIR}\"\nfi\n\nmkdir -p \"${INSTALL_DIR}\"\n\ncp -R \"${DEVICE_DIR}/\" \"${INSTALL_DIR}/\"\n#ditto \"${DEVICE_DIR}/Headers\" \"${INSTALL_DIR}/Headers\"\n\nlipo -create \"${DEVICE_DIR}/${PROJECT_NAME}\" \"${SIMULATOR_DIR}/${PROJECT_NAME}\" -output \"${DEVICE_DIR}/${PROJECT_NAME}\"\n\n#open \"${DEVICE_DIR}\"\n#open \"${SRCROOT}/Products\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6B9A045D1FD57C5700414B1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9A04E51FD57C8A00414B1F /* CMemoryChecker.mm in Sources */,
+				6B9A04C91FD57C8A00414B1F /* QQLeakDeviceInfo.m in Sources */,
+				6B9A04E11FD57C8A00414B1F /* QQLeakStackLogging.mm in Sources */,
+				6B9A04C31FD57C8A00414B1F /* CPtrsHashmap.mm in Sources */,
+				6B9A04EF1FD57C8A00414B1F /* CLeakedHashmap.mm in Sources */,
+				6B9A04E71FD57C8A00414B1F /* CRegisterChecker.mm in Sources */,
+				6B9A04E31FD57C8A00414B1F /* CHeapChecker.mm in Sources */,
+				6B9A04DE1FD57C8A00414B1F /* CMallocHook.mm in Sources */,
+				6B9A04BD1FD57C8A00414B1F /* CMachOHelper.mm in Sources */,
+				6B9A04F11FD57C8A00414B1F /* CThreadTrackingHashmap.mm in Sources */,
+				6B9A04D21FD57C8A00414B1F /* OOMDetector.mm in Sources */,
+				6B9A04BF1FD57C8A00414B1F /* CommonMallocLogger.mm in Sources */,
+				6B9A04D81FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm in Sources */,
+				6B9A04ED1FD57C8A00414B1F /* CObjcManager.mm in Sources */,
+				6B9A04DC1FD57C8A00414B1F /* AllocationTracker.mm in Sources */,
+				6B9A04D91FD57C8A00414B1F /* fishhook.c in Sources */,
+				6B9A04C51FD57C8A00414B1F /* CStacksHashmap.mm in Sources */,
+				6B9A04CB1FD57C8A00414B1F /* QQLeakFileUploadCenter.mm in Sources */,
+				6B9A04CF1FD57C8A00414B1F /* AllocationStackLogger.mm in Sources */,
+				6B9A04D41FD57C8A00414B1F /* OOMDetectorLogger.mm in Sources */,
+				6B9A04BB1FD57C8A00414B1F /* BackTraceManager.mm in Sources */,
+				6B9A04D11FD57C8A00414B1F /* HighSpeedLogger.mm in Sources */,
+				6B9A04C71FD57C8A00414B1F /* QQLeakDataUploadCenter.mm in Sources */,
+				6B9A04EB1FD57C8A00414B1F /* CStackChecker.mm in Sources */,
+				6B9A04D61FD57C8A00414B1F /* MemoryIndicator.m in Sources */,
+				6B9A04E91FD57C8A00414B1F /* CSegmentChecker.mm in Sources */,
+				6B9A04C11FD57C8A00414B1F /* CBaseHashmap.mm in Sources */,
+				6B9A04DF1FD57C8A00414B1F /* QQLeakChecker.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6B9A04681FD57C5700414B1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		6B9A04691FD57C5700414B1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		6B9A046B1FD57C5700414B1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = libOOMDetector/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.qqleak.demo.libOOMDetector;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6B9A046C1FD57C5700414B1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = libOOMDetector/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.qqleak.demo.libOOMDetector;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6B9A04F91FD5839A00414B1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		6B9A04FA1FD5839A00414B1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6B9A045C1FD57C5700414B1F /* Build configuration list for PBXProject "libOOMDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B9A04681FD57C5700414B1F /* Debug */,
+				6B9A04691FD57C5700414B1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6B9A046A1FD57C5700414B1F /* Build configuration list for PBXNativeTarget "libOOMDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B9A046B1FD57C5700414B1F /* Debug */,
+				6B9A046C1FD57C5700414B1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6B9A04FB1FD5839A00414B1F /* Build configuration list for PBXAggregateTarget "libOOMAggregate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B9A04F91FD5839A00414B1F /* Debug */,
+				6B9A04FA1FD5839A00414B1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6B9A04591FD57C5700414B1F /* Project object */;
+}

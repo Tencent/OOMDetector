@@ -1,0 +1,38 @@
+//
+//   CThreadTrackingHashmap.h
+//  QQLeak
+//
+//  Created by rosen on 16/4/26.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CThreadTrackingHashmap_h
+#define CThreadTrackingHashmap_h
+
+#include <mach/thread_act.h>
+#include <mach/mach_port.h>
+#include <mach/mach_init.h>
+#include <pthread.h>
+#include "CBaseHashmap.h"
+
+typedef struct thread_data_t{
+    bool needTrack;
+    const char *name;
+    thread_t thread;
+    thread_data_t *next;
+}thread_data_t;
+
+class CThreadTrackingHashmap : public CBaseHashmap
+{
+public:
+    CThreadTrackingHashmap(size_t entrys):CBaseHashmap(entrys){};
+    void insertThreadAndUpdateIfExist(thread_t thread,const char *name);
+    thread_data_t *lookupThread(thread_t thread);
+    ~CThreadTrackingHashmap();
+protected:
+    thread_data_t *create_hashmap_data(thread_t thread,const char *name);
+    int compare(thread_data_t *thread_data,thread_t thread);
+    size_t hash_code(thread_t thread);
+};
+
+#endif /* CThreadHashmap_h */

@@ -1,0 +1,27 @@
+//
+//  AllocationTracker.h
+//  QQLeak
+//
+//  Created by rosenluo on 15/10/13.
+//
+//
+
+#import <Foundation/Foundation.h>
+#import <objc/objc.h>
+#import "QQLeakPredefines.h"
+#include <mach/mach.h>
+#include <malloc/malloc.h>
+
+@interface AllocationTracker : NSObject
+
++(AllocationTracker *)getInstance;
+
+-(void)beginRecord;
+
+-(void)stopRecord;
+
+-(void)pausedRecord;
+
+-(void)resumeRecord;
+
+@end

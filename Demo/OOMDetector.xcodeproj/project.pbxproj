@@ -1,0 +1,392 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6B12C6421F9621F9000B42F0 /* DemoListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C6411F9621F9000B42F0 /* DemoListViewController.m */; };
+		6B12C6461F962E14000B42F0 /* DemoViewController0.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C6451F962E14000B42F0 /* DemoViewController0.m */; };
+		6B12C6491F962EA9000B42F0 /* DemoViewController1.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C6481F962EA9000B42F0 /* DemoViewController1.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		6B8C22ED1F8E494C007DE399 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8C22EC1F8E494C007DE399 /* Assets.xcassets */; };
+		6B8C22F01F8E494C007DE399 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6B8C22EE1F8E494C007DE399 /* LaunchScreen.storyboard */; };
+		6B8C22F31F8E494C007DE399 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22F21F8E494C007DE399 /* main.m */; };
+		6B9A04F31FD5816F00414B1F /* libOOMDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B9A04F41FD5816F00414B1F /* libOOMDetector.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		6B9A04F51FD5823800414B1F /* BaseDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22E71F8E494C007DE399 /* BaseDemoViewController.m */; };
+		6B9A04F61FD5823800414B1F /* DemoViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C7011F974AB8000B42F0 /* DemoViewController2.m */; };
+		6B9A04F71FD5823800414B1F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22E41F8E494C007DE399 /* AppDelegate.m */; };
+		6BADA10D1FA8AC0F00668479 /* DemoViewController3.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */; };
+		6BF6879C1FC3C4D500054160 /* MyOOMDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BF6879B1FC3C4D500054160 /* MyOOMDataManager.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6B12C6401F9621F9000B42F0 /* DemoListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoListViewController.h; sourceTree = "<group>"; };
+		6B12C6411F9621F9000B42F0 /* DemoListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoListViewController.m; sourceTree = "<group>"; };
+		6B12C6441F962E14000B42F0 /* DemoViewController0.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController0.h; sourceTree = "<group>"; };
+		6B12C6451F962E14000B42F0 /* DemoViewController0.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoViewController0.m; sourceTree = "<group>"; };
+		6B12C6471F962EA9000B42F0 /* DemoViewController1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController1.h; sourceTree = "<group>"; };
+		6B12C6481F962EA9000B42F0 /* DemoViewController1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoViewController1.m; sourceTree = "<group>"; };
+		6B12C7001F974AB8000B42F0 /* DemoViewController2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController2.h; sourceTree = "<group>"; };
+		6B12C7011F974AB8000B42F0 /* DemoViewController2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoViewController2.m; sourceTree = "<group>"; };
+		6B8C22E01F8E494C007DE399 /* OOMDetector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OOMDetector.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B8C22E31F8E494C007DE399 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		6B8C22E41F8E494C007DE399 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		6B8C22E61F8E494C007DE399 /* BaseDemoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseDemoViewController.h; sourceTree = "<group>"; };
+		6B8C22E71F8E494C007DE399 /* BaseDemoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseDemoViewController.m; sourceTree = "<group>"; };
+		6B8C22EC1F8E494C007DE399 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6B8C22EF1F8E494C007DE399 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		6B8C22F11F8E494C007DE399 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6B8C22F21F8E494C007DE399 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		6B9A04F41FD5816F00414B1F /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6BADA10B1FA8AC0F00668479 /* DemoViewController3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController3.h; sourceTree = "<group>"; };
+		6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoViewController3.m; sourceTree = "<group>"; };
+		6BF6879A1FC3C4D500054160 /* MyOOMDataManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyOOMDataManager.h; sourceTree = "<group>"; };
+		6BF6879B1FC3C4D500054160 /* MyOOMDataManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyOOMDataManager.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6B8C22DD1F8E494C007DE399 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9A04F31FD5816F00414B1F /* libOOMDetector.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6B12C6431F962DF4000B42F0 /* Demos */ = {
+			isa = PBXGroup;
+			children = (
+				6B8C22E61F8E494C007DE399 /* BaseDemoViewController.h */,
+				6B8C22E71F8E494C007DE399 /* BaseDemoViewController.m */,
+				6B12C6441F962E14000B42F0 /* DemoViewController0.h */,
+				6B12C6451F962E14000B42F0 /* DemoViewController0.m */,
+				6B12C6471F962EA9000B42F0 /* DemoViewController1.h */,
+				6B12C6481F962EA9000B42F0 /* DemoViewController1.m */,
+				6B12C7001F974AB8000B42F0 /* DemoViewController2.h */,
+				6B12C7011F974AB8000B42F0 /* DemoViewController2.m */,
+				6BADA10B1FA8AC0F00668479 /* DemoViewController3.h */,
+				6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */,
+			);
+			path = Demos;
+			sourceTree = "<group>";
+		};
+		6B8C22D71F8E494C007DE399 = {
+			isa = PBXGroup;
+			children = (
+				6B8C22E21F8E494C007DE399 /* OOMDetectorDemo */,
+				6B8C22E11F8E494C007DE399 /* Products */,
+				6B9A04F21FD5816F00414B1F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		6B8C22E11F8E494C007DE399 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6B8C22E01F8E494C007DE399 /* OOMDetector.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6B8C22E21F8E494C007DE399 /* OOMDetectorDemo */ = {
+			isa = PBXGroup;
+			children = (
+				6B12C6401F9621F9000B42F0 /* DemoListViewController.h */,
+				6B12C6411F9621F9000B42F0 /* DemoListViewController.m */,
+				6B12C6431F962DF4000B42F0 /* Demos */,
+				6B8C22E31F8E494C007DE399 /* AppDelegate.h */,
+				6B8C22E41F8E494C007DE399 /* AppDelegate.m */,
+				6B8C22EC1F8E494C007DE399 /* Assets.xcassets */,
+				6B8C22EE1F8E494C007DE399 /* LaunchScreen.storyboard */,
+				6B8C22F11F8E494C007DE399 /* Info.plist */,
+				6B8C22F21F8E494C007DE399 /* main.m */,
+				6BF6879A1FC3C4D500054160 /* MyOOMDataManager.h */,
+				6BF6879B1FC3C4D500054160 /* MyOOMDataManager.m */,
+			);
+			path = OOMDetectorDemo;
+			sourceTree = "<group>";
+		};
+		6B9A04F21FD5816F00414B1F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6B9A04F41FD5816F00414B1F /* libOOMDetector.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6B8C22DF1F8E494C007DE399 /* OOMDetector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6B8C22F61F8E494C007DE399 /* Build configuration list for PBXNativeTarget "OOMDetector" */;
+			buildPhases = (
+				6B8C22DC1F8E494C007DE399 /* Sources */,
+				6B8C22DD1F8E494C007DE399 /* Frameworks */,
+				6B8C22DE1F8E494C007DE399 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OOMDetector;
+			productName = QQLeakDemo;
+			productReference = 6B8C22E01F8E494C007DE399 /* OOMDetector.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6B8C22D81F8E494C007DE399 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = shaodonggao;
+				TargetAttributes = {
+					6B8C22DF1F8E494C007DE399 = {
+						CreatedOnToolsVersion = 9.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 6B8C22DB1F8E494C007DE399 /* Build configuration list for PBXProject "OOMDetector" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6B8C22D71F8E494C007DE399;
+			productRefGroup = 6B8C22E11F8E494C007DE399 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6B8C22DF1F8E494C007DE399 /* OOMDetector */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6B8C22DE1F8E494C007DE399 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B8C22F01F8E494C007DE399 /* LaunchScreen.storyboard in Resources */,
+				6B8C22ED1F8E494C007DE399 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6B8C22DC1F8E494C007DE399 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9A04F51FD5823800414B1F /* BaseDemoViewController.m in Sources */,
+				6B9A04F61FD5823800414B1F /* DemoViewController2.m in Sources */,
+				6B9A04F71FD5823800414B1F /* AppDelegate.m in Sources */,
+				6B12C6421F9621F9000B42F0 /* DemoListViewController.m in Sources */,
+				6B12C6491F962EA9000B42F0 /* DemoViewController1.m in Sources */,
+				6BF6879C1FC3C4D500054160 /* MyOOMDataManager.m in Sources */,
+				6BADA10D1FA8AC0F00668479 /* DemoViewController3.m in Sources */,
+				6B12C6461F962E14000B42F0 /* DemoViewController0.m in Sources */,
+				6B8C22F31F8E494C007DE399 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		6B8C22EE1F8E494C007DE399 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6B8C22EF1F8E494C007DE399 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		6B8C22F41F8E494C007DE399 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		6B8C22F51F8E494C007DE399 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6B8C22F71F8E494C007DE399 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8D5EHT9KTL;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					Build_For_Extern,
+				);
+				INFOPLIST_FILE = OOMDetectorDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				NEW_SETTING = "";
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencentgsd.OOMDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6B8C22F81F8E494C007DE399 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8D5EHT9KTL;
+				GCC_PREPROCESSOR_DEFINITIONS = Build_For_Extern;
+				INFOPLIST_FILE = OOMDetectorDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				NEW_SETTING = "";
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencentgsd.OOMDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6B8C22DB1F8E494C007DE399 /* Build configuration list for PBXProject "OOMDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B8C22F41F8E494C007DE399 /* Debug */,
+				6B8C22F51F8E494C007DE399 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6B8C22F61F8E494C007DE399 /* Build configuration list for PBXNativeTarget "OOMDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B8C22F71F8E494C007DE399 /* Debug */,
+				6B8C22F81F8E494C007DE399 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6B8C22D81F8E494C007DE399 /* Project object */;
+}

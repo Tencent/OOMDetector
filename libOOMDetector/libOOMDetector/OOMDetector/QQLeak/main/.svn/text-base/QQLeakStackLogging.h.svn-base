@@ -1,0 +1,50 @@
+//
+//  QQLeakStackLogging.h
+//  QQLeak
+//
+//  Created by rosen on 16/3/29.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CMallocStackLogging_h
+#define CMallocStackLogging_h
+
+#import <UIKit/UIKit.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <malloc/malloc.h>
+#include <stdarg.h>
+#include <mach/mach_init.h>
+#include <libkern/OSAtomic.h>
+#include <sys/mman.h>
+#include <mach/vm_statistics.h>
+#include <malloc/malloc.h>
+#include "QQLeakPredefines.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    //initialize
+    void initStackLogging();
+    //begin tracking malloc logging
+    void beginMallocStackLogging();
+    //clear tracking
+    void clearMallocStackLogging();
+    //called before leak checking
+    void leakCheckingWillStart();
+    //called after leak checking
+    void leakCheckingWillFinish();
+    //find ptr of address in memory
+    bool findPtrInMemoryRegion(vm_address_t address);
+    //marked the current thread need tracking the next malloc
+    void markedThreadToTrackingNextMalloc(const char* name);
+    //get the result of leak checking
+    NSString* get_all_leak_stack(size_t *total_count);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CMallocStackLogging_h */
+

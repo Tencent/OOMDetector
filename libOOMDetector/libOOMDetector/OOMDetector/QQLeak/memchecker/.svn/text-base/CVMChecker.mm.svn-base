@@ -1,0 +1,93 @@
+//
+//  CVMChecker.m
+//  QQLeak
+//
+//  Created by rosen on 16/3/23.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#include "CVMChecker.h"
+
+#ifdef __Enable_QQLeak__
+
+#ifdef __enable_recycle_detect__
+
+#include "CHeapEntryHashmap.h"
+
+extern CHeapEntryHashmap *heap_hashmap;
+
+
+bool CVMChecker::startPtrEnumerate()
+{
+#if defined (VM_REGION_SUBMAP_SHORT_INFO_COUNT_64)
+    typedef vm_region_submap_short_info_data_64_t RegionInfo;
+    enum { kRegionInfoSize = VM_REGION_SUBMAP_SHORT_INFO_COUNT_64 };
+#else
+    typedef vm_region_submap_info_data_64_t RegionInfo;
+    enum { kRegionInfoSize = VM_REGION_SUBMAP_INFO_COUNT_64 };
+#endif
+    task_t task = mach_task_self();
+    vm_address_t vm_region_base_addr;
+    vm_size_t vm_region_size;
+    natural_t vm_region_depth;
+    RegionInfo vm_region_info;
+    
+    for (vm_region_base_addr = 0, vm_region_size = 1; vm_region_size != 0; vm_region_base_addr += vm_region_size)
+    {
+        mach_msg_type_number_t vm_region_info_size = kRegionInfoSize;
+        const kern_return_t err = vm_region_recurse_64 (task,
+                                                        &vm_region_base_addr,
+                                                        &vm_region_size,
+                                                        &vm_region_depth,
+                                                        (vm_region_recurse_info_t)&vm_region_info,
+                                                        &vm_region_info_size);
+        if (err)
+            return false;
+        if (vm_region_info.protection & VM_PROT_WRITE &&
+            vm_region_info.protection & VM_PROT_READ && (vm_region_info.user_tag == VM_MEMORY_FOUNDATION || vm_region_info.user_tag == VM_MEMORY_LIBDISPATCH || vm_region_info.user_tag == VM_MEMORY_APPKIT /*|| vm_region_info.user_tag == VM_MEMORY_COREDATA*/))
+        {
+            vm_range_t range = {vm_region_base_addr,vm_region_size};
+            heap_hashmap->insertHeapRange(range);
+        }
+    }
+    return true;
+}
+
+#endif
+
+bool CVMChecker::startPtrCheck()
+{
+#if defined (VM_REGION_SUBMAP_SHORT_INFO_COUNT_64)
+    typedef vm_region_submap_short_info_data_64_t RegionInfo;
+    enum { kRegionInfoSize = VM_REGION_SUBMAP_SHORT_INFO_COUNT_64 };
+#else
+    typedef vm_region_submap_info_data_64_t RegionInfo;
+    enum { kRegionInfoSize = VM_REGION_SUBMAP_INFO_COUNT_64 };
+#endif
+    task_t task = mach_task_self();
+    vm_address_t vm_region_base_addr;
+    vm_size_t vm_region_size;
+    natural_t vm_region_depth;
+    RegionInfo vm_region_info;
+    
+    for (vm_region_base_addr = 0, vm_region_size = 1; vm_region_size != 0; vm_region_base_addr += vm_region_size)
+    {
+        mach_msg_type_number_t vm_region_info_size = kRegionInfoSize;
+        const kern_return_t err = vm_region_recurse_64 (task,
+                                                        &vm_region_base_addr,
+                                                        &vm_region_size,
+                                                        &vm_region_depth,
+                                                        (vm_region_recurse_info_t)&vm_region_info,
+                                                        &vm_region_info_size);
+        if (err)
+            return false;
+        if (vm_region_info.protection & VM_PROT_WRITE &&
+            vm_region_info.protection & VM_PROT_READ && (vm_region_info.user_tag == VM_MEMORY_FOUNDATION || vm_region_info.user_tag == VM_MEMORY_LIBDISPATCH || vm_region_info.user_tag == VM_MEMORY_APPKIT /*|| vm_region_info.user_tag == VM_MEMORY_COREDATA*/))
+        {
+            vm_range_t range = {vm_region_base_addr,vm_region_size};
+            check_ptr_in_vmrange(range, VM_TYPE);
+        }
+    }
+    return true;
+}
+#endif

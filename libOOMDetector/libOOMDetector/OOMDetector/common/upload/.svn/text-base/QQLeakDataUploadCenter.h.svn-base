@@ -1,0 +1,30 @@
+//
+//  QQLeakDataUploadCenter.h
+//
+//
+//  Created by rosenluo on 16/1/27.
+//  Copyright © 2016年 com.tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface QQLeakDataUploadCenter : NSObject
+
++(QQLeakDataUploadCenter *)defaultCenter;
+
+/******************上报原始Json数据****************/
+//info:需要上报的原始Json数据，请遵循ios Json数据格式要求,具体格式要求请咨询michaelbi
+
+
+-(void)uploadJsonData:(NSDictionary *)info completionHandler:(void (^)(NSURLResponse *response, NSData *data, NSError *error))completionHandler;
+
+/******************APM上报性能数据*******************/
+//data:性能数据,每个plugin有唯一的json格式，具体格式要求请知会hardyhuang，否则会上报失败！！！
+//uin:用户uin
+//pid:产品ID，请在work.sng.local/product/common上查询相应的产品ID
+//plugin:性能数据，请联系hardyhuang申请
+//versionname:RDM数字版本号
+
+-(void)uploadPerformanceDataToAPM:(NSDictionary *)data p_id:(NSString *)pid plugin:(NSString *)plugin versionname:(NSString *)versionname uin:(NSString *)uin completionHandler:(void (^)(NSURLResponse *response, NSData *data, NSError *error))completionHandler;
+
+@end

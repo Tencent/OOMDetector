@@ -1,0 +1,34 @@
+//
+//  CLeakedHashmap.h
+//  QQLeak
+//
+//  Created by rosen on 16/4/28.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CMergedHashmap_h
+#define CMergedHashmap_h
+
+#include "CBaseHashmap.h"
+#include "CPtrsHashmap.h"
+
+typedef struct leaked_ptr_t{
+    unsigned char md5[16];
+    uint32_t leak_count;
+    vm_address_t address;
+    leaked_ptr_t *next;
+} leaked_ptr_t;
+
+class CLeakedHashmap : public CBaseHashmap
+{
+public:
+    CLeakedHashmap(size_t entrys):CBaseHashmap(entrys){};
+    void insertLeakPtrAndIncreaseCountIfExist(unsigned char *md5,ptr_log_t *ptr_log);
+    ~CLeakedHashmap();
+protected:
+    leaked_ptr_t *create_hashmap_data(unsigned char *md5,ptr_log_t *ptr_log);
+    int compare(leaked_ptr_t *leak_ptr,unsigned char *md5);
+    size_t hash_code(void *key);
+};
+
+#endif /* CMergedHashmap_h */

@@ -1,0 +1,56 @@
+//
+//  CMemoryChecker.h
+//  QQLeak
+//
+//  Created by rosenluo on 16/3/23.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+#ifndef C_MEMORY_CHECKER
+#define C_MEMORY_CHECKER
+
+#import <Foundation/Foundation.h>
+#import "QQLeakPredefines.h"
+#include <stdio.h>
+#include <pthread.h>
+#include <mach/mach.h>
+#include "QQLeakStackLogging.h"
+
+typedef enum{
+    HEAP_TYPE,
+    STACK_TYPE,
+    SEGMENT_TYPE,
+    REGISTER_TYPE,
+    VM_TYPE
+}memory_type;
+
+typedef struct leak_range_t{
+    vm_range_t range;
+    memory_type type;
+}leak_range_t;
+
+typedef struct{
+    size_t total_num;
+    size_t record_num;
+    leak_range_t *entry;
+}leak_range_list_t;
+
+extern leak_range_list_t *leak_range_list;
+extern malloc_zone_t *memorycheck_zone;
+extern kern_return_t memory_reader (task_t task, vm_address_t remote_address, vm_size_t size, void **local_memory);
+
+static const char *region_names[5]={
+    "Heap",
+    "Stack",
+    "Segment",
+    "Register",
+    "VM"
+};
+
+class CMemoryChecker
+{
+public:
+    CMemoryChecker();
+    void check_ptr_in_vmrange(vm_range_t range,memory_type type);
+};
+
+#endif

@@ -1,0 +1,182 @@
+//
+//  QQLeakChecker.mm
+//
+//  Created by rosenluo on 16/3/22.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#import <objc/runtime.h>
+#import <libkern/OSAtomic.h>
+#import "QQLeakChecker.h"
+#import "AllocationTracker.h"
+#import "APMConfigureCenter.h"
+#include "QQLeakStackLogging.h"
+#include "CStackChecker.h"
+#include "CRegisterChecker.h"
+#include "CSegmentChecker.h"
+#include "CHeapChecker.h"
+#include "QQLeakPredefines.h"
+#include "CMallocHook.h"
+#include "CThreadTrackingHashmap.h"
+#include "CStacksHashmap.h"
+#include "CPtrsHashmap.h"
+#include "CLeakedHashmap.h"
+#include "CObjcManager.h"
+#include <malloc/malloc.h>
+
+NSString *qleak_uin;
+NSString *qleak_appVersion;
+NSString *qleak_pid;
+
+//memory checker
+static CStackChecker *stackChecker;
+static CSegmentChecker *segmentChecker;
+static CHeapChecker *heapChecker;
+static CRegisterChecker *registerChecker;
+//static CVMChecker *vmChecker;
+//hashmaps
+extern CPtrsHashmap *ptrs_hashmap;
+extern CStacksHashmap *stacks_hashmap;
+extern CThreadTrackingHashmap *threadTracking_hashmap;
+
+
+//flag
+static bool isChecking;
+static bool isStackLogging;
+extern BOOL needSysStack;
+//zone
+extern malloc_zone_t *memory_zone;
+//lock
+extern OSSpinLock hashmap_spinlock;
+//
+extern size_t ptrs_hashmap_entrys;
+//
+extern size_t max_stack_depth;
+
+static QQLeakChecker* qqleak;
+
+@implementation QQLeakChecker
+
++(QQLeakChecker *)getInstance{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        qqleak = [[QQLeakChecker alloc] init];
+    });
+    return qqleak;
+}
+
+-(id)init{
+    if(self = [super init]){
+        stackChecker = new CStackChecker();
+        segmentChecker = new CSegmentChecker();
+        heapChecker = new CHeapChecker();
+        registerChecker = new CRegisterChecker();
+#ifdef BUILD_FOR_OTHER_APP
+        [[APMConfigureCenter defaultCenter] loadConfigs];
+#endif
+    }
+    return self;
+}
+
+-(void)dealloc{
+    [super dealloc];
+    delete stackChecker;
+    delete segmentChecker;
+    delete heapChecker;
+    delete registerChecker;
+}
+
+-(void)executeLeakCheck:(QQLeakCheckCallback)callback{
+    if(!isChecking && isStackLogging){
+        printf("QQLeakChecker record %lu object and %lu stacks!!! Record average collision:%.2f, stack average collision:%.2f\n",ptrs_hashmap->getRecordNum(),stacks_hashmap->getRecordNum(),(double)ptrs_hashmap->getCollisionNum()/ptrs_hashmap->getAccessNum(),(double)stacks_hashmap->getCollisionNum()/stacks_hashmap->getAccessNum());
+        segmentChecker->initAllSegments();
+        initCurrentClass();
+        leakCheckingWillStart();
+        if(stackChecker->suspendAllChildThreads()){
+            OSSpinLockUnlock(&hashmap_spinlock);
+//            vmChecker->startPtrCheck();
+            registerChecker->startPtrCheck();
+            stackChecker->startPtrCheck(2);
+            segmentChecker->startPtrcheck();
+            heapChecker->startPtrCheck();
+            size_t total_size = 0;
+            NSString *stackData = get_all_leak_stack(&total_size);
+            stackChecker->resumeAllChildThreads();
+            segmentChecker->removeAllSegments();
+            clearCurrentClass();
+            leakCheckingWillFinish();
+            callback(stackData,total_size);
+        }
+    }
+}
+
+-(void)startStackLogging{
+    if(!isStackLogging){
+        initStackLogging();
+        beginMallocStackLogging();
+        isStackLogging = true;
+    }
+}
+
+-(void)stopStackLogging{
+    if(isStackLogging){
+        clearMallocStackLogging();
+        isStackLogging = false;
+    }
+}
+
+-(void)setUin:(NSString *)uin
+{
+    if(qleak_uin){
+        [qleak_uin release];
+    }
+    qleak_uin = [uin retain];
+}
+
+-(void)setAppversion:(NSString *)appversion
+{
+    if(qleak_appVersion){
+        [qleak_appVersion release];
+    }
+    qleak_appVersion = [appversion retain];
+}
+
+
+-(void)setPID:(NSString *)pID
+{
+    if(qleak_pid){
+        [qleak_pid release];
+    }
+    qleak_pid = [pID retain];
+}
+
+-(void)setMaxStackDepth:(size_t)depth
+{
+    if(depth > 0) max_stack_depth = depth;
+}
+
+-(void)setNeedSystemStack:(BOOL)isNeedSys
+{
+    needSysStack = isNeedSys;
+}
+
+#pragma -mark getter
+-(size_t)getRecordObjNumber
+{
+    return ptrs_hashmap->getRecordNum();
+}
+
+-(size_t)getRecordStackNumber
+{
+    return stacks_hashmap->getRecordNum();
+}
+
+-(double)getOccupyMemory
+{
+    malloc_statistics_t stat;
+    malloc_zone_statistics(memory_zone, &stat);
+    double memory = (double)stat.size_in_use/(1024*1024);
+    return memory;
+}
+
+@end

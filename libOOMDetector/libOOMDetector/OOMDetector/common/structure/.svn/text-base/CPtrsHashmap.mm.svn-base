@@ -1,0 +1,137 @@
+//
+//  CPtrsHashmap.m
+//  QQLeak
+//
+//  Created by rosen on 16/4/28.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#include "CPtrsHashmap.h"
+
+extern monitor_mode current_mode;
+
+CPtrsHashmap::~CPtrsHashmap()
+{
+    for(size_t i = 0; i < entry_num; i++){
+        base_entry_t *entry = hashmap_entry + i;
+        ptr_log_t *current = (ptr_log_t *)entry->root;
+        entry->root = NULL;
+        while(current != NULL){
+            ptr_log_t *next = current->next;
+            hashmap_free(current);
+            current = next;
+        }
+    }
+}
+
+BOOL CPtrsHashmap::insertPtr(vm_address_t addr,base_ptr_log *ptr_log)
+{
+    size_t offset = hash_code(addr);
+    base_entry_t *entry = hashmap_entry + offset;
+    ptr_log_t *parent = (ptr_log_t *)entry->root;
+    access_num++;
+    collision_num++;
+    if(parent == NULL){
+        ptr_log_t *insert_data = create_hashmap_data(addr,ptr_log);
+        entry->root = insert_data;
+        record_num++;
+        return YES;
+    }
+    else{
+        if(compare(parent,addr) == 0){
+            return NO;
+        }
+        ptr_log_t *current = parent->next;
+        while(current != NULL){
+            collision_num++;
+            if(compare(current,addr) == 0){
+                return NO;
+            }
+            parent = current;
+            current = current->next;
+        }
+        ptr_log_t *insert_data = create_hashmap_data(addr,ptr_log);
+        parent->next = insert_data;
+        record_num++;
+        return YES;
+    }
+}
+
+BOOL CPtrsHashmap::removePtr(vm_address_t addr)
+{
+    size_t offset = hash_code(addr);
+    base_entry_t *entry = hashmap_entry + offset;
+    ptr_log_t *parent = (ptr_log_t *)entry->root;
+    if(parent == NULL){
+        return NO;
+    }
+    else{
+        if(compare(parent,addr) == 0){
+            entry->root = parent->next;
+            hashmap_free(parent);
+            record_num--;
+            return YES;
+        }
+        ptr_log_t *current = parent->next;
+        while(current != NULL){
+            if(compare(current,addr) == 0){
+                parent->next = current->next;
+                hashmap_free(current);
+                record_num--;
+                return YES;
+            }
+            parent = current;
+            current = current->next;
+        }
+        return NO;
+    }
+}
+
+ptr_log_t *CPtrsHashmap::lookupPtr(vm_address_t addr)
+{
+    size_t offset = hash_code(addr);
+    base_entry_t *entry = hashmap_entry + offset;
+    ptr_log_t *parent = (ptr_log_t *)entry->root;
+    if(parent != NULL){
+        if(compare(parent,addr) == 0){
+            return parent;
+        }
+        ptr_log_t *current = parent->next;
+        while(current != NULL){
+            if(compare(current,addr) == 0){
+                return current;
+            }
+            parent = current;
+            current = current->next;
+        }
+    }
+    return NULL;
+}
+
+ptr_log_t *CPtrsHashmap::create_hashmap_data(vm_address_t addr,base_ptr_log *base_ptr)
+{
+    ptr_log_t *ptr_log = (ptr_log_t *)hashmap_malloc(sizeof(ptr_log_t));
+    memcpy(ptr_log->md5,base_ptr->md5,16*sizeof(char));
+    if(current_mode == QQLeakMode){
+        ptr_log->size_or_refer = 0;
+    }
+    else {
+        ptr_log->size_or_refer = (size_t)base_ptr->size;
+    }
+    ptr_log->address = addr;
+    ptr_log->next = NULL;
+    return ptr_log;
+}
+
+int CPtrsHashmap::compare(ptr_log_t *ptr_log,vm_address_t addr)
+{
+    vm_address_t addr1 = ptr_log->address;
+    if(addr1 == addr) return 0;
+    return -1;
+}
+
+size_t CPtrsHashmap::hash_code(vm_address_t addr)
+{
+    size_t offset = addr%(entry_num - 1);
+    return offset;
+}

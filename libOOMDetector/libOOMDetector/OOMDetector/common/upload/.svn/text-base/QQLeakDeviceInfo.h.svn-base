@@ -1,0 +1,27 @@
+//
+//  APMDeviceInfo.h
+//  QQMSFContact
+//
+//  Created by rosenluo on 16-01-25.
+//
+//
+
+#import <Foundation/Foundation.h>
+
+@interface QQLeakDeviceInfo : NSObject
+
++(NSString *) platform;
+
++ (NSNumber *) freeDiskSpace;
+
++ (double)freeMemory;
+
++ (double)appUsedMemory;
+
++(NSString *)deviceID;
+
++(NSString *)rdmuuid;
+
++(NSString *) cpuType;
+
+@end

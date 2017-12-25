@@ -1,0 +1,40 @@
+//
+//  CMachOHelper.h
+//  QQLeak
+//
+//  Created by rosenluo on 16/4/4.
+//
+//
+
+
+#ifndef CMachOHelper_h
+#define CMachOHelper_h
+
+#include <mach-o/dyld.h>
+#include <dlfcn.h>
+#include <vector>
+#include <mach/mach.h>
+#include <malloc/malloc.h>
+#include "CSegmentChecker.h"
+#include "QQLeakPredefines.h"
+
+typedef struct
+{
+    const char* name;
+    long loadAddr;
+    long beginAddr;
+    long endAddr;
+}segImageInfo;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void initAllImages();
+    bool isInAppAddress(vm_address_t addr);
+    bool getImageByAddr(vm_address_t addr,segImageInfo *image);
+    void removeAllImages();
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CMachOHelpler_h */

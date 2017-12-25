@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure
+END
+CPtrsHashmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure/CPtrsHashmap.h
+END
+CStacksHashmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure/CStacksHashmap.h
+END
+CBaseHashmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure/CBaseHashmap.h
+END
+CPtrsHashmap.mm
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure/CPtrsHashmap.mm
+END
+CStacksHashmap.mm
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure/CStacksHashmap.mm
+END
+CBaseHashmap.mm
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/basic/basic_iphoneqq_rep/!svn/ver/286408/iphoneqq_component_proj/trunk/QQLeak/src/common/structure/CBaseHashmap.mm
+END

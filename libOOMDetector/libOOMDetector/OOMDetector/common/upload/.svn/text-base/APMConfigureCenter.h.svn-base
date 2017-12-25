@@ -1,0 +1,16 @@
+//
+//  APMConfigureCenter.h
+//  QQBlue
+//
+//  Created by michaelbi on 2017/7/25.
+//  Copyright © 2017年 com.tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+static bool ISUPLOAD = true;  //默认上报
+
+@interface APMConfigureCenter : NSObject
+
++(APMConfigureCenter *)defaultCenter;
+- (void)loadConfigs;
+@end

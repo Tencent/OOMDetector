@@ -1,0 +1,32 @@
+//
+//  CObjcManager.h
+//  QQLeak
+//
+//  Created by rosen on 16/4/13.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CObjcManager_h
+#define CObjcManager_h
+
+#import <Foundation/Foundation.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <malloc/malloc.h>
+#include "QQLeakPredefines.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void initBlackClass();
+    void initCurrentClass();
+    void clearCurrentClass();
+    bool isClassInBlackList(Class cl);
+    const char *getObjectNameExceptBlack(void *obj);
+    const char *getObjectName(void *obj);
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CObjcManager_h */

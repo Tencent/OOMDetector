@@ -1,0 +1,37 @@
+//
+//  CSegmentChecker.h
+//  QQLeak
+//
+//  Created by rosenluo on 16/3/18.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef C_SEGMENT_CHECKER
+#define C_SEGMENT_CHECKER
+#import <Foundation/Foundation.h>
+#include <stdio.h>
+#include <vector>
+#include <string>
+#include <mach/mach.h>
+#include <malloc/malloc.h>
+#include "CMemoryChecker.h"
+
+typedef struct {
+    const char *image_name;
+    const char *sect_name;
+    vm_address_t beginAddr;
+    vm_size_t size;
+}dataSegment;
+
+class CSegmentChecker : public CMemoryChecker
+{
+public:
+    CSegmentChecker(){};
+    void initAllSegments();
+    void startPtrcheck();
+    void removeAllSegments();
+private:
+    std::vector<dataSegment> segments;
+};
+
+#endif

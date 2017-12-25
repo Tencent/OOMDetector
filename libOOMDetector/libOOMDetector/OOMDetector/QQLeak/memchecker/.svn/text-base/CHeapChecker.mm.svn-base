@@ -1,0 +1,63 @@
+//
+//  CHeapChecker.mm
+//  QQLeak
+//
+//  Created by rosenluo on 16/3/22.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+
+#import "CHeapChecker.h"
+#include <vector>
+
+extern malloc_zone_t *memory_zone;
+
+void CHeapChecker::check_ptr_in_heap(task_t task, void *baton, unsigned type, vm_range_t *ptrs, unsigned count)
+{
+    CHeapChecker *heapChecker = (CHeapChecker *)baton;
+    while(count--) {
+        vm_range_t range = {ptrs->address,ptrs->size};
+        heapChecker->check_ptr_in_vmrange(range,HEAP_TYPE);
+        ptrs++;
+    }
+
+}
+
+void CHeapChecker::startPtrCheck(){
+    vm_address_t *zones = NULL;
+    unsigned int zone_num;
+    kern_return_t err = malloc_get_all_zones (mach_task_self(), memory_reader, &zones, &zone_num);
+    if (KERN_SUCCESS == err)
+    {
+        for (int i = 0; i < zone_num; ++i)
+        {
+            if(zones[i] == (vm_address_t)memory_zone){
+                continue;
+            }
+ //           malloc_zone_t *zone = (malloc_zone_t *)zones[i];
+//            if(zone->zone_name && strcmp(zone->zone_name,"x-alloc") == 0)
+//            {
+//                //enumerate image io will cause a odd crash, bypass it!
+//                continue;
+//            }
+//            if(!zone->zone_name || (strcmp(zone->zone_name,"DefaultMallocZone") != 0 /*&& strcmp(zone->zone_name,"GFXMallocZone") != 0*/ && strcmp(zone->zone_name,"QuartzCore") != 0))
+//            {
+//                //enumerate image io will cause a odd crash, bypass it!
+//                continue;
+//            }
+        //    malloc_printf("enumerate malloc zone%lu:%p name:%s\n",i,zone,zone->zone_name);
+            enumerate_ptr_in_zone(this,(const malloc_zone_t *)zones[i],CHeapChecker::check_ptr_in_heap);
+        }
+    }
+}
+
+void CHeapChecker::enumerate_ptr_in_zone (void *baton, const malloc_zone_t *zone,vm_range_recorder_t recorder)
+{
+    if (zone && zone->introspect && zone->introspect->enumerator)
+        zone->introspect->enumerator (mach_task_self(),
+                                      this,
+                                      MALLOC_PTR_IN_USE_RANGE_TYPE,
+                                      (vm_address_t)zone,
+                                      memory_reader,
+                                      recorder);
+}

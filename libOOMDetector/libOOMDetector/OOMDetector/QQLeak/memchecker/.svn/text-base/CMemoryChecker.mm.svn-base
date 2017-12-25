@@ -1,0 +1,55 @@
+
+//
+//  CMemoryChecker.m
+//  QQLeak
+//
+//  Created by rosenluo on 16/3/23.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#import "CMemoryChecker.h"
+#import <libkern/OSAtomic.h>
+#include <malloc/malloc.h>
+#include "CObjcManager.h"
+#include "QQLeakStackLogging.h"
+
+#if !__LP64__
+
+#define FAST_DATA_MASK        0xfffffffcUL
+
+#else 
+
+#define FAST_DATA_MASK        0x00007ffffffffff8UL
+
+#endif
+
+
+extern malloc_zone_t *memory_zone;
+
+kern_return_t memory_reader (task_t task, vm_address_t remote_address, vm_size_t size, void **local_memory)
+{
+    *local_memory = (void*) remote_address;
+    return KERN_SUCCESS;
+}
+
+CMemoryChecker::CMemoryChecker(){
+}
+
+void CMemoryChecker::check_ptr_in_vmrange(vm_range_t range,memory_type type)
+{
+    const uint32_t align_size = sizeof(void *);
+    vm_address_t vm_addr = range.address;
+    vm_size_t vm_size = range.size;
+    vm_size_t end_addr = vm_addr + vm_size;
+    if (align_size <= vm_size)
+    {
+        uint8_t *ptr_addr = (uint8_t *)vm_addr;
+        for (uint64_t addr = vm_addr;
+             addr < end_addr && ((end_addr - addr) >= align_size);
+             addr += align_size, ptr_addr += align_size)
+        {
+            vm_address_t *dest_ptr = (vm_address_t *)ptr_addr;
+            findPtrInMemoryRegion(*dest_ptr);
+        }
+    }
+}

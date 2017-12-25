@@ -1,0 +1,18 @@
+//
+//  APMFileUploadCenter.h
+//  lianxi
+//
+//  Created by rosen on 16/3/17.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "QQLeakDeviceInfo.h"
+
+@interface QQLeakFileUploadCenter : NSObject
+
++(QQLeakFileUploadCenter *)defaultCenter;
+
+-(void)uploadFileData:(NSData *)data uin:(NSString *)uin pid:(NSString *)pID plugin:(NSString *)plugin extra:(NSDictionary<NSString*,NSString*> *)extra completionHandler:(void (^)(NSURLResponse *response, NSData *data, NSError *error))completionHandler;
+
+@end

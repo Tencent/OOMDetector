@@ -1,0 +1,33 @@
+//
+//  OOMDetectorLogger.h
+//  OOMDetector
+//
+//  Created by rosen on 17/3/27.
+//  Copyright © 2016年 com.tencent. All rights reserved.
+//
+
+#ifndef OOMDetectorLogger_h
+#define OOMDetectorLogger_h
+
+#import <Foundation/Foundation.h>
+#import "OOMDetector.h"
+
+extern logCallback oom_logger;
+
+#define OOM_Log(format, ...) \
+do{ \
+    char *str = NULL; \
+    char *formatStr = NULL; \
+    if(oom_logger != NULL){ \
+        int ret = asprintf(&str, format, ##__VA_ARGS__);\
+        if(ret > 0){ \
+            asprintf(&formatStr,"[OOMDetector Log] %s",str); \
+            oom_logger(formatStr); \
+            free(formatStr); \
+            free(str);\
+        }\
+    }\
+}while(0)
+
+
+#endif /* ScrollPerformanceLogger_h */

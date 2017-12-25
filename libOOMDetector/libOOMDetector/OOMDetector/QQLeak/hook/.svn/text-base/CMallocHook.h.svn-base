@@ -1,0 +1,37 @@
+//
+//  CMallocHook.h
+//  QQLeak
+//
+//  Created by rosenluo on 16/4/7.
+//
+//
+
+#ifndef CMallocHook_h
+#define CMallocHook_h
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <malloc/malloc.h>
+#include "QQLeakPredefines.h"
+#ifdef Build_For_Extern
+#include "leak_fishhook.h"
+#else
+#include "fishhook.h"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+    void hookMalloc();
+    void unHookMalloc();
+    void pausedMallocTracking();
+    void resumeMallocTracking();
+    const char *getImagename();
+    
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CMallocHook_h */

@@ -1,0 +1,27 @@
+//
+//  CVMChecker.h
+//  QQLeak
+//
+//  Created by rosen on 16/3/23.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef CVMChecker_h
+#define CVMChecker_h
+#import <Foundation/Foundation.h>
+#include "CMemoryChecker.h"
+
+#ifdef __Enable_QQLeak__
+
+class CVMChecker : public CMemoryChecker
+{
+public:
+    CVMChecker(){};
+    bool startPtrCheck();
+#ifdef __enable_recycle_detect__
+    bool startPtrEnumerate();
+#endif
+};
+
+#endif
+#endif /* CVMChecker_h */

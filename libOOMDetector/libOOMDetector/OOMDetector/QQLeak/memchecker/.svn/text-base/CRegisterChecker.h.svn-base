@@ -1,0 +1,23 @@
+//
+//  CRegisterChecker.h
+//  QQLeak
+//
+//  Created by rosenluo on 16/3/23.
+//  Copyright © 2016年 tencent. All rights reserved.
+//
+
+#ifndef C_REGISTER_CHECKER
+#define C_REGISTER_CHECKER
+
+#include "CMemoryChecker.h"
+#include "CStackChecker.h"
+
+
+class CRegisterChecker : public CMemoryChecker
+{
+public:
+    CRegisterChecker(){};
+    bool startPtrCheck();
+};
+
+#endif
