@@ -5,9 +5,7 @@ OOMDetector is a memory monitoring component for iOS which provides you with OOM
 
 ## Features
 - OOM Monitoring  : Monitoring OOM then dump stacks which cause OOM problems.
-
 - Large Memory Allocation Monitoring  : Monitoring large memory allocation then provides memory allocation stacks for you.
-
 - Memory Leak Detecting  : Detecting memory leak for both OC objects and c heap memory then provides memory allocation stacks for you.
 
 
