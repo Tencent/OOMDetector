@@ -134,5 +134,5 @@ OOMDetector是一个iOS内存监控组件，应用此组件可以帮助你轻松
 ## 帮助
 暂无
 ## 许可证
-OOMDetector适用MIT协议，详见[LICENSE](/LICENSE)
+OOMDetector适用MIT协议，详见[LICENSE](/LICENSE)。
 
