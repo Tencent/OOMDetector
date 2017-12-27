@@ -20,33 +20,27 @@
 #define HighSpeedLogger_h
 
 #import <Foundation/Foundation.h>
-#include <malloc/malloc.h>
+#import <malloc/malloc.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    
 typedef void (*LogPrinter)(char *log);
-    
-typedef struct
+
+class HighSpeedLogger
 {
+public:
+    ~HighSpeedLogger();
+    HighSpeedLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size);
+    BOOL sprintfLogger(size_t grain_size,const char *format, ...);
+    void cleanLogger();
+    void syncLogger();
+    bool isValid();
+    LogPrinter logPrinterCallBack;
+public:
     char *mmap_ptr;
     size_t mmap_size;
     size_t current_len;
     malloc_zone_t *memory_zone;
-    FILE *fp;
-    LogPrinter logPrinterCallBack;
-}HighSpeedLogger;
- 
-HighSpeedLogger *createLogger(malloc_zone_t *memory_zone, NSString *path, size_t mmap_size);    
-BOOL sprintfLogger(HighSpeedLogger *logger,size_t grain_size,const char *format, ...);
-void cleanLogger(HighSpeedLogger *logger);
-void syncLogger(HighSpeedLogger *logger);
-    
-void registorLggPrinter(HighSpeedLogger *logger, LogPrinter printer);
-    
-#ifdef __cplusplus
-}
-#endif
+    FILE *mmap_fp;
+    bool isFailed;
+};
 
 #endif /* HighSpeedLogger_h */

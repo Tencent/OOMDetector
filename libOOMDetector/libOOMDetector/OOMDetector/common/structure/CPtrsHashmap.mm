@@ -16,13 +16,11 @@
 //
 //
 
-#include "CPtrsHashmap.h"
+#import "CPtrsHashmap.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
-
-extern monitor_mode current_mode;
 
 CPtrsHashmap::~CPtrsHashmap()
 {
@@ -126,12 +124,8 @@ ptr_log_t *CPtrsHashmap::create_hashmap_data(vm_address_t addr,base_ptr_log *bas
 {
     ptr_log_t *ptr_log = (ptr_log_t *)hashmap_malloc(sizeof(ptr_log_t));
     memcpy(ptr_log->md5,base_ptr->md5,16*sizeof(char));
-    if(this->getMode() == QQLeakMode){
-        ptr_log->size_or_refer = 0;
-    }
-    else {
-        ptr_log->size_or_refer = (size_t)base_ptr->size;
-    }
+    ptr_log->refer = 0;
+    ptr_log->size = (size_t)base_ptr->size;
     ptr_log->address = addr;
     ptr_log->next = NULL;
     return ptr_log;

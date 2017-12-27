@@ -19,7 +19,7 @@
 #ifndef CStacksHashmap_h
 #define CStacksHashmap_h
 
-#include "CBaseHashmap.h"
+#import "CBaseHashmap.h"
 
 typedef struct extra_t{
     const char      *name;
@@ -41,15 +41,24 @@ typedef struct merge_stack_t{
     extra_t             extra;
 } merge_stack_t;
 
+typedef enum
+{
+    QQLeakMode = 1,
+    OOMDetectorMode
+}monitor_mode;
+
 
 class CStacksHashmap : public CBaseHashmap
 {
 public:
-    CStacksHashmap(size_t entrys,monitor_mode monitormode):CBaseHashmap(entrys, monitormode){};
+    CStacksHashmap(size_t entrys,malloc_zone_t *memory_zone,monitor_mode mode);
     void insertStackAndIncreaseCountIfExist(unsigned char *md5,base_stack_t *stack);
     void removeIfCountIsZero(unsigned char *md5, size_t size);
     merge_stack_t *lookupStack(unsigned char *md5);
+    monitor_mode mode;
     ~CStacksHashmap();
+public:
+    size_t oom_threshold;
 protected:
     merge_stack_t *create_hashmap_data(unsigned char *md5,base_stack_t *stack);
     int compare(merge_stack_t *stack,unsigned char *md5);

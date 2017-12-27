@@ -16,9 +16,9 @@
 //
 //
 
-#include "CSegmentChecker.h"
-#include <mach-o/dyld.h>
-#include <mach/mach.h>
+#import "CSegmentChecker.h"
+#import <mach-o/dyld.h>
+#import <mach/mach.h>
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC

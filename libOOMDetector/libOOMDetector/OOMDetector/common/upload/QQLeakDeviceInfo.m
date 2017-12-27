@@ -17,15 +17,15 @@
 //
 
 #import "QQLeakDeviceInfo.h"
-#include <sys/socket.h>
-#include <sys/sysctl.h>
-#include <net/if.h>
-#include <net/if_dl.h>
+#import <sys/socket.h>
+#import <sys/sysctl.h>
+#import <net/if.h>
+#import <net/if_dl.h>
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 #import <mach/mach_init.h>
 #import <mach/machine.h>
-#include <mach-o/dyld.h>
+#import <mach-o/dyld.h>
 #import <UIKit/UIKit.h>
 
 #if __has_feature(objc_arc)

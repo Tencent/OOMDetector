@@ -24,8 +24,8 @@
 #ifndef fishhook_h
 #define fishhook_h
 
-#include <stddef.h>
-#include <stdint.h>
+#import <stddef.h>
+#import <stdint.h>
 
 #if !defined(FISHHOOK_EXPORT)
 #define FISHHOOK_VISIBILITY __attribute__((visibility("hidden")))

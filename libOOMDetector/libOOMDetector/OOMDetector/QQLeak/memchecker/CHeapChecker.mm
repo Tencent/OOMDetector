@@ -18,13 +18,14 @@
 
 
 #import "CHeapChecker.h"
-#include <vector>
+#import <vector>
+#import "CLeakChecker.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
 
-extern malloc_zone_t *memory_zone;
+extern kern_return_t memory_reader (task_t task, vm_address_t remote_address, vm_size_t size, void **local_memory);
 
 void CHeapChecker::check_ptr_in_heap(task_t task, void *baton, unsigned type, vm_range_t *ptrs, unsigned count)
 {
@@ -45,7 +46,7 @@ void CHeapChecker::startPtrCheck(){
     {
         for (int i = 0; i < zone_num; ++i)
         {
-            if(zones[i] == (vm_address_t)memory_zone){
+            if(zones[i] == (vm_address_t)(leakChecker->getMemoryZone())){
                 continue;
             }
             enumerate_ptr_in_zone(this,(const malloc_zone_t *)zones[i],CHeapChecker::check_ptr_in_heap);

@@ -19,24 +19,26 @@
 #import <libkern/OSAtomic.h>
 #import <objc/runtime.h>
 #import "AllocationTracker.h"
-#include <string>
-#include <map>
-#include <set>
-#include <vector>
-#include <utility>
-#include <string.h>
-#include <execinfo.h>
-#include <pthread.h>
-#include "QQLeakChecker.h"
-#include "QQLeakStackLogging.h"
-#include "CObjcManager.h"
+#import <string>
+#import <map>
+#import <set>
+#import <vector>
+#import <utility>
+#import <string.h>
+#import <execinfo.h>
+#import <pthread.h>
+#import "QQLeakChecker.h"
+#import "QQLeakMallocStackTracker.h"
+#import "CObjcFilter.h"
+#import "CLeakChecker.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
 
+extern CLeakChecker* global_leakChecker;
+
 static AllocationTracker *tracker;
-bool pausedTracking;
 
 @interface NSObject(MethodSwizzling)
 + (BOOL)swizzleMethod:(SEL)origSel withMethod:(SEL)altSel;
@@ -80,8 +82,8 @@ bool pausedTracking;
 @implementation NSObject(AllocationTracker)
 
 + (id)Tracker_Alloc{
-    if(!isClassInBlackList(self)){
-        markedThreadToTrackingNextMalloc(NULL);
+    if(global_leakChecker->isNeedTrackClass(self)){
+        global_leakChecker->markedThreadToTrackingNextMalloc(NULL);
     }
     id obj = [self Tracker_Alloc];
 #ifdef __enable_malloc_logger__
@@ -132,16 +134,6 @@ bool pausedTracking;
         _isTracking = NO;
         [self swizzleAllocationFunction];
     }
-}
-
--(void)pausedRecord
-{
-    pausedTracking = true;
-}
-
--(void)resumeRecord
-{
-    pausedTracking = false;
 }
 
 @end

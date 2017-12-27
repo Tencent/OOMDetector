@@ -17,7 +17,7 @@
 //
 //
 
-#include "CThreadTrackingHashmap.h"
+#import "CThreadTrackingHashmap.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC

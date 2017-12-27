@@ -102,21 +102,18 @@ double overflow_limit;
 -(void)updateMemory
 {
     static int flag = 0;
-    if([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive)
-    {
-        double maxMemory = [self appMaxMemory];
-        if (self.statisticsInfoBlock) {
-            self.statisticsInfoBlock(_residentMemSize);
-        }
-        _indicatorView.memory = _residentMemSize;
-        ++flag;
-        if(maxMemory && flag >= 30){
-            if(maxMemory > _singleLoginMaxMemory){
-                NSLog(@"OOMStatisticsInfoCenter update maxMemory:%.2fMb",maxMemory);
-                _singleLoginMaxMemory = maxMemory;
-                [self saveLastSingleLoginMaxMemory];
-                flag = 0;
-            }
+    double maxMemory = [self appMaxMemory];
+    if (self.statisticsInfoBlock) {
+        self.statisticsInfoBlock(_residentMemSize);
+    }
+    _indicatorView.memory = _residentMemSize;
+    ++flag;
+    if(maxMemory && flag >= 30){
+        if(maxMemory > _singleLoginMaxMemory){
+            NSLog(@"OOMStatisticsInfoCenter update maxMemory:%.2fMb",maxMemory);
+            _singleLoginMaxMemory = maxMemory;
+            [self saveLastSingleLoginMaxMemory];
+            flag = 0;
         }
     }
 }

@@ -19,12 +19,12 @@
 #ifndef C_SEGMENT_CHECKER
 #define C_SEGMENT_CHECKER
 #import <Foundation/Foundation.h>
-#include <stdio.h>
-#include <vector>
-#include <string>
-#include <mach/mach.h>
-#include <malloc/malloc.h>
-#include "CMemoryChecker.h"
+#import <stdio.h>
+#import <vector>
+#import <string>
+#import <mach/mach.h>
+#import <malloc/malloc.h>
+#import "CMemoryChecker.h"
 
 typedef struct {
     const char *image_name;
@@ -36,7 +36,7 @@ typedef struct {
 class CSegmentChecker : public CMemoryChecker
 {
 public:
-    CSegmentChecker(){};
+    CSegmentChecker(CLeakChecker *checker):CMemoryChecker(checker){};
     void initAllSegments();
     void startPtrcheck();
     void removeAllSegments();

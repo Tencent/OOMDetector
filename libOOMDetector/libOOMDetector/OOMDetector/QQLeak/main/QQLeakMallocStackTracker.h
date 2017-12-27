@@ -1,5 +1,5 @@
 //
-//  QQLeakStackLogging.h
+//  QQLeakMallocStackTracker.h
 //  QQLeak
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
@@ -20,38 +20,22 @@
 #define CMallocStackLogging_h
 
 #import <UIKit/UIKit.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <malloc/malloc.h>
-#include <stdarg.h>
-#include <mach/mach_init.h>
-#include <libkern/OSAtomic.h>
-#include <sys/mman.h>
-#include <mach/vm_statistics.h>
-#include <malloc/malloc.h>
-#include "QQLeakPredefines.h"
-#include "CommonMallocLogger.h"
+#import <stdio.h>
+#import <stdlib.h>
+#import <unistd.h>
+#import <malloc/malloc.h>
+#import <stdarg.h>
+#import <mach/mach_init.h>
+#import <libkern/OSAtomic.h>
+#import <sys/mman.h>
+#import <mach/vm_statistics.h>
+#import <malloc/malloc.h>
+#import "QQLeakPredefines.h"
+#import "CommonMallocLogger.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    //initialize
-    void initStackLogging();
-    //begin tracking malloc logging
-    void beginMallocStackLogging();
-    //clear tracking
-    void clearMallocStackLogging();
-    //called before leak checking
-    void leakCheckingWillStart();
-    //called after leak checking
-    void leakCheckingWillFinish();
-    //find ptr of address in memory
-    bool findPtrInMemoryRegion(vm_address_t address);
-    //marked the current thread need tracking the next malloc
-    void markedThreadToTrackingNextMalloc(const char* name);
-    //get the result of leak checking
-    NSString* get_all_leak_stack(size_t *total_count);
     
     void malloc_stack_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t backtrace_to_skip);
 

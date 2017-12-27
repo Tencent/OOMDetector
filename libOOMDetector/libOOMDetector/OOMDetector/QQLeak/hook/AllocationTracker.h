@@ -19,8 +19,8 @@
 #import <Foundation/Foundation.h>
 #import <objc/objc.h>
 #import "QQLeakPredefines.h"
-#include <mach/mach.h>
-#include <malloc/malloc.h>
+#import <mach/mach.h>
+#import <malloc/malloc.h>
 
 @interface AllocationTracker : NSObject
 
@@ -29,9 +29,5 @@
 -(void)beginRecord;
 
 -(void)stopRecord;
-
--(void)pausedRecord;
-
--(void)resumeRecord;
 
 @end

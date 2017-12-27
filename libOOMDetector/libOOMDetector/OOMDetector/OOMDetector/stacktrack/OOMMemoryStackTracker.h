@@ -1,5 +1,5 @@
 //
-//  VMStackLogger.h
+//  OOMMemoryStackTracker.h
 //  QQMSFContact
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
@@ -20,7 +20,8 @@
 #define VMStackLogger_h
 
 #import <Foundation/Foundation.h>
-#import "BackTraceManager.h"
+#import "CStackHelper.h"
+#import "COOMDetector.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,12 +30,6 @@ extern "C" {
     void oom_vm_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t backtrace_to_skip);
     
     void oom_malloc_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t backtrace_to_skip);
-    
-    void flush_allocation_stack();
-    
-    void recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip,monitor_mode mode);
-    
-    void removeMallocStack(vm_address_t address,monitor_mode mode);
     
 #ifdef __cplusplus
 }

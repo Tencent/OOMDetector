@@ -19,12 +19,12 @@
 #ifndef CMallocHook_h
 #define CMallocHook_h
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <malloc/malloc.h>
-#include "QQLeakPredefines.h"
-#include "fishhook.h"
+#import <stdlib.h>
+#import <stdio.h>
+#import <assert.h>
+#import <malloc/malloc.h>
+#import "QQLeakPredefines.h"
+#import "fishhook.h"
 
 #ifdef __cplusplus
 extern "C" {

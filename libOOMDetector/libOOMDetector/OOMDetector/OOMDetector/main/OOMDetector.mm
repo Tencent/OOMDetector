@@ -17,22 +17,22 @@
 //
 
 #import <libkern/OSAtomic.h>
-#include <sys/mman.h>
-#include <mach/mach_init.h>
+#import <sys/mman.h>
+#import <mach/mach_init.h>
 #import <mach/vm_statistics.h>
 #import "zlib.h"
 #import "stdio.h"
-#import "AllocationStackLogger.h"
+#import "OOMMemoryStackTracker.h"
 #import "QQLeakPredefines.h"
 #import "HighSpeedLogger.h"
-#include "CMachOHelper.h"
+#import "CStackHelper.h"
 #import "OOMDetector.h"
-#include "CStacksHashmap.h"
-#include "QQLeakStackLogging.h"
+#import "CStacksHashmap.h"
+#import "QQLeakMallocStackTracker.h"
 #import "OOMDetectorLogger.h"
 #import "QQLeakFileUploadCenter.h"
 #import "QQLeakDeviceInfo.h"
-#import "QQLeakDeviceInfo.h"
+#import "CommonMallocLogger.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
@@ -55,35 +55,9 @@ extern malloc_logger_t* __syscall_logger;
 
 //static
 static OOMDetector *catcher;
-static NSString *currentDir;
-
-//global
-size_t oom_threshold;
-size_t chunk_threshold;
-size_t vm_threshold;
-HighSpeedLogger *normal_stack_logger;
-BOOL enableOOMMonitor;
-BOOL enableChunkMonitor;
-BOOL enableVMMonitor;
-BOOL needSysStack;
-BOOL needStackWithoutAppStack;
-size_t normal_size = 512*1024;
-size_t chunk_size = 10*1024;
-ChunkMallocCallback chunkMallocCallback;
-malloc_logger_t** vm_sys_logger;
-
-//extern
-extern malloc_zone_t *memory_zone;
-extern size_t max_stack_depth;
-extern size_t vm_threshold;
-extern CPtrsHashmap *vm_ptrs_hashmap;
-extern CStacksHashmap *vm_stacks_hashmap;
-extern CPtrsHashmap *oom_ptrs_hashmap;
-extern CStacksHashmap *oom_stacks_hashmap;
-extern OSSpinLock hashmap_spinlock;
-extern OSSpinLock vm_hashmap_spinlock;
-extern pthread_mutex_t vm_mutex;
-extern pthread_mutex_t malloc_mutex;
+static size_t normal_size = 512*1024;
+//malloc_logger_t** vm_sys_logger;
+COOMDetector* global_oomdetector;
 
 void printLog(char *log)
 {
@@ -99,16 +73,18 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
     }
 }
 
-
 @interface OOMDetector()
 {
     NSString *_normal_path;
     NSRecursiveLock *_flushLock;
-
     NSTimer *_timer;
     double _dumpLimit;
     BOOL _needAutoDump;
     QQLeakChecker *_leakChecker;
+    NSString *_currentDir;
+    BOOL _enableOOMMonitor;
+    BOOL _enableChunkMonitor;
+    BOOL _enableVMMonitor;
 }
 
 @end
@@ -120,6 +96,7 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         catcher = [OOMDetector new];
+        global_oomdetector = new COOMDetector();
     });
     return catcher;
 }
@@ -132,11 +109,11 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
         NSDateFormatter* df = [[NSDateFormatter new] autorelease];
         df.dateFormat = @"yyyyMMdd_HHmmssSSS";
         NSString *dateStr = [df stringFromDate:[NSDate date]];
-        currentDir = [[LibDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"OOMDetector/%@",dateStr]] retain];
-        _normal_path = [[currentDir stringByAppendingPathComponent:[NSString stringWithFormat:@"normal_malloc%@.log",dateStr]] retain];
-        if(memory_zone == nil){
-            memory_zone = malloc_create_zone(0, 0);
-            malloc_set_zone_name(memory_zone, "OOMDetector");
+        _currentDir = [[LibDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"OOMDetector/%@",dateStr]] retain];
+        _normal_path = [[_currentDir stringByAppendingPathComponent:[NSString stringWithFormat:@"normal_malloc%@.log",dateStr]] retain];
+        if(global_memory_zone == nil){
+            global_memory_zone = malloc_create_zone(0, 0);
+            malloc_set_zone_name(global_memory_zone, "OOMDetector");
         }
         _flushLock = [NSRecursiveLock new];
 
@@ -176,6 +153,7 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
     
     //设置堆栈最大长度为10，超过10将被截断
     [leakChecker setMaxStackDepth:10];
+    [leakChecker setNeedSystemStack:YES];
     //开始记录对象分配堆栈
     [leakChecker startStackLogging];
 }
@@ -204,29 +182,20 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 
 -(BOOL)startMallocStackMonitor:(size_t)threshholdInBytes needAutoDumpWhenOverflow:(BOOL)needAutoDump dumpLimit:(double)dumpLimit sampleInterval:(NSTimeInterval)sampleInterval
 {
-    if(!enableOOMMonitor){
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if (![fileManager fileExistsAtPath:currentDir]) {
-            [fileManager createDirectoryAtPath:currentDir withIntermediateDirectories:YES attributes:nil error:nil];
+    if(!_enableOOMMonitor){
+        
+        if(global_oomdetector->getStackLogger() == NULL){
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            if (![fileManager fileExistsAtPath:_currentDir]) {
+                [fileManager createDirectoryAtPath:_currentDir withIntermediateDirectories:YES attributes:nil error:nil];
+            }
+            if (![fileManager fileExistsAtPath:_normal_path]) {
+                [fileManager createFileAtPath:_normal_path contents:nil attributes:nil];
+            }
+            global_oomdetector->initLogger(global_memory_zone, _normal_path, normal_size,printLog);
         }
-        if (![fileManager fileExistsAtPath:_normal_path]) {
-            [fileManager createFileAtPath:_normal_path contents:nil attributes:nil];
-        }
-        normal_stack_logger = createLogger(memory_zone, _normal_path, normal_size);
-        if(normal_stack_logger != NULL){
-            oom_stacks_hashmap = new CStacksHashmap(50000,OOMDetectorMode);
-            oom_ptrs_hashmap = new CPtrsHashmap(250000,OOMDetectorMode);
-            enableOOMMonitor = YES;
-            normal_stack_logger->logPrinterCallBack = printLog;
-        }
-        else {
-            enableOOMMonitor = NO;
-        }
-        if(enableOOMMonitor){
-            default_zone = malloc_default_zone();
-            current_mode = OOMDetectorMode;
-            initAllImages();
-            oom_threshold = threshholdInBytes;
+        _enableOOMMonitor = global_oomdetector->startMallocStackMonitor(threshholdInBytes);
+        if(_enableOOMMonitor){
             malloc_logger = (malloc_logger_t *)common_stack_logger;//(malloc_logger_t *)oom_malloc_logger;
         }
     }
@@ -238,7 +207,7 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
         [_timer fire];
     }
 
-    return enableOOMMonitor;
+    return _enableOOMMonitor;
 }
 
 
@@ -254,18 +223,9 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 
 -(void)stopMallocStackMonitor
 {
-    if(enableOOMMonitor){
-//        malloc_logger = NULL;
-        OSSpinLockLock(&hashmap_spinlock);
-        CPtrsHashmap *tmp_ptr = oom_ptrs_hashmap;
-        CStacksHashmap *tmp_stack = oom_stacks_hashmap;
-        oom_stacks_hashmap = NULL;
-        oom_ptrs_hashmap = NULL;
-        OSSpinLockUnlock(&hashmap_spinlock);
-        delete tmp_ptr;
-        delete tmp_stack;
+    if(_enableOOMMonitor){
+        global_oomdetector->stopMallocStackMonitor();
     }
-
     if(_timer){
         [_timer invalidate];
     }
@@ -275,7 +235,7 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 -(void)setupVMLogger
 {
 #ifdef USE_VM_LOGGER
-    vm_sys_logger = (malloc_logger_t**)&__syscall_logger;
+    global_oomdetector->vm_sys_logger = (malloc_logger_t**)&__syscall_logger;
 #else
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:@"你在Release模式下调用了startVMStackMonitor:方法，Release模式下只有打开了USE_VM_LOGGER_FORCEDLY宏之后startVMStackMonitor:方法才会生效，不过切记不要在app store版本中打开USE_VM_LOGGER_FORCEDLY宏" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
     [alert show];
@@ -285,33 +245,23 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 
 -(BOOL)startVMStackMonitor:(size_t)threshHoldInbytes
 {
-    if (NULL == vm_sys_logger) {
+    if (NULL == global_oomdetector->vm_sys_logger) {
         [self setupVMLogger];
     }
-    if(!enableVMMonitor && vm_sys_logger){
-        if(!normal_stack_logger){
+    if(!_enableVMMonitor && global_oomdetector->vm_sys_logger){
+        if(global_oomdetector->getStackLogger() == NULL){
             NSFileManager *fileManager = [NSFileManager defaultManager];
-            if (![fileManager fileExistsAtPath:currentDir]) {
-                [fileManager createDirectoryAtPath:currentDir withIntermediateDirectories:YES attributes:nil error:nil];
+            if (![fileManager fileExistsAtPath:_currentDir]) {
+                [fileManager createDirectoryAtPath:_currentDir withIntermediateDirectories:YES attributes:nil error:nil];
             }
             if (![fileManager fileExistsAtPath:_normal_path]) {
                 [fileManager createFileAtPath:_normal_path contents:nil attributes:nil];
             }
-            normal_stack_logger = createLogger(memory_zone, _normal_path, normal_size);
+            global_oomdetector->initLogger(global_memory_zone, _normal_path, normal_size,printLog);
         }
-        if(normal_stack_logger != NULL){
-            vm_stacks_hashmap = new CStacksHashmap(1000,OOMDetectorMode);
-            vm_ptrs_hashmap = new CPtrsHashmap(2000,OOMDetectorMode);
-            enableVMMonitor = YES;
-        }
-        else {
-            enableVMMonitor = NO;
-        }
-        if(enableVMMonitor){
-            current_mode = OOMDetectorMode;
-            initAllImages();
-            vm_threshold = threshHoldInbytes;
-            *vm_sys_logger = oom_vm_logger;
+        _enableVMMonitor = global_oomdetector->startVMStackMonitor(threshHoldInbytes);
+        if(_enableVMMonitor){
+            *(global_oomdetector->vm_sys_logger) = oom_vm_logger;
         }
     }
     return YES;
@@ -319,54 +269,41 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 
 -(void)stopVMStackMonitor
 {
-    if(enableVMMonitor && vm_sys_logger){
-        if(normal_stack_logger != NULL){
-            OSSpinLockLock(&vm_hashmap_spinlock);
-            CPtrsHashmap *tmp_ptr = vm_ptrs_hashmap;
-            CStacksHashmap *tmp_stack = vm_stacks_hashmap;
-            vm_ptrs_hashmap = NULL;
-            vm_stacks_hashmap = NULL;
-            OSSpinLockUnlock(&vm_hashmap_spinlock);
-            delete tmp_ptr;
-            delete tmp_stack;
-        }
-        *vm_sys_logger = NULL;
-        enableVMMonitor = NO;
+    if(_enableVMMonitor && global_oomdetector->vm_sys_logger){
+        global_oomdetector->stopVMStackMonitor();
+        *(global_oomdetector->vm_sys_logger) = NULL;
+        _enableVMMonitor = NO;
     }
 }
 
 -(BOOL)startSingleChunkMallocDetector:(size_t)threshholdInBytes callback:(ChunkMallocBlock)callback
 {
-    if(!enableChunkMonitor){
-        enableChunkMonitor = YES;
-        if(enableChunkMonitor){
-            default_zone = malloc_default_zone();
-            current_mode = OOMDetectorMode;
-            initAllImages();
-            chunk_threshold = threshholdInBytes;
-            chunkMallocCallback = myChunkMallocCallback;
+    if(!_enableChunkMonitor){
+        _enableChunkMonitor = YES;
+        if(_enableChunkMonitor){
+            global_oomdetector->startSingleChunkMallocDetector(threshholdInBytes,callback);
             self.chunkMallocBlock = callback;
             malloc_logger = (malloc_logger_t *)common_stack_logger;//(malloc_logger_t *)oom_malloc_logger;
         }
     }
-    return enableChunkMonitor;
+    return _enableChunkMonitor;
 }
 
 -(void)stopSingleChunkMallocDetector
 {
-    if(!enableOOMMonitor && enableChunkMonitor){
+    if(!_enableOOMMonitor && _enableChunkMonitor){
+        global_oomdetector->stopSingleChunkMallocDetector();
         malloc_logger = NULL;
     }
-    enableChunkMonitor = NO;
+    _enableChunkMonitor = NO;
 }
 
 -(void)flush_allocation_stack
 {
     [_flushLock lock];
-    flush_allocation_stack();
+    global_oomdetector->flush_allocation_stack();
     [_flushLock unlock];
 }
-
 
 -(void)uploadAllStack
 {
@@ -443,22 +380,25 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 
 -(void)setMaxStackDepth:(size_t)depth
 {
-    if(depth > 0) max_stack_depth = depth;
+    if(depth > 0) {
+        global_oomdetector->max_stack_depth = depth;
+    }
 }
+
 
 -(void)setNeedSystemStack:(BOOL)isNeedSys
 {
-    needSysStack = isNeedSys;
+    global_oomdetector->needSysStack = isNeedSys;
 }
 
 -(void)setNeedStacksWithoutAppStack:(BOOL)isNeedStackWithoutAppStack
 {
-    needStackWithoutAppStack = isNeedStackWithoutAppStack;
+    global_oomdetector->needStackWithoutAppStack = isNeedStackWithoutAppStack;
 }
 
 -(NSString *)currentStackLogDir;
 {
-    return currentDir;
+    return _currentDir;
 }
 
 - (void)setStatisticsInfoBlock:(StatisticsInfoBlock)block
@@ -468,11 +408,6 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
 
 -(void)dealloc
 {
-    if(normal_stack_logger != NULL){
-        munmap(normal_stack_logger->mmap_ptr , normal_stack_logger->mmap_size);
-        normal_stack_logger->memory_zone->free(normal_stack_logger->memory_zone,normal_stack_logger);
-    }
-
     self.logPrintBlock = nil;
     self.chunkMallocBlock = nil;
     [super dealloc];

@@ -19,8 +19,8 @@
 #ifndef CMergedHashmap_h
 #define CMergedHashmap_h
 
-#include "CBaseHashmap.h"
-#include "CPtrsHashmap.h"
+#import "CBaseHashmap.h"
+#import "CPtrsHashmap.h"
 
 typedef struct leaked_ptr_t{
     unsigned char md5[16];
@@ -32,7 +32,7 @@ typedef struct leaked_ptr_t{
 class CLeakedHashmap : public CBaseHashmap
 {
 public:
-    CLeakedHashmap(size_t entrys):CBaseHashmap(entrys,QQLeakMode){};
+    CLeakedHashmap(size_t entrys,malloc_zone_t *memory_zone):CBaseHashmap(entrys,memory_zone){};
     void insertLeakPtrAndIncreaseCountIfExist(unsigned char *md5,ptr_log_t *ptr_log);
     ~CLeakedHashmap();
 protected:

@@ -19,17 +19,17 @@
 #ifndef C_HEAP_CHECKER
 #define C_HEAP_CHECKER
 
-#include <stdio.h>
+#import <stdio.h>
 #import <Foundation/Foundation.h>
-#include <pthread.h>
-#include <mach/mach.h>
-#include <malloc/malloc.h>
-#include "CMemoryChecker.h"
+#import <pthread.h>
+#import <mach/mach.h>
+#import <malloc/malloc.h>
+#import "CMemoryChecker.h"
 
 class CHeapChecker : public CMemoryChecker
 {
 public:
-    CHeapChecker(){};
+    CHeapChecker(CLeakChecker *checker):CMemoryChecker(checker){};
     void startPtrCheck();
 private:
     static void check_ptr_in_heap(task_t task, void *baton, unsigned type, vm_range_t *ptrs, unsigned count);

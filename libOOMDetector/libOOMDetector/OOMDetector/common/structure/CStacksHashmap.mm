@@ -16,16 +16,17 @@
 //
 //
 
-#include "CStacksHashmap.h"
-#include "QQLeakStackLogging.h"
+#import "CStacksHashmap.h"
+#import "QQLeakMallocStackTracker.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
 
-extern size_t max_stack_depth;
-extern monitor_mode current_mode;
-extern size_t oom_threshold;
+CStacksHashmap::CStacksHashmap(size_t entrys,malloc_zone_t *zone,monitor_mode monitorMode):CBaseHashmap(entrys,zone)
+{
+    mode = monitorMode;
+}
 
 CStacksHashmap::~CStacksHashmap()
 {
@@ -60,7 +61,7 @@ void CStacksHashmap::insertStackAndIncreaseCountIfExist(unsigned char *md5,base_
     else{
         if(compare(parent,md5) == 0){
             parent->count++;
-            if(current_mode == QQLeakMode){
+            if(mode == QQLeakMode){
                 parent->extra.name = stack->extra.name;
             }
             else {
@@ -80,7 +81,7 @@ void CStacksHashmap::insertStackAndIncreaseCountIfExist(unsigned char *md5,base_
             collision_num++;
             if(compare(current,md5) == 0){
                 current->count++;
-                if(current_mode == QQLeakMode){
+                if(mode == QQLeakMode){
                     current->extra.name = stack->extra.name;
                 }
                 else {
@@ -115,11 +116,11 @@ void CStacksHashmap::removeIfCountIsZero(unsigned char *md5,size_t size)
     }
     else{
         if(compare(parent,md5) == 0){
-            if(current_mode == OOMDetectorMode){
+            if(mode == OOMDetectorMode){
                 if(parent->extra.size < size) parent->extra.size = 0;
                 else parent->extra.size -= size;
             }
-            if(--(parent->count) <= 0 || (current_mode == OOMDetectorMode && parent->extra.size == 0))
+            if(--(parent->count) <= 0 || (mode == OOMDetectorMode && parent->extra.size == 0))
             {
                 entry->root = parent->next;
                 if(parent->stack != NULL){
@@ -133,11 +134,11 @@ void CStacksHashmap::removeIfCountIsZero(unsigned char *md5,size_t size)
         merge_stack_t *current = parent->next;
         while(current != NULL){
             if(compare(current,md5) == 0){
-                if(current_mode == OOMDetectorMode){
+                if(mode == OOMDetectorMode){
                     if(current->extra.size < size) current->extra.size = 0;
                     else current->extra.size -= size;
                 }
-                if(--(current->count) <= 0 || (current_mode == OOMDetectorMode && current->extra.size == 0))
+                if(--(current->count) <= 0 || (mode == OOMDetectorMode && current->extra.size == 0))
                 {
                     parent->next = current->next;
                     if(current->stack != NULL){
@@ -184,7 +185,7 @@ merge_stack_t *CStacksHashmap::create_hashmap_data(unsigned char *md5,base_stack
     memcpy(merge_data->md5,md5,16*sizeof(char));
     merge_data->count = 1;
     BOOL needStack = NO;
-    if(current_mode == QQLeakMode){
+    if(mode == QQLeakMode){
         merge_data->extra.name = base_stack->extra.name;
         needStack = YES;
     }
@@ -192,7 +193,7 @@ merge_stack_t *CStacksHashmap::create_hashmap_data(unsigned char *md5,base_stack
         merge_data->extra.name = base_stack->extra.name;
         merge_data->extra.size = base_stack->extra.size;
     }
-    if(base_stack->extra.size > oom_threshold || current_mode == QQLeakMode){
+    if(base_stack->extra.size > oom_threshold || mode == QQLeakMode){
         merge_data->stack = (vm_address_t **)hashmap_malloc(base_stack->depth*sizeof(vm_address_t*));
         memcpy(merge_data->stack, base_stack->stack, base_stack->depth * sizeof(vm_address_t *));
         merge_data->depth = base_stack->depth;

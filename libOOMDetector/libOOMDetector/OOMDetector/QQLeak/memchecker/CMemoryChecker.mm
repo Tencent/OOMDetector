@@ -19,23 +19,19 @@
 
 #import "CMemoryChecker.h"
 #import <libkern/OSAtomic.h>
-#include <malloc/malloc.h>
-#include "CObjcManager.h"
-#include "QQLeakStackLogging.h"
+#import <malloc/malloc.h>
+#import "CObjcFilter.h"
+#import "QQLeakMallocStackTracker.h"
+#import "CLeakChecker.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
 
-extern malloc_zone_t *memory_zone;
-
 kern_return_t memory_reader (task_t task, vm_address_t remote_address, vm_size_t size, void **local_memory)
 {
     *local_memory = (void*) remote_address;
     return KERN_SUCCESS;
-}
-
-CMemoryChecker::CMemoryChecker(){
 }
 
 void CMemoryChecker::check_ptr_in_vmrange(vm_range_t range,memory_type type)
@@ -52,7 +48,7 @@ void CMemoryChecker::check_ptr_in_vmrange(vm_range_t range,memory_type type)
              addr += align_size, ptr_addr += align_size)
         {
             vm_address_t *dest_ptr = (vm_address_t *)ptr_addr;
-            findPtrInMemoryRegion(*dest_ptr);
+            leakChecker->findPtrInMemoryRegion(*dest_ptr);
         }
     }
 }

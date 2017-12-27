@@ -1,6 +1,8 @@
 //
-//  QQLeakStackLogging.m
-//  QQLeak
+//  CLeakChecker.m
+//  libOOMDetector
+//
+//  Created by rosen on 2017/12/25.
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
 //  Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
@@ -16,69 +18,55 @@
 //
 //
 
+#import "CLeakChecker.h"
+#import "QQLeakChecker.h"
+#import "CommonMallocLogger.h"
 
-#import "AllocationTracker.h"
-#import <libkern/OSAtomic.h>
-#include <pthread.h>
-#include <execinfo.h>
-#include <mach/vm_map.h>
-#include <mach/thread_act.h>
-#include <mach/mach_port.h>
-#include <mach/mach_init.h>
-#include <pthread.h>
-#include <ext/hash_set>
-#include "CMachOHelper.h"
-#include "QQLeakStackLogging.h"
-#include "CMallocHook.h"
-#include "CObjcManager.h"
-#include "CThreadTrackingHashmap.h"
-#include "CHeapChecker.h"
-#include "CLeakedHashmap.h"
-#import "BackTraceManager.h"
-#import "AllocationStackLogger.h"
-#import "QQLeakFileUploadCenter.h"
-#import "QQLeakDeviceInfo.h"
 
-#if __has_feature(objc_arc)
-#error  this file should use MRC
-#endif
+CLeakChecker::CLeakChecker()
+{
+    stackHelper = new CStackHelper();
+}
 
-//static
-static bool enableStackTracking;
-static bool isLeakChecking;
+CLeakChecker::~CLeakChecker()
+{
+    if(leaked_hashmap != NULL){
+        delete leaked_hashmap;
+    }
+    if(threadTracking_hashmap != NULL){
+        delete threadTracking_hashmap;
+    }
+    if(qleak_ptrs_hashmap != NULL){
+        delete qleak_ptrs_hashmap;
+    }
+    if(qleak_stacks_hashmap != NULL){
+        delete qleak_stacks_hashmap;
+    }
+    if(objcFilter != NULL){
+        delete objcFilter;
+    }
+    if(stackHelper != NULL){
+        delete stackHelper;
+    }
+}
 
-//extern
-extern malloc_zone_t *memory_zone;
-extern malloc_zone_t *default_zone;
-extern monitor_mode current_mode;
-extern OSSpinLock hashmap_spinlock;
-
-//global
-CLeakedHashmap *leaked_hashmap;
-CThreadTrackingHashmap *threadTracking_hashmap;
-OSSpinLock threadTracking_spinlock = OS_SPINLOCK_INIT;
-CPtrsHashmap *qleak_ptrs_hashmap;
-CStacksHashmap *qleak_stacks_hashmap;
-
-void uploadLeakData(NSString *leakStr);
-
-bool findPtrInMemoryRegion(vm_address_t address){
+bool CLeakChecker::findPtrInMemoryRegion(vm_address_t address){
     ptr_log_t *ptr_log = qleak_ptrs_hashmap->lookupPtr(address);
     if(ptr_log != NULL){
-        ptr_log->size_or_refer++;
+        ptr_log->refer++;
         return true;
     }
     return false;
 }
 
-void markedThreadToTrackingNextMalloc(const char* name){
+void CLeakChecker::markedThreadToTrackingNextMalloc(const char* name){
     thread_t thread = mach_thread_self();
     OSSpinLockLock(&threadTracking_spinlock);
     threadTracking_hashmap->insertThreadAndUpdateIfExist(thread, name);
     OSSpinLockUnlock(&threadTracking_spinlock);
 }
 
-static bool isThreadNeedTracking(const char **name){
+bool CLeakChecker::isThreadNeedTracking(const char **name){
     thread_t thread = mach_thread_self();
     OSSpinLockLock(&threadTracking_spinlock);
     thread_data_t *thread_data = threadTracking_hashmap->lookupThread(thread);
@@ -94,67 +82,20 @@ static bool isThreadNeedTracking(const char **name){
     return false;
 }
 
-void malloc_stack_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t backtrace_to_skip)
-{
-    if(!enableStackTracking){
-        return;
+void CLeakChecker::initLeakChecker(){
+    if(global_memory_zone == NULL){
+        global_memory_zone = malloc_create_zone(0, 0);
+        malloc_set_zone_name(global_memory_zone, "QQLeak");
     }
-    if(arg1 == (uintptr_t)memory_zone){
-        isThreadNeedTracking(NULL);
-        return ;
-    }
-    if (type & stack_logging_flag_zone) {
-        type &= ~stack_logging_flag_zone;
-    }
-    if (type == (stack_logging_type_dealloc|stack_logging_type_alloc)) {
-        if (arg2 == result) {
-            return;
-        }
-        if (!arg2) {
-            if(!isLeakChecking){
-                const char *name = NULL;
-                if(!isThreadNeedTracking(&name)) return;
-                recordMallocStack(result, (uint32_t)arg3,name,4,QQLeakMode);
-            }
-            return;
-        } else {
-            removeMallocStack((vm_address_t)arg2,QQLeakMode);
-            if(!isLeakChecking){
-                const char *name = NULL;
-                if(!isThreadNeedTracking(&name)) return;
-                recordMallocStack(result, (uint32_t)arg3,name,4,QQLeakMode);
-            }
-            return;
-        }
-    }
-    if (type == stack_logging_type_dealloc) {
-        if (!arg2) return;
-        removeMallocStack((vm_address_t)arg2,QQLeakMode);
-    }
-    else if((type & stack_logging_type_alloc) != 0){
-        if(!isLeakChecking){
-            const char *name = NULL;
-            if(!isThreadNeedTracking(&name)) return;
-            recordMallocStack(result, (uint32_t)arg2,name,4,QQLeakMode);
-        }
-    }
+    malloc_zone = global_memory_zone;
+    threadTracking_hashmap = new CThreadTrackingHashmap(40,global_memory_zone);
+    objcFilter = new CObjcFilter();
+    objcFilter->initBlackClass();
+    qleak_ptrs_hashmap = new CPtrsHashmap(100000,global_memory_zone);
+    qleak_stacks_hashmap = new CStacksHashmap(50000,global_memory_zone,QQLeakMode);
 }
 
-void initStackLogging(){
-    if(memory_zone == nil){
-        memory_zone = malloc_create_zone(0, 0);
-        malloc_set_zone_name(memory_zone, "QQLeak");
-    }
-    current_mode = QQLeakMode;
-    default_zone = malloc_default_zone();
-    threadTracking_hashmap = new CThreadTrackingHashmap(40);
-    initAllImages();
-    initBlackClass();
-    qleak_ptrs_hashmap = new CPtrsHashmap(100000,QQLeakMode);
-    qleak_stacks_hashmap = new CStacksHashmap(50000,QQLeakMode);
-}
-
-void beginMallocStackLogging(){
+void CLeakChecker::beginLeakChecker(){
     enableStackTracking = false;
     malloc_logger = (malloc_logger_t *)common_stack_logger;
     hookMalloc();
@@ -163,11 +104,11 @@ void beginMallocStackLogging(){
     isLeakChecking = false;
 }
 
-void clearMallocStackLogging(){
+void CLeakChecker::clearLeakChecker(){
     enableStackTracking = false;
     [[AllocationTracker getInstance] stopRecord];
     unHookMalloc();
-//    malloc_logger = NULL;
+    //    malloc_logger = NULL;
     OSSpinLockLock(&hashmap_spinlock);
     delete qleak_ptrs_hashmap;
     delete qleak_stacks_hashmap;
@@ -177,21 +118,60 @@ void clearMallocStackLogging(){
     OSSpinLockUnlock(&hashmap_spinlock);
 }
 
-void leakCheckingWillStart(){
-    [[AllocationTracker getInstance] pausedRecord];
+void CLeakChecker::leakCheckingWillStart(){
     pausedMallocTracking();
     isLeakChecking = true;
-    leaked_hashmap = new CLeakedHashmap(200);
+    leaked_hashmap = new CLeakedHashmap(200,global_memory_zone);
+    objcFilter->updateCurrentClass();
     OSSpinLockUnlock(&hashmap_spinlock);
 }
-void leakCheckingWillFinish(){
+void CLeakChecker::leakCheckingWillFinish(){
     isLeakChecking = false;
     resumeMallocTracking();
-     delete leaked_hashmap;
-    [[AllocationTracker getInstance] resumeRecord];
+    objcFilter->clearCurrentClass();
+    delete leaked_hashmap;
 }
 
-void get_all_leak_ptrs()
+void CLeakChecker::recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip)
+{
+    base_stack_t base_stack;
+    base_ptr_log base_ptr;
+    unsigned char md5[16];
+    vm_address_t *stack[max_stack_depth];
+    base_stack.depth = stackHelper->recordBacktrace(needSysStack,0,stack_num_to_skip + 1, stack,md5,max_stack_depth);
+    
+    if(base_stack.depth > 0){
+        base_stack.stack = stack;
+        base_stack.extra.name = name;
+        base_ptr.md5 = md5;
+        base_ptr.size = size;
+        OSSpinLockLock(&hashmap_spinlock);
+        if(qleak_ptrs_hashmap && qleak_stacks_hashmap){
+            if(qleak_ptrs_hashmap->insertPtr(address, &base_ptr)){
+                qleak_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
+            }
+        }
+        OSSpinLockUnlock(&hashmap_spinlock);
+    }
+}
+
+void CLeakChecker::removeMallocStack(vm_address_t address)
+{
+    OSSpinLockLock(&hashmap_spinlock);
+    if(qleak_ptrs_hashmap && qleak_stacks_hashmap){
+        ptr_log_t *ptr_log = qleak_ptrs_hashmap->lookupPtr(address);
+        if(ptr_log != NULL)
+        {
+            unsigned char *md5 = ptr_log->md5;
+            if(qleak_ptrs_hashmap->removePtr(address)){
+                qleak_stacks_hashmap->removeIfCountIsZero(md5,(size_t)ptr_log->size);
+            }
+        }
+    }
+    OSSpinLockUnlock(&hashmap_spinlock);
+}
+
+void CLeakChecker::get_all_leak_ptrs()
 {
     for(size_t i = 0; i < qleak_ptrs_hashmap->getEntryNum(); i++)
     {
@@ -204,21 +184,21 @@ void get_all_leak_ptrs()
                 continue;
             }
             if(merge_stack->extra.name != NULL){
-                if(current->size_or_refer == 0){
+                if(current->refer == 0){
                     leaked_hashmap->insertLeakPtrAndIncreaseCountIfExist(current->md5, current);
                     qleak_ptrs_hashmap->removePtr(current->address);
                 }
-                current->size_or_refer = 0;
+                current->refer = 0;
             }
             else{
-                const char* name = getObjectNameExceptBlack((void *)current->address);
+                const char* name = objcFilter->getObjectNameExceptBlack((void *)current->address);
                 if(name != NULL){
                     merge_stack->extra.name = name;
-                    if(current->size_or_refer == 0){
+                    if(current->refer == 0){
                         leaked_hashmap->insertLeakPtrAndIncreaseCountIfExist(current->md5, current);
                         qleak_ptrs_hashmap->removePtr(current->address);
                     }
-                    current->size_or_refer = 0;
+                    current->refer = 0;
                 }
                 else {
                     qleak_ptrs_hashmap->removePtr(current->address);
@@ -229,7 +209,7 @@ void get_all_leak_ptrs()
     }
 }
 
-NSString* get_all_leak_stack(size_t *total_count)
+NSString* CLeakChecker::get_all_leak_stack(size_t *total_count)
 {
     get_all_leak_ptrs();
     NSMutableString *stackData = [[[NSMutableString alloc] init] autorelease];
@@ -249,7 +229,7 @@ NSString* get_all_leak_stack(size_t *total_count)
             for(size_t j = 0; j < merge_stack->depth; j++){
                 vm_address_t addr = (vm_address_t)merge_stack->stack[j];
                 segImageInfo segImage;
-                if(getImageByAddr(addr, &segImage)){
+                if(stackHelper->getImageByAddr(addr, &segImage)){
                     [stackData appendFormat:@"\"%lu %s 0x%lx 0x%lx\" ",j,(segImage.name != NULL) ? segImage.name : "unknown",segImage.loadAddr,(long)addr];
                 }
             }
@@ -259,15 +239,15 @@ NSString* get_all_leak_stack(size_t *total_count)
     }
     [stackData insertString:[NSString stringWithFormat:@"QQLeakChecker find %lu leak object!!!\n",total] atIndex:0];
     *total_count = total;
-
+    
     if(total > 0){
         uploadLeakData(stackData);
     }
-
+    
     return stackData;
 }
 
-void uploadLeakData(NSString *leakStr)
+void CLeakChecker::uploadLeakData(NSString *leakStr)
 {
     if ([QQLeakFileUploadCenter defaultCenter].fileDataDelegate) {
         NSMutableString *leakData = [[[NSMutableString alloc] initWithString:leakStr] autorelease];
@@ -285,7 +265,7 @@ void uploadLeakData(NSString *leakStr)
                     [extra setValue:[QQLeakDeviceInfo platform] forKey:@"device_type"];
                 }
                 
-
+                
                 
                 [[QQLeakFileUploadCenter defaultCenter] fileData:[leakData dataUsingEncoding:NSUTF8StringEncoding] extra:extra type:QQStackReportTypeLeak completionHandler:^(BOOL completed) {
                     
@@ -294,3 +274,45 @@ void uploadLeakData(NSString *leakStr)
         }
     }
 }
+
+bool CLeakChecker::isNeedTrackClass(Class cl)
+{
+    return !(objcFilter->isClassInBlackList(cl));
+}
+
+void CLeakChecker::lockSpinLock()
+{
+    OSSpinLockLock(&hashmap_spinlock);
+}
+
+void CLeakChecker::unlockSpinLock()
+{
+    OSSpinLockUnlock(&hashmap_spinlock);
+}
+
+
+malloc_zone_t *CLeakChecker::getMemoryZone()
+{
+    return malloc_zone;
+}
+
+CPtrsHashmap *CLeakChecker::getPtrHashmap()
+{
+    return qleak_ptrs_hashmap;
+}
+
+CStacksHashmap *CLeakChecker::getStackHashmap()
+{
+    return qleak_stacks_hashmap;
+}
+
+void CLeakChecker::setMaxStackDepth(size_t depth)
+{
+   max_stack_depth = depth;
+}
+
+void CLeakChecker::setNeedSysStack(BOOL need)
+{
+    needSysStack = need;
+}
+

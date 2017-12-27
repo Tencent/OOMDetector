@@ -17,109 +17,111 @@
 //
 
 #import "HighSpeedLogger.h"
-#include <sys/mman.h>
+#import <sys/mman.h>
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
 
-HighSpeedLogger *createLogger(malloc_zone_t *memory_zone, NSString *path, size_t mmap_size)
+HighSpeedLogger::~HighSpeedLogger()
 {
-    HighSpeedLogger *logger = (HighSpeedLogger *)memory_zone->malloc(memory_zone, sizeof(HighSpeedLogger));
-    logger->current_len = 0;
-    logger->mmap_size = mmap_size;
-    logger->memory_zone = memory_zone;
+    if(mmap_ptr != NULL){
+        munmap(mmap_ptr , mmap_size);
+    }
+}
+
+HighSpeedLogger::HighSpeedLogger(malloc_zone_t *zone, NSString *path, size_t size)
+{
+    current_len = 0;
+    mmap_size = size;
+    memory_zone = zone;
     FILE *fp = fopen ( [path fileSystemRepresentation] , "wb+" ) ;
     if(fp != NULL){
-        int ret = ftruncate(fileno(fp), mmap_size);
+        int ret = ftruncate(fileno(fp), size);
         if(ret == -1){
-            memory_zone->free(memory_zone,logger);
-            return NULL;
+            isFailed = true;
         }
         else {
             fseek(fp, 0, SEEK_SET);
-            char *mmap_ptr = (char *)mmap(0, mmap_size, PROT_WRITE | PROT_READ, (MAP_FILE|MAP_SHARED), fileno(fp), 0);
-            memset(mmap_ptr, '\0', mmap_size);
-            if(mmap_ptr != NULL){
-                logger->mmap_ptr = mmap_ptr;
-                logger->fp = fp;
-                return logger;
+            char *ptr = (char *)mmap(0, size, PROT_WRITE | PROT_READ, (MAP_FILE|MAP_SHARED), fileno(fp), 0);
+            memset(ptr, '\0', size);
+            if(ptr != NULL){
+                mmap_ptr = ptr;
+                mmap_fp = fp;
             }
             else {
-                memory_zone->free(memory_zone,logger);
-                return NULL;
+                isFailed = true;
             }
         }
     }
     else {
-        memory_zone->free(memory_zone,logger);
-        return NULL;
+        isFailed = true;
     }
 }
 
-BOOL sprintfLogger(HighSpeedLogger *logger,size_t grain_size,const char *format, ...)
+BOOL HighSpeedLogger::sprintfLogger(size_t grain_size,const char *format, ...)
 {
     va_list args;
     va_start(args, format);
     BOOL result = NO;
     size_t maxSize = 10240;
-    char *tmp = (char *)logger->memory_zone->malloc(logger->memory_zone, maxSize);
+    char *tmp = (char *)memory_zone->malloc(memory_zone, maxSize);
     size_t length = vsnprintf(tmp, maxSize, format, args);
     if(length >= maxSize) {
-        logger->memory_zone->free(logger->memory_zone,tmp);
+        memory_zone->free(memory_zone,tmp);
         return NO;
     }
-    if (logger->logPrinterCallBack != NULL) {
-        logger->logPrinterCallBack(tmp);
+    if (logPrinterCallBack != NULL) {
+        logPrinterCallBack(tmp);
     }
-    if(length + logger->current_len < logger->mmap_size - 1){
-        logger->current_len += snprintf(logger->mmap_ptr + logger->current_len, (logger->mmap_size - 1 - logger->current_len), "%s", (const char*)tmp);
+    if(length + current_len < mmap_size - 1){
+        current_len += snprintf(mmap_ptr + current_len, (mmap_size - 1 - current_len), "%s", (const char*)tmp);
         result = YES;
     }
     else {
-        char *copy = (char *)logger->memory_zone->malloc(logger->memory_zone, logger->mmap_size);
-        memcpy(copy, logger->mmap_ptr, logger->mmap_size);
-        munmap(logger->mmap_ptr ,logger->mmap_size);
-        size_t copy_size = logger->mmap_size;
-        logger->mmap_size += grain_size;
-        int ret = ftruncate(fileno(logger->fp), logger->mmap_size);
+        char *copy = (char *)memory_zone->malloc(memory_zone, mmap_size);
+        memcpy(copy, mmap_ptr, mmap_size);
+        munmap(mmap_ptr ,mmap_size);
+        size_t copy_size = mmap_size;
+        mmap_size += grain_size;
+        int ret = ftruncate(fileno(mmap_fp), mmap_size);
         if(ret == -1){
-            logger->memory_zone->free(logger->memory_zone,copy);
+            memory_zone->free(memory_zone,copy);
             result = NO;
         }
         else {
-            fseek(logger->fp, 0, SEEK_SET);
-            logger->mmap_ptr = (char *)mmap(0, logger->mmap_size, PROT_WRITE | PROT_READ, (MAP_FILE|MAP_SHARED), fileno(logger->fp), 0);
-            memset(logger->mmap_ptr, '\0', logger->mmap_size);
-            if(!logger->mmap_ptr){
-                logger->memory_zone->free(logger->memory_zone,copy);
+            fseek(mmap_fp, 0, SEEK_SET);
+            mmap_ptr = (char *)mmap(0, mmap_size, PROT_WRITE | PROT_READ, (MAP_FILE|MAP_SHARED), fileno(mmap_fp), 0);
+            memset(mmap_ptr, '\0', mmap_size);
+            if(!mmap_ptr){
+                memory_zone->free(memory_zone,copy);
                 result = NO;
             }
             else {
                 result = YES;
-                memcpy(logger->mmap_ptr, copy, copy_size);
-                logger->current_len += snprintf(logger->mmap_ptr + logger->current_len, (logger->mmap_size - 1 - logger->current_len), "%s", (const char*)tmp);
+                memcpy(mmap_ptr, copy, copy_size);
+                current_len += snprintf(mmap_ptr + current_len, (mmap_size - 1 - current_len), "%s", (const char*)tmp);
             }
         }
-        logger->memory_zone->free(logger->memory_zone,copy);
+        memory_zone->free(memory_zone,copy);
     }
     va_end(args);
-    logger->memory_zone->free(logger->memory_zone,tmp);
+    memory_zone->free(memory_zone,tmp);
     return result;
 }
 
-void cleanLogger(HighSpeedLogger *logger)
+void HighSpeedLogger::cleanLogger()
 {
-    logger->current_len = 0;
-    memset(logger->mmap_ptr, '\0', logger->mmap_size);
+    current_len = 0;
+    memset(mmap_ptr, '\0', mmap_size);
 }
 
-void syncLogger(HighSpeedLogger *logger)
+void HighSpeedLogger::syncLogger()
 {
-    msync(logger->mmap_ptr, logger->mmap_size, MS_ASYNC);
+    msync(mmap_ptr, mmap_size, MS_ASYNC);
 }
 
-void registorLggPrinter(HighSpeedLogger *logger, LogPrinter printer)
+bool HighSpeedLogger::isValid()
 {
-    logger->logPrinterCallBack = printer;
+    return !isFailed;
 }

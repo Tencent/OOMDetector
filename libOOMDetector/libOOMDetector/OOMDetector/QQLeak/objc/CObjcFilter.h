@@ -1,5 +1,5 @@
 //
-//  CMachOHelper.h
+//  CObjcFilter.h
 //  QQLeak
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
@@ -16,35 +16,31 @@
 //
 //
 
+#ifndef CObjcManager_h
+#define CObjcManager_h
 
-#ifndef CMachOHelper_h
-#define CMachOHelper_h
+#import <Foundation/Foundation.h>
+#import <stdio.h>
+#import <stdlib.h>
+#import <unistd.h>
+#import <malloc/malloc.h>
+#import "QQLeakPredefines.h"
+#import <ext/hash_set>
+#import <objc/runtime.h>
 
-#include <mach-o/dyld.h>
-#include <dlfcn.h>
-#include <vector>
-#include <mach/mach.h>
-#include <malloc/malloc.h>
-#include "CSegmentChecker.h"
-#include "QQLeakPredefines.h"
-
-typedef struct
+class CObjcFilter
 {
-    const char* name;
-    long loadAddr;
-    long beginAddr;
-    long endAddr;
-}segImageInfo;
+public:
+    ~CObjcFilter();
+    void initBlackClass();
+    void updateCurrentClass();
+    void clearCurrentClass();
+    bool isClassInBlackList(Class cl);
+    const char *getObjectNameExceptBlack(void *obj);
+    const char *getObjectName(void *obj);
+private:
+    __gnu_cxx::hash_set<vm_address_t> *black_class_set = NULL;
+    __gnu_cxx::hash_set<vm_address_t> *current_class_set = NULL;
+};
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    void initAllImages();
-    bool isInAppAddress(vm_address_t addr);
-    bool getImageByAddr(vm_address_t addr,segImageInfo *image);
-    void removeAllImages();
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CMachOHelpler_h */
+#endif /* CObjcManager_h */

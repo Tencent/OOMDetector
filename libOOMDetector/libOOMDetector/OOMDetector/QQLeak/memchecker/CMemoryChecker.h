@@ -20,10 +20,13 @@
 
 #import <Foundation/Foundation.h>
 #import "QQLeakPredefines.h"
-#include <stdio.h>
-#include <pthread.h>
-#include <mach/mach.h>
-#include "QQLeakStackLogging.h"
+#import <stdio.h>
+#import <pthread.h>
+#import <mach/mach.h>
+#import "QQLeakMallocStackTracker.h"
+//#import "CLeakChecker.h"
+
+class CLeakChecker;
 
 typedef enum{
     HEAP_TYPE,
@@ -38,16 +41,6 @@ typedef struct leak_range_t{
     memory_type type;
 }leak_range_t;
 
-typedef struct{
-    size_t total_num;
-    size_t record_num;
-    leak_range_t *entry;
-}leak_range_list_t;
-
-extern leak_range_list_t *leak_range_list;
-extern malloc_zone_t *memorycheck_zone;
-extern kern_return_t memory_reader (task_t task, vm_address_t remote_address, vm_size_t size, void **local_memory);
-
 static const char *region_names[5]={
     "Heap",
     "Stack",
@@ -59,8 +52,10 @@ static const char *region_names[5]={
 class CMemoryChecker
 {
 public:
-    CMemoryChecker();
+    CMemoryChecker(CLeakChecker *checker):leakChecker(checker){};
     void check_ptr_in_vmrange(vm_range_t range,memory_type type);
+protected:
+    CLeakChecker *leakChecker;
 };
 
 #endif

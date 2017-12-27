@@ -16,7 +16,8 @@
 //
 //
 
-#include "CRegisterChecker.h"
+#import "CRegisterChecker.h"
+#import "CLeakChecker.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
@@ -52,14 +53,14 @@ bool CRegisterChecker::startPtrCheck(){
             vm_size_t len = sizeof(x_regs);
             ret = vm_read_overwrite(mach_task_self(), (vm_address_t)(_mcontext.__ss.__x),len, (vm_address_t)x_regs, &len);
             for(int i = 0;i < 29;i++){
-                findPtrInMemoryRegion((vm_address_t)x_regs[i]);
+               leakChecker->findPtrInMemoryRegion((vm_address_t)x_regs[i]);
             }
 #else
             vm_address_t r_regs[13];
             vm_size_t len = sizeof(r_regs);
             ret = vm_read_overwrite(mach_task_self(), (vm_address_t)(_mcontext.__ss.__r),len, (vm_address_t)r_regs, &len);
             for(int i = 0;i < 13;i++){
-                findPtrInMemoryRegion((vm_address_t)r_regs[i]);
+                leakChecker->findPtrInMemoryRegion((vm_address_t)r_regs[i]);
             }
 #endif
         }

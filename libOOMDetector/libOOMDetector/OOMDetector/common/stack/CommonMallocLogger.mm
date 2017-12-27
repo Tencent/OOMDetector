@@ -17,12 +17,15 @@
 //
 
 #import "CommonMallocLogger.h"
-#import "QQLeakStackLogging.h"
-#import "AllocationStackLogger.h"
+#import "QQLeakMallocStackTracker.h"
+#import "OOMMemoryStackTracker.h"
+#import "CLeakChecker.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
+
+malloc_zone_t *global_memory_zone;
 
 void common_stack_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t backtrace_to_skip)
 {

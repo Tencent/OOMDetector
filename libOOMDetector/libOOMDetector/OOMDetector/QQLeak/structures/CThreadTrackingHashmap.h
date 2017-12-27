@@ -19,11 +19,11 @@
 #ifndef CThreadTrackingHashmap_h
 #define CThreadTrackingHashmap_h
 
-#include <mach/thread_act.h>
-#include <mach/mach_port.h>
-#include <mach/mach_init.h>
-#include <pthread.h>
-#include "CBaseHashmap.h"
+#import <mach/thread_act.h>
+#import <mach/mach_port.h>
+#import <mach/mach_init.h>
+#import <pthread.h>
+#import "CBaseHashmap.h"
 
 typedef struct thread_data_t{
     bool needTrack;
@@ -35,7 +35,7 @@ typedef struct thread_data_t{
 class CThreadTrackingHashmap : public CBaseHashmap
 {
 public:
-    CThreadTrackingHashmap(size_t entrys):CBaseHashmap(entrys,QQLeakMode){};
+    CThreadTrackingHashmap(size_t entrys,malloc_zone_t *memory_zone):CBaseHashmap(entrys,memory_zone){};
     void insertThreadAndUpdateIfExist(thread_t thread,const char *name);
     thread_data_t *lookupThread(thread_t thread);
     ~CThreadTrackingHashmap();

@@ -19,14 +19,14 @@
 #ifndef C_REGISTER_CHECKER
 #define C_REGISTER_CHECKER
 
-#include "CMemoryChecker.h"
-#include "CStackChecker.h"
-
+#import "CMemoryChecker.h"
+#import "CStackChecker.h"
+#import "CLeakChecker.h"
 
 class CRegisterChecker : public CMemoryChecker
 {
 public:
-    CRegisterChecker(){};
+    CRegisterChecker(CLeakChecker *checker):CMemoryChecker(checker){};
     bool startPtrCheck();
 };
 

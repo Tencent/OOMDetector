@@ -16,13 +16,13 @@
 //
 //
 
-#include "CStackChecker.h"
-#include <dlfcn.h>
-#include <malloc/malloc.h>
-#include <mach/mach_init.h>
-#include <mach/thread_act.h>
-#include <mach/mach_port.h>
-#include <mach/vm_map.h>
+#import "CStackChecker.h"
+#import <dlfcn.h>
+#import <malloc/malloc.h>
+#import <mach/mach_init.h>
+#import <mach/thread_act.h>
+#import <mach/mach_port.h>
+#import <mach/vm_map.h>
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC

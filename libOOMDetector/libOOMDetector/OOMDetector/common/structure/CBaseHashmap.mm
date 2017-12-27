@@ -16,16 +16,15 @@
 //
 //
 
-#include "CBaseHashmap.h"
+#import "CBaseHashmap.h"
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
 #endif
 
-extern malloc_zone_t *memory_zone;
-
-CBaseHashmap::CBaseHashmap(size_t entrys,monitor_mode monitormode)
+CBaseHashmap::CBaseHashmap(size_t entrys,malloc_zone_t *zone)
 {
+    malloc_zone = zone;
     entry_num = entrys;
     hashmap_entry = (base_entry_t *)hashmap_malloc((entry_num)*sizeof(base_entry_t));
     for(size_t i = 0; i < entry_num;i++){
@@ -35,7 +34,6 @@ CBaseHashmap::CBaseHashmap(size_t entrys,monitor_mode monitormode)
     record_num = 0;
     access_num = 0;
     collision_num = 0;
-    mode = monitormode;
 }
 
 CBaseHashmap::~CBaseHashmap(){
@@ -43,16 +41,11 @@ CBaseHashmap::~CBaseHashmap(){
 }
 
 void *CBaseHashmap::hashmap_malloc(size_t size){
-    return memory_zone->malloc(memory_zone,size);
+    return malloc_zone->malloc(malloc_zone,size);
 }
 
 void CBaseHashmap::hashmap_free(void *ptr){
-    memory_zone->free(memory_zone,ptr);
-}
-
-monitor_mode CBaseHashmap::getMode()
-{
-    return mode;
+    malloc_zone->free(malloc_zone,ptr);
 }
 
 base_entry_t *CBaseHashmap::getHashmapEntry()

@@ -16,9 +16,9 @@
 //
 //
 
-#include "CMallocHook.h"
-#include "QQLeakChecker.h"
-#include "QQLeakStackLogging.h"
+#import "CMallocHook.h"
+#import "QQLeakChecker.h"
+#import "QQLeakMallocStackTracker.h"
 #import <mach-o/dyld.h>
 #import <dlfcn.h>
 #import <stdlib.h>
@@ -28,10 +28,13 @@
 #import <mach-o/loader.h>
 #import <mach-o/nlist.h>
 #import <objc/runtime.h>
-#include <vector>
+#import <vector>
 #import "CBaseHashmap.h"
-#import "BackTraceManager.h"
-#import "AllocationStackLogger.h"
+#import "CStackHelper.h"
+#import "OOMMemoryStackTracker.h"
+#import "CLeakChecker.h"
+
+extern CLeakChecker* global_leakChecker;
 
 #if __has_feature(objc_arc)
 #error  this file should use MRC
@@ -76,7 +79,7 @@ void *new_malloc(size_t size)
 {
     void *ptr = orig_malloc(size);
     if(!isPaused){
-        recordMallocStack((vm_address_t)ptr, (uint32_t)size,"malloc",2,QQLeakMode);
+        global_leakChecker->recordMallocStack((vm_address_t)ptr, (uint32_t)size,"malloc",2);
     }
 #ifdef __enable_malloc_logger__
     malloc_printf("malloc ptr:%p size:%lu thread:%lu\n",ptr, size,mach_thread_self());
@@ -88,7 +91,7 @@ void *new_calloc(size_t n,size_t size)
 {
     void *ptr = orig_calloc(n,size);
     if(!isPaused){
-        recordMallocStack((vm_address_t)ptr, (uint32_t)(n*size),"malloc",2,QQLeakMode);
+        global_leakChecker->recordMallocStack((vm_address_t)ptr, (uint32_t)(n*size),"malloc",2);
     }
 #ifdef __enable_malloc_logger__
     malloc_printf("calloc ptr:%p size:%lu thread:%lu\n",ptr, size*n,mach_thread_self());
@@ -100,7 +103,7 @@ void *new_valloc(size_t size)
 {
     void *ptr = orig_valloc(size);
     if(!isPaused){
-        recordMallocStack((vm_address_t)ptr, (uint32_t)size,"malloc",2,QQLeakMode);
+        global_leakChecker->recordMallocStack((vm_address_t)ptr, (uint32_t)size,"malloc",2);
     }
 #ifdef __enable_malloc_logger__
     malloc_printf("valloc ptr:%p size:%lu thread:%lu\n",ptr, size,mach_thread_self());
@@ -111,7 +114,7 @@ void *new_valloc(size_t size)
 void *new_block_copy(const void *aBlock){
     void *block = orig_block_copy(aBlock);
     if(!isPaused){
-        recordMallocStack((vm_address_t)block, 0,"__NSMallocBlock__",2,QQLeakMode);
+        global_leakChecker->recordMallocStack((vm_address_t)block, 0,"__NSMallocBlock__",2);
     }
 #ifdef __enable_malloc_logger__
     malloc_printf("block_copy ptr:%p thread:%lu\n",block,mach_thread_self());

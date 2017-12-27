@@ -19,18 +19,12 @@
 #ifndef CBaseHashmap_h
 #define CBaseHashmap_h
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <malloc/malloc.h>
+#import <stdlib.h>
+#import <stdio.h>
+#import <assert.h>
+#import <malloc/malloc.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "QQLeakPredefines.h"
-
-typedef enum
-{
-    QQLeakMode = 1,
-    OOMDetectorMode
-}monitor_mode;
 
 typedef struct base_entry_t
 {
@@ -40,14 +34,13 @@ typedef struct base_entry_t
 class CBaseHashmap
 {
 public:
-    CBaseHashmap(size_t entrys,monitor_mode monitormode);
+    CBaseHashmap(size_t entrys,malloc_zone_t *zone);
     virtual ~CBaseHashmap();
     base_entry_t *getHashmapEntry();
     size_t getEntryNum();
     size_t getRecordNum();
     size_t getAccessNum();
     size_t getCollisionNum();
-    monitor_mode getMode();
 protected:
     void *hashmap_malloc(size_t size);
     void hashmap_free(void *ptr);
@@ -57,7 +50,7 @@ protected:
     size_t	record_num;
     size_t  access_num;
     size_t  collision_num;
-    monitor_mode mode;
+    malloc_zone_t *malloc_zone;
 };
 
 #endif /* CBaseHashmap_h */

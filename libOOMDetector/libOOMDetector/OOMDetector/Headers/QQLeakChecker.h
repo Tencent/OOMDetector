@@ -66,9 +66,4 @@ typedef void (^QQLeakCheckCallback)(NSString *leakData,size_t leak_num);
  */
 -(size_t)getRecordStackNumber;
 
-/*! @brief 获取QQLeak工具所占用的内存，单位字节
- *
- */
--(double)getOccupyMemory;
-
 @end

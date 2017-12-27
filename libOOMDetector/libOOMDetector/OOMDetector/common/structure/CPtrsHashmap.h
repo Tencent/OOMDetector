@@ -19,7 +19,7 @@
 #ifndef CPtrHashmap_h
 #define CPtrHashmap_h
 
-#include "CBaseHashmap.h"
+#import "CBaseHashmap.h"
 
 typedef struct base_ptr_log{
     unsigned char *md5;
@@ -28,7 +28,8 @@ typedef struct base_ptr_log{
 
 typedef struct ptr_log_t{
     unsigned char  md5[16];
-    size_t size_or_refer;
+    size_t size;
+    size_t refer;
     vm_address_t address;
     ptr_log_t *next;
 } ptr_log_t;
@@ -36,7 +37,7 @@ typedef struct ptr_log_t{
 class CPtrsHashmap : public CBaseHashmap
 {
 public:
-    CPtrsHashmap(size_t entrys,monitor_mode monitormode):CBaseHashmap(entrys,monitormode){};
+    CPtrsHashmap(size_t entrys,malloc_zone_t *memory_zone):CBaseHashmap(entrys,memory_zone){};
     BOOL insertPtr(vm_address_t addr,base_ptr_log *ptr_log);
     BOOL removePtr(vm_address_t addr);
     ptr_log_t *lookupPtr(vm_address_t addr);

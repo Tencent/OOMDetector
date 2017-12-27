@@ -20,15 +20,15 @@
 #define C_STACK_CHECKER
 
 #import <Foundation/Foundation.h>
-#include <stdio.h>
-#include <pthread.h>
-#include <mach/mach.h>
-#include "CMemoryChecker.h"
+#import <stdio.h>
+#import <pthread.h>
+#import <mach/mach.h>
+#import "CMemoryChecker.h"
 
 class CStackChecker : public CMemoryChecker
 {
 public:
-    CStackChecker(){};
+    CStackChecker(CLeakChecker *checker):CMemoryChecker(checker){};
     BOOL suspendAllChildThreads();
     void resumeAllChildThreads();
     void startPtrCheck(size_t bt);
