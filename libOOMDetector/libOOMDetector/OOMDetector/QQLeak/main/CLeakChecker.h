@@ -79,8 +79,8 @@ public:
     size_t getMaxStackDepth();
     BOOL isNeedSysStack();
 public:
-    bool enableStackTracking;
-    bool isLeakChecking;
+    bool enableStackTracking = false;
+    bool isLeakChecking = false;
 private:
     void get_all_leak_ptrs();
     void uploadLeakData(NSString *leakStr);
@@ -93,7 +93,7 @@ private:
     malloc_zone_t *malloc_zone = NULL;
     CStackHelper *stackHelper = NULL;
     size_t max_stack_depth = 10;
-    BOOL needSysStack;
+    BOOL needSysStack = YES;
     OSSpinLock threadTracking_spinlock = OS_SPINLOCK_INIT;
     OSSpinLock hashmap_spinlock = OS_SPINLOCK_INIT;
 };
