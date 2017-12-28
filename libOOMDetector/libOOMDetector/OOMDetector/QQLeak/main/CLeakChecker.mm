@@ -162,9 +162,11 @@ void CLeakChecker::removeMallocStack(vm_address_t address)
         ptr_log_t *ptr_log = qleak_ptrs_hashmap->lookupPtr(address);
         if(ptr_log != NULL)
         {
-            unsigned char *md5 = ptr_log->md5;
+            unsigned char md5[16];
+            strncpy((char *)md5, (const char *)ptr_log->md5, 16);
+            size_t size = (size_t)ptr_log->size;
             if(qleak_ptrs_hashmap->removePtr(address)){
-                qleak_stacks_hashmap->removeIfCountIsZero(md5,(size_t)ptr_log->size);
+                qleak_stacks_hashmap->removeIfCountIsZero(md5,size);
             }
         }
     }

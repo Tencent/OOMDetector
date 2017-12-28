@@ -22,9 +22,9 @@
 
 @interface BaseDemoViewController ()
 
-@property (nonatomic, retain) UIScrollView *contentView;
-@property (nonatomic, retain) UILabel *codeLabel;
-@property (nonatomic, retain) UIActivityIndicatorView *indicator;
+@property (nonatomic, strong) UIScrollView *contentView;
+@property (nonatomic, strong) UILabel *codeLabel;
+@property (nonatomic, strong) UIActivityIndicatorView *indicator;
 
 @end
 
