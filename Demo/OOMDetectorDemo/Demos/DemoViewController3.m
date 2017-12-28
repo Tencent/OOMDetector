@@ -24,7 +24,7 @@
 
 #define DemoCode3 \
 int i = 0;\
-while (i < 30000) {\
+while (i < 3000) {\
     [self.arr addObject:[[NSObject alloc] init]];\
     ++i;\
 }\
@@ -53,6 +53,9 @@ while (i < 30000) {\
     
     [self.timer invalidate];
     self.timer = nil;
+    
+    [self.arr removeAllObjects];
+    self.arr = nil;
 }
 
 - (NSString *)demoDescriptionString
@@ -63,7 +66,8 @@ while (i < 30000) {\
 - (void)runDemoCode
 {
     if (!self.timer) {
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(test) userInfo:nil repeats:YES];
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(test) userInfo:nil repeats:YES];
+        [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     }
 }
 

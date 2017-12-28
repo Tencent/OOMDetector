@@ -54,11 +54,11 @@ public:
     HighSpeedLogger *getStackLogger();
 public:
     size_t max_stack_depth;
-    BOOL needSysStack;
-    BOOL enableOOMMonitor;
-    BOOL enableChunkMonitor;
-    BOOL enableVMMonitor;
-    BOOL needStackWithoutAppStack;
+    BOOL needSysStack = YES;
+    BOOL enableOOMMonitor = NO;
+    BOOL enableChunkMonitor = NO;
+    BOOL enableVMMonitor = NO;
+    BOOL needStackWithoutAppStack = NO;
     size_t oom_threshold;
     size_t chunk_threshold;
     size_t vm_threshold;
