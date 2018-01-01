@@ -25,7 +25,7 @@
 #import <mach/vm_map.h>
 
 #if __has_feature(objc_arc)
-#error  this file should use MRC
+#error This file must be compiled without ARC. Use -fno-objc-arc flag.
 #endif
 
 void CStackChecker::startPtrCheck(size_t bt){

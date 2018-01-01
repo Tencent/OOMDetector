@@ -25,7 +25,7 @@
 #import "CLeakChecker.h"
 
 #if __has_feature(objc_arc)
-#error  this file should use MRC
+#error This file must be compiled without ARC. Use -fno-objc-arc flag.
 #endif
 
 kern_return_t memory_reader (task_t task, vm_address_t remote_address, vm_size_t size, void **local_memory)

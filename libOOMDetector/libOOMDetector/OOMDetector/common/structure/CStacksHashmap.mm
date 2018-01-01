@@ -20,7 +20,7 @@
 #import "QQLeakMallocStackTracker.h"
 
 #if __has_feature(objc_arc)
-#error  this file should use MRC
+#error This file must be compiled without ARC. Use -fno-objc-arc flag.
 #endif
 
 CStacksHashmap::CStacksHashmap(size_t entrys,malloc_zone_t *zone,monitor_mode monitorMode):CBaseHashmap(entrys,zone)
