@@ -66,6 +66,10 @@
 {
     _memory = memory;
     
+    if (!_isShowing) {
+        return;
+    }
+    
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         self.label.text = [NSString stringWithFormat:@"%.2fMb", memory];
         CGFloat ratio = memory / _threshold;
