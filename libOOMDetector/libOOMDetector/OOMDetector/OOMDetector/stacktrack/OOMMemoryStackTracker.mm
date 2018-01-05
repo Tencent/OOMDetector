@@ -105,7 +105,7 @@ void oom_vm_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3
     if(type & stack_logging_type_vm_allocate){   //vm_mmap or vm_allocate
         type = (type & ~stack_logging_type_vm_allocate);
         type = type >> 24;
-        if((type >= 1 && type <= 11) || arg2 == 0){
+        if((type >= 1 && type <= 11) || type == 32 || arg2 == 0){
             return;
         }
         const char *flag = "unknown";
@@ -115,6 +115,9 @@ void oom_vm_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3
         global_oomdetector->recordVMStack(vm_address_t(result), uint32_t(arg2), flag, 2);
     }
     else if(type & stack_logging_type_vm_deallocate){  //vm_deallocate or munmap
+        if((type >= 1 && type <= 11) || type == 32 || arg2 == 0){
+            return;
+        }
         global_oomdetector->removeVMStack(vm_address_t(arg2));
     }
 }
