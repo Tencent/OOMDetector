@@ -27,7 +27,6 @@
 #import <mach/mach_port.h>
 #import <mach/mach_init.h>
 #import <pthread.h>
-#import <ext/hash_set>
 #import "CStackHelper.h"
 #import "QQLeakMallocStackTracker.h"
 #import "CMallocHook.h"
