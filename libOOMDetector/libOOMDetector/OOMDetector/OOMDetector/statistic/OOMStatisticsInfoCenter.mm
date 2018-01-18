@@ -110,7 +110,7 @@ double overflow_limit;
     ++flag;
     if(maxMemory && flag >= 30){
         if(maxMemory > _singleLoginMaxMemory){
-            NSLog(@"OOMStatisticsInfoCenter update maxMemory:%.2fMb",maxMemory);
+//            NSLog(@"OOMStatisticsInfoCenter update maxMemory:%.2fMb",maxMemory);
             _singleLoginMaxMemory = maxMemory;
             [self saveLastSingleLoginMaxMemory];
             flag = 0;

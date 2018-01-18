@@ -34,14 +34,14 @@
 
 - (void)performanceData:(NSDictionary *)data completionHandler:(void (^)(BOOL))completionHandler
 {
-    NSLog(@"%@ \n", data);
+//    NSLog(@"%@ \n", data);
     
     completionHandler(YES);
 }
 
 - (void)fileData:(NSData *)data extra:(NSDictionary<NSString *,NSString *> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler
 {
-    NSLog(@"\n %@ \n %ld \n %@\n", extra, type, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//    NSLog(@"\n %@ \n %ld \n %@\n", extra, type, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     
     if (type == QQStackReportTypeOOMLog) {
         // 此处为了Demo演示需要传参数NO，NO表示我们自己业务对data处理尚未完成或者失败，OOMDetector内部暂时不会删除临时文件
