@@ -104,6 +104,13 @@ OOMDetector is a memory monitoring component for iOS which provides you with OOM
 ```
   pod install
 ```
+需要注意的是OOMDetector使用了fishhook （0.2）
+如果你的工程中也使用了fishhook，建议移除，并统一使用CocoaPods管理
+
+```
+  pod 'fishhook', '0.2'
+```
+
 
 ### Initialization
 // 初始化，6s以下机型内存触顶阈值默认设置为300M，6s及以上机型内存触顶阈值默认设置为800M。
