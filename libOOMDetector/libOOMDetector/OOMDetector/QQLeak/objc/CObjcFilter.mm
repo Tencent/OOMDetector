@@ -39,8 +39,8 @@ CObjcFilter::~CObjcFilter()
 }
 
 void CObjcFilter::initBlackClass(){
-    black_class_set = new __gnu_cxx::hash_set<vm_address_t>();
-    current_class_set = new __gnu_cxx::hash_set<vm_address_t>();
+    black_class_set = new std::unordered_set<vm_address_t>();//__gnu_cxx::hash_set<vm_address_t>();
+    current_class_set = new std::unordered_set<vm_address_t>();//__gnu_cxx::hash_set<vm_address_t>();
     int num = objc_getClassList(NULL, 0);
     if(num > 0){
         Class *classList = (Class *)malloc(num * sizeof(Class));

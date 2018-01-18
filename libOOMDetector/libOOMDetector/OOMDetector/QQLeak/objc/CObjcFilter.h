@@ -25,7 +25,7 @@
 #import <unistd.h>
 #import <malloc/malloc.h>
 #import "QQLeakPredefines.h"
-#import <ext/hash_set>
+#import <unordered_set>
 #import <objc/runtime.h>
 
 class CObjcFilter
@@ -39,8 +39,8 @@ public:
     const char *getObjectNameExceptBlack(void *obj);
     const char *getObjectName(void *obj);
 private:
-    __gnu_cxx::hash_set<vm_address_t> *black_class_set = NULL;
-    __gnu_cxx::hash_set<vm_address_t> *current_class_set = NULL;
+    std::unordered_set<vm_address_t> *black_class_set = NULL;
+    std::unordered_set<vm_address_t> *current_class_set = NULL;
 };
 
 #endif /* CObjcManager_h */
