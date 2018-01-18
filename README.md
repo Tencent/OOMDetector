@@ -165,6 +165,11 @@ If you come across link errors like "Undefined symbols for architecture arm64:
 Build Settings -> Linking -> Other Linker Flags -> -lc++
 
 
+## Known Issues
+
+### Conflict with fishhook
+现在已知Podfile中有FBRetainCycleDetector时会有编译错误，原因是FBRetainCycleDetector中包含了fishhook，目前遇到这种情况，请先移除FBRetainCycleDetector，然后再pod install试试
+
 ## Changes Log
 
 ## Help
