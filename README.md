@@ -91,6 +91,20 @@ OOMDetector is a memory monitoring component for iOS which provides you with OOM
 ![demo_gif](assets/oomgif.gif)
 
 ## Usage
+
+### Integration (CocoaPods)
+
+在Podfile中添加如下文本
+
+```
+  pod 'OOMDetector', '1.3'
+```
+
+然后在命令行中运行
+```
+  pod install
+```
+
 ### Initialization
 // 初始化，6s以下机型内存触顶阈值默认设置为300M，6s及以上机型内存触顶阈值默认设置为800M。
 
