@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "OOMDetector"
-  s.version      = "1.0"
+  s.version      = "1.2"
   s.summary      = "OOMDetector is an iOS memory detector, which is used to detect OutOfMemory warnings, big memory allocations and memory leaks."
 
   # This description is used to generate tags and improve search results.
@@ -97,8 +97,9 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = ['libOOMDetector/libOOMDetector/OOMDetector/common/upload/QQLeakDataUploadCenter.h', 'libOOMDetector/libOOMDetector/OOMDetector/Headers/*.h', 'libOOMDetector/libOOMDetector/OOMDetector/OOMDetector/statistic/OOMStatisticsInfoCenter.h', 'libOOMDetector/libOOMDetector/OOMDetector/common/upload/QQLeakFileUploadCenter.h', 'libOOMDetector/libOOMDetector/libOOMDetector.h']
 
-  s.source_files = "libOOMDetector/libOOMDetector", "libOOMDetector/libOOMDetector/**/*.{h,m,mm,c}" 
+  s.source_files = "libOOMDetector/libOOMDetector", "libOOMDetector/libOOMDetector/**/*.{h,m,mm}" 
   s.public_header_files = ['libOOMDetector/libOOMDetector/OOMDetector/common/upload/QQLeakDataUploadCenter.h', 'libOOMDetector/libOOMDetector/OOMDetector/Headers/*.h', 'libOOMDetector/libOOMDetector/OOMDetector/OOMDetector/statistic/OOMStatisticsInfoCenter.h', 'libOOMDetector/libOOMDetector/OOMDetector/common/upload/QQLeakFileUploadCenter.h', 'libOOMDetector/libOOMDetector/libOOMDetector.h']
+  s.exclude_files = "fishhook.h"
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -141,5 +142,7 @@ Pod::Spec.new do |s|
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # s.dependency "JSONKit", "~> 1.4"
+
+  s.dependency "fishhook", "0.2"
 
 end
