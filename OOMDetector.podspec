@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "OOMDetector"
-  s.version      = "1.2"
+  s.version      = "1.3"
   s.summary      = "OOMDetector is an iOS memory detector, which is used to detect OutOfMemory warnings, big memory allocations and memory leaks."
 
   # This description is used to generate tags and improve search results.
@@ -99,7 +99,8 @@ Pod::Spec.new do |s|
 
   s.source_files = "libOOMDetector/libOOMDetector", "libOOMDetector/libOOMDetector/**/*.{h,m,mm}" 
   s.public_header_files = ['libOOMDetector/libOOMDetector/OOMDetector/common/upload/QQLeakDataUploadCenter.h', 'libOOMDetector/libOOMDetector/OOMDetector/Headers/*.h', 'libOOMDetector/libOOMDetector/OOMDetector/OOMDetector/statistic/OOMStatisticsInfoCenter.h', 'libOOMDetector/libOOMDetector/OOMDetector/common/upload/QQLeakFileUploadCenter.h', 'libOOMDetector/libOOMDetector/libOOMDetector.h']
-  s.exclude_files = "fishhook.h"
+  # s.private_header_files = ['**/fishhook.h']
+  s.exclude_files = '**/fishhook.h'
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
