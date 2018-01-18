@@ -13,12 +13,12 @@
 		6B8C22ED1F8E494C007DE399 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8C22EC1F8E494C007DE399 /* Assets.xcassets */; };
 		6B8C22F01F8E494C007DE399 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6B8C22EE1F8E494C007DE399 /* LaunchScreen.storyboard */; };
 		6B8C22F31F8E494C007DE399 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22F21F8E494C007DE399 /* main.m */; };
-		6B9A04F31FD5816F00414B1F /* libOOMDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B9A04F41FD5816F00414B1F /* libOOMDetector.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		6B9A04F51FD5823800414B1F /* BaseDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22E71F8E494C007DE399 /* BaseDemoViewController.m */; };
 		6B9A04F61FD5823800414B1F /* DemoViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C7011F974AB8000B42F0 /* DemoViewController2.m */; };
 		6B9A04F71FD5823800414B1F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22E41F8E494C007DE399 /* AppDelegate.m */; };
 		6BADA10D1FA8AC0F00668479 /* DemoViewController3.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */; };
 		6BF6879C1FC3C4D500054160 /* MyOOMDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BF6879B1FC3C4D500054160 /* MyOOMDataManager.m */; };
+		7DE3285020107E9B007A188B /* libOOMDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DE3285120107E9B007A188B /* libOOMDetector.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,11 +39,11 @@
 		6B8C22EF1F8E494C007DE399 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6B8C22F11F8E494C007DE399 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B8C22F21F8E494C007DE399 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		6B9A04F41FD5816F00414B1F /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BADA10B1FA8AC0F00668479 /* DemoViewController3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController3.h; sourceTree = "<group>"; };
 		6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoViewController3.m; sourceTree = "<group>"; };
 		6BF6879A1FC3C4D500054160 /* MyOOMDataManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyOOMDataManager.h; sourceTree = "<group>"; };
 		6BF6879B1FC3C4D500054160 /* MyOOMDataManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyOOMDataManager.m; sourceTree = "<group>"; };
+		7DE3285120107E9B007A188B /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,7 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B9A04F31FD5816F00414B1F /* libOOMDetector.framework in Frameworks */,
+				7DE3285020107E9B007A188B /* libOOMDetector.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,7 +113,7 @@
 		6B9A04F21FD5816F00414B1F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6B9A04F41FD5816F00414B1F /* libOOMDetector.framework */,
+				7DE3285120107E9B007A188B /* libOOMDetector.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -245,7 +245,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -262,10 +262,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
+				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
 			};
 			name = Debug;
 		};
@@ -311,10 +312,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
 			};
 			name = Release;
 		};
@@ -333,15 +336,17 @@
 					Build_For_Extern,
 				);
 				INFOPLIST_FILE = OOMDetectorDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				NEW_SETTING = "";
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencentgsd.OOMDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
 			};
 			name = Debug;
 		};
@@ -355,7 +360,7 @@
 				DEVELOPMENT_TEAM = 8D5EHT9KTL;
 				GCC_PREPROCESSOR_DEFINITIONS = Build_For_Extern;
 				INFOPLIST_FILE = OOMDetectorDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				NEW_SETTING = "";
 				OTHER_LDFLAGS = "-lc++";
@@ -363,6 +368,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
 			};
 			name = Release;
 		};
