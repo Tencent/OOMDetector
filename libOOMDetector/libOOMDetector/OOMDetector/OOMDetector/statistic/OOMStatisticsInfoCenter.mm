@@ -197,11 +197,13 @@ double overflow_limit;
 - (void)showMemoryIndicatorView:(BOOL)yn
 {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        if (!_indicatorView) {
-            _indicatorView = [MemoryIndicator indicator];
+        if (yn) {
+            if (!_indicatorView) {
+                _indicatorView = [MemoryIndicator indicator];
+            }
+            [_indicatorView setThreshhold:overflow_limit];
         }
         [_indicatorView show:yn];
-        [_indicatorView setThreshhold:overflow_limit];
     }];
 }
 
