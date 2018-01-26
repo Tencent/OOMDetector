@@ -37,8 +37,9 @@ OOMDetector是一个iOS内存监控组件，应用此组件可以帮助你轻松
 ```
   translate_oom.py dsym_file oom_file
 ```
-dsym_file app的符号表路径，如OOMDetector.app.dSYM
-oom_file Library/OOMDetector路径下的爆内存日志，如normal_malloc20180125_211259558.log
+dsym_file	app的符号表路径，如OOMDetector.app.dSYM
+
+oom_file 	Library/OOMDetector路径下的爆内存日志，如normal_malloc20180125_211259558.log
 
 ## 使用方法
 ### 初始化
