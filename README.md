@@ -32,6 +32,14 @@ OOMDetector是一个iOS内存监控组件，应用此组件可以帮助你轻松
   pod 'fishhook', '0.2'
 ```
 
+## 堆栈翻译
+
+```
+  translate_oom.py dsym_file oom_file
+```
+dsym_file app的符号表路径，如OOMDetector.app.dSYM
+oom_file Library/OOMDetector路径下的爆内存日志，如normal_malloc20180125_211259558.log
+
 ## 使用方法
 ### 初始化
 // 初始化，6s以下机型内存触顶阈值默认设置为300M，6s及以上机型内存触顶阈值默认设置为800M。
