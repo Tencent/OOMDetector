@@ -83,7 +83,7 @@ CLeakChecker* global_leakChecker;
         _segmentChecker->initAllSegments();
         global_leakChecker->leakCheckingWillStart();
         if(_stackChecker->suspendAllChildThreads()){
-            global_leakChecker->unlockSpinLock();
+            global_leakChecker->unlockHashmap();
             _registerChecker->startPtrCheck();
             _stackChecker->startPtrCheck(2);
             _segmentChecker->startPtrcheck();

@@ -24,6 +24,7 @@
 #import "QQLeakDeviceInfo.h"
 #import "CStackHelper.h"
 #import "CommonMallocLogger.h"
+#import <pthread.h>
 
 class COOMDetector
 {
@@ -43,10 +44,6 @@ public:
     void startSingleChunkMallocDetector(size_t threshholdInBytes,ChunkMallocBlock mallocBlock);
     void stopSingleChunkMallocDetector();
     void get_chunk_stack(size_t size);
-    void lockMallocSpinLock();
-    void unlockMallocSpinLock();
-    void lockVMSpinLock();
-    void unlockVMSpinLock();
 public:
     malloc_zone_t *getMemoryZone();
     CPtrsHashmap *getPtrHashmap();
@@ -66,6 +63,10 @@ public:
     malloc_logger_t** vm_sys_logger = NULL;
 private:
     NSString* chunkDataZipPath();
+    void lockHashmap();
+    void unlockHashmap();
+    void lockVMHashmap();
+    void unlockVMHashmap();
 private:
     CPtrsHashmap *vm_ptrs_hashmap;
     CStacksHashmap *vm_stacks_hashmap;
@@ -74,6 +75,7 @@ private:
     HighSpeedLogger *normal_stack_logger = NULL;
     ChunkMallocBlock chunkMallocCallback = NULL;
     CStackHelper *stackHelper = NULL;
-    OSSpinLock hashmap_spinlock = OS_SPINLOCK_INIT;
-    OSSpinLock vm_hashmap_spinlock = OS_SPINLOCK_INIT;
+    pthread_mutex_t hashmap_mutex;
+    pthread_mutex_t vm_hashmap_mutex;
 };
+

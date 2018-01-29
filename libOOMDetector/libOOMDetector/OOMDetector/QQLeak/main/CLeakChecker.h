@@ -39,6 +39,9 @@
 #import "QQLeakFileUploadCenter.h"
 #import "QQLeakDeviceInfo.h"
 #import "AllocationTracker.h"
+#ifdef __IPHONE_10_0
+#import <os/lock.h>
+#endif
 
 class CMemoryChecker;
 @class QQLeakChecker;
@@ -67,8 +70,7 @@ public:
     void recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip);
     void removeMallocStack(vm_address_t address);
     bool isNeedTrackClass(Class cl);
-    void lockSpinLock();
-    void unlockSpinLock();
+    void unlockHashmap();
 public:
     malloc_zone_t *getMemoryZone();
     CPtrsHashmap *getPtrHashmap();
@@ -83,6 +85,10 @@ public:
 private:
     void get_all_leak_ptrs();
     void uploadLeakData(NSString *leakStr);
+    void lockHashmap();
+    void lockThreadTracking();
+    void unlockThreadTracking();
+    
 private:
     CLeakedHashmap *leaked_hashmap = NULL;
     CThreadTrackingHashmap *threadTracking_hashmap = NULL;
@@ -93,6 +99,7 @@ private:
     CStackHelper *stackHelper = NULL;
     size_t max_stack_depth = 10;
     BOOL needSysStack = YES;
-    OSSpinLock threadTracking_spinlock = OS_SPINLOCK_INIT;
-    OSSpinLock hashmap_spinlock = OS_SPINLOCK_INIT;
+    pthread_mutex_t hashmap_mutex;
+    pthread_mutex_t threadTracking_mutex;
 };
+

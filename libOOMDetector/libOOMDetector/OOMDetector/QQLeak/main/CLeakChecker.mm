@@ -26,6 +26,10 @@
 CLeakChecker::CLeakChecker()
 {
     stackHelper = new CStackHelper();
+    pthread_mutex_init(&hashmap_mutex,NULL);
+    hashmap_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(&threadTracking_mutex,NULL);
+    threadTracking_mutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
 CLeakChecker::~CLeakChecker()
@@ -61,24 +65,24 @@ bool CLeakChecker::findPtrInMemoryRegion(vm_address_t address){
 
 void CLeakChecker::markedThreadToTrackingNextMalloc(const char* name){
     thread_t thread = mach_thread_self();
-    OSSpinLockLock(&threadTracking_spinlock);
+    lockThreadTracking();
     threadTracking_hashmap->insertThreadAndUpdateIfExist(thread, name);
-    OSSpinLockUnlock(&threadTracking_spinlock);
+    unlockThreadTracking();
 }
 
 bool CLeakChecker::isThreadNeedTracking(const char **name){
     thread_t thread = mach_thread_self();
-    OSSpinLockLock(&threadTracking_spinlock);
+    lockThreadTracking();
     thread_data_t *thread_data = threadTracking_hashmap->lookupThread(thread);
     if(thread_data != NULL){
         if(thread_data->needTrack){
             thread_data->needTrack = false;
             if(name != NULL) *name = thread_data->name;
-            OSSpinLockUnlock(&threadTracking_spinlock);
+            unlockThreadTracking();
             return true;
         }
     }
-    OSSpinLockUnlock(&threadTracking_spinlock);
+    unlockThreadTracking();
     return false;
 }
 
@@ -109,13 +113,13 @@ void CLeakChecker::clearLeakChecker(){
     [[AllocationTracker getInstance] stopRecord];
     unHookMalloc();
     //    malloc_logger = NULL;
-    OSSpinLockLock(&hashmap_spinlock);
+    lockHashmap();
     delete qleak_ptrs_hashmap;
     delete qleak_stacks_hashmap;
     qleak_ptrs_hashmap = NULL;
     qleak_stacks_hashmap = NULL;
     delete threadTracking_hashmap;
-    OSSpinLockUnlock(&hashmap_spinlock);
+    unlockHashmap();
 }
 
 void CLeakChecker::leakCheckingWillStart(){
@@ -123,13 +127,33 @@ void CLeakChecker::leakCheckingWillStart(){
     isLeakChecking = true;
     leaked_hashmap = new CLeakedHashmap(200,global_memory_zone);
     objcFilter->updateCurrentClass();
-    OSSpinLockUnlock(&hashmap_spinlock);
+    unlockHashmap();
 }
 void CLeakChecker::leakCheckingWillFinish(){
     isLeakChecking = false;
     resumeMallocTracking();
     objcFilter->clearCurrentClass();
     delete leaked_hashmap;
+}
+
+void CLeakChecker::lockHashmap()
+{
+    pthread_mutex_lock(&hashmap_mutex);
+}
+
+void CLeakChecker::unlockHashmap()
+{
+    pthread_mutex_unlock(&hashmap_mutex);
+}
+
+void CLeakChecker::lockThreadTracking()
+{
+    pthread_mutex_lock(&threadTracking_mutex);
+}
+
+void CLeakChecker::unlockThreadTracking()
+{
+    pthread_mutex_unlock(&threadTracking_mutex);
 }
 
 void CLeakChecker::recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip)
@@ -145,19 +169,19 @@ void CLeakChecker::recordMallocStack(vm_address_t address,uint32_t size,const ch
         base_stack.extra.name = name;
         base_ptr.md5 = md5;
         base_ptr.size = size;
-        OSSpinLockLock(&hashmap_spinlock);
+        lockHashmap();
         if(qleak_ptrs_hashmap && qleak_stacks_hashmap){
             if(qleak_ptrs_hashmap->insertPtr(address, &base_ptr)){
                 qleak_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
             }
         }
-        OSSpinLockUnlock(&hashmap_spinlock);
+        unlockHashmap();
     }
 }
 
 void CLeakChecker::removeMallocStack(vm_address_t address)
 {
-    OSSpinLockLock(&hashmap_spinlock);
+    lockHashmap();
     if(qleak_ptrs_hashmap && qleak_stacks_hashmap){
         ptr_log_t *ptr_log = qleak_ptrs_hashmap->lookupPtr(address);
         if(ptr_log != NULL)
@@ -170,7 +194,7 @@ void CLeakChecker::removeMallocStack(vm_address_t address)
             }
         }
     }
-    OSSpinLockUnlock(&hashmap_spinlock);
+    unlockHashmap();
 }
 
 void CLeakChecker::get_all_leak_ptrs()
@@ -282,17 +306,6 @@ bool CLeakChecker::isNeedTrackClass(Class cl)
     return !(objcFilter->isClassInBlackList(cl));
 }
 
-void CLeakChecker::lockSpinLock()
-{
-    OSSpinLockLock(&hashmap_spinlock);
-}
-
-void CLeakChecker::unlockSpinLock()
-{
-    OSSpinLockUnlock(&hashmap_spinlock);
-}
-
-
 malloc_zone_t *CLeakChecker::getMemoryZone()
 {
     return malloc_zone;
@@ -310,7 +323,7 @@ CStacksHashmap *CLeakChecker::getStackHashmap()
 
 void CLeakChecker::setMaxStackDepth(size_t depth)
 {
-   max_stack_depth = depth;
+    max_stack_depth = depth;
 }
 
 void CLeakChecker::setNeedSysStack(BOOL need)

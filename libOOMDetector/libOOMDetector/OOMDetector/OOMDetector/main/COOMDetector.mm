@@ -34,6 +34,10 @@ COOMDetector::~COOMDetector()
 COOMDetector::COOMDetector()
 {
     stackHelper = new CStackHelper();
+    pthread_mutex_init(&hashmap_mutex,NULL);
+    hashmap_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(&vm_hashmap_mutex,NULL);
+    vm_hashmap_mutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
 NSString *COOMDetector::chunkDataZipPath()
@@ -86,6 +90,26 @@ void COOMDetector::get_chunk_stack(size_t size)
     }
 }
 
+void COOMDetector::lockHashmap()
+{
+    pthread_mutex_lock(&hashmap_mutex);
+}
+
+void COOMDetector::unlockHashmap()
+{
+    pthread_mutex_unlock(&hashmap_mutex);
+}
+
+void COOMDetector::lockVMHashmap()
+{
+    pthread_mutex_lock(&vm_hashmap_mutex);
+}
+
+void COOMDetector::unlockVMHashmap()
+{
+    pthread_mutex_unlock(&vm_hashmap_mutex);
+}
+
 void COOMDetector::recordVMStack(vm_address_t address,uint32_t size,const char*type,size_t stack_num_to_skip)
 {
     base_stack_t base_stack;
@@ -104,20 +128,20 @@ void COOMDetector::recordVMStack(vm_address_t address,uint32_t size,const char*t
         base_stack.extra.name = type;
         base_ptr.md5 = md5;
         base_ptr.size = size;
-        OSSpinLockLock(&vm_hashmap_spinlock);
+        lockVMHashmap();
         if(vm_ptrs_hashmap && vm_stacks_hashmap){
             if(vm_ptrs_hashmap->insertPtr(address, &base_ptr)){
                 vm_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
             }
         }
-        OSSpinLockUnlock(&vm_hashmap_spinlock);
+        unlockVMHashmap();
     }
 }
 
 
 void COOMDetector::removeVMStack(vm_address_t address)
 {
-    OSSpinLockLock(&vm_hashmap_spinlock);
+    lockVMHashmap();
     if(vm_ptrs_hashmap && vm_stacks_hashmap){
         ptr_log_t *ptr_log = vm_ptrs_hashmap->lookupPtr(address);
         if(ptr_log != NULL)
@@ -130,7 +154,7 @@ void COOMDetector::removeVMStack(vm_address_t address)
             }
         }
     }
-    OSSpinLockUnlock(&vm_hashmap_spinlock);
+    unlockVMHashmap();
 }
 
 void COOMDetector::recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip)
@@ -151,19 +175,19 @@ void COOMDetector::recordMallocStack(vm_address_t address,uint32_t size,const ch
         base_stack.extra.size = size;
         base_ptr.md5 = md5;
         base_ptr.size = size;
-        OSSpinLockLock(&hashmap_spinlock);
+        lockHashmap();
         if(oom_ptrs_hashmap && oom_stacks_hashmap){
             if(oom_ptrs_hashmap->insertPtr(address, &base_ptr)){
                 oom_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
             }
         }
-        OSSpinLockUnlock(&hashmap_spinlock);
+        unlockHashmap();
     }
 }
 
 void COOMDetector::removeMallocStack(vm_address_t address,monitor_mode mode)
 {
-    OSSpinLockLock(&hashmap_spinlock);
+    lockHashmap();
     if(oom_ptrs_hashmap && oom_stacks_hashmap){
         ptr_log_t *ptr_log = oom_ptrs_hashmap->lookupPtr(address);
         if(ptr_log != NULL)
@@ -176,7 +200,7 @@ void COOMDetector::removeMallocStack(vm_address_t address,monitor_mode mode)
             }
         }
     }
-    OSSpinLockUnlock(&hashmap_spinlock);
+    unlockHashmap();
 }
 
 void COOMDetector::flush_allocation_stack()
@@ -188,7 +212,7 @@ void COOMDetector::flush_allocation_stack()
     int exceedNum = 0;
     //flush malloc stack
     if(enableOOMMonitor){
-        OSSpinLockLock(&hashmap_spinlock);
+        lockHashmap();
         malloc_logger = NULL;
         normal_stack_logger->sprintfLogger(grained_size,"%s normal_malloc_num:%ld stack_num:%ld\n",[dateStr UTF8String],oom_ptrs_hashmap->getRecordNum(),oom_stacks_hashmap->getRecordNum());
         for(size_t i = 0; i < oom_stacks_hashmap->getEntryNum(); i++){
@@ -211,12 +235,12 @@ void COOMDetector::flush_allocation_stack()
             }
         }
         malloc_logger = (malloc_logger_t *)common_stack_logger;//oom_malloc_logger;
-        OSSpinLockUnlock(&hashmap_spinlock);
+        unlockHashmap();
     }
     normal_stack_logger->sprintfLogger(grained_size,"\n");
     //flush vm
     if(enableVMMonitor){
-        OSSpinLockLock(&vm_hashmap_spinlock);
+        lockVMHashmap();
         *vm_sys_logger = NULL;
         normal_stack_logger->sprintfLogger(grained_size,"%s vm_allocate_num:%ld stack_num:%ld\n",[dateStr UTF8String],vm_ptrs_hashmap->getRecordNum(),vm_stacks_hashmap->getRecordNum());
         for(size_t i = 0; i < vm_stacks_hashmap->getEntryNum(); i++){
@@ -245,7 +269,7 @@ void COOMDetector::flush_allocation_stack()
     if(enableVMMonitor){
         *vm_sys_logger = oom_vm_logger;
     }
-    OSSpinLockUnlock(&vm_hashmap_spinlock);
+    unlockVMHashmap();
     normal_stack_logger->syncLogger();
 }
 
@@ -276,12 +300,12 @@ BOOL COOMDetector::startMallocStackMonitor(size_t threshholdInBytes)
 
 void COOMDetector::stopMallocStackMonitor()
 {
-    OSSpinLockLock(&hashmap_spinlock);
+    lockHashmap();
     CPtrsHashmap *tmp_ptr = oom_ptrs_hashmap;
     CStacksHashmap *tmp_stack = oom_stacks_hashmap;
     oom_stacks_hashmap = NULL;
     oom_ptrs_hashmap = NULL;
-    OSSpinLockUnlock(&hashmap_spinlock);
+    unlockHashmap();
     delete tmp_ptr;
     delete tmp_stack;
 }
@@ -304,12 +328,12 @@ BOOL COOMDetector::startVMStackMonitor(size_t threshholdInBytes)
 void COOMDetector::stopVMStackMonitor()
 {
     if(normal_stack_logger != NULL){
-        OSSpinLockLock(&vm_hashmap_spinlock);
+        lockVMHashmap();
         CPtrsHashmap *tmp_ptr = vm_ptrs_hashmap;
         CStacksHashmap *tmp_stack = vm_stacks_hashmap;
         vm_ptrs_hashmap = NULL;
         vm_stacks_hashmap = NULL;
-        OSSpinLockUnlock(&vm_hashmap_spinlock);
+        unlockVMHashmap();
         delete tmp_ptr;
         delete tmp_stack;
         enableVMMonitor = NO;
@@ -334,22 +358,5 @@ void COOMDetector::stopSingleChunkMallocDetector()
 HighSpeedLogger *COOMDetector::getStackLogger()
 {
     return normal_stack_logger;
-}
-
-void COOMDetector::lockMallocSpinLock()
-{
-    OSSpinLockLock(&hashmap_spinlock);
-}
-void COOMDetector::unlockMallocSpinLock()
-{
-    OSSpinLockUnlock(&hashmap_spinlock);
-}
-void COOMDetector::lockVMSpinLock()
-{
-    OSSpinLockLock(&vm_hashmap_spinlock);
-}
-void COOMDetector::unlockVMSpinLock()
-{
-    OSSpinLockUnlock(&vm_hashmap_spinlock);
 }
 
