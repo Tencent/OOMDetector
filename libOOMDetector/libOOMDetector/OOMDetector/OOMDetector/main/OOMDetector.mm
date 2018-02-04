@@ -146,6 +146,15 @@ void myChunkMallocCallback(size_t bytes, NSString *stack)
     [[OOMStatisticsInfoCenter getInstance] showMemoryIndicatorView:yn];
 }
 
+- (void)setupMemoryIndicatorFrame:(CGRect)frame
+{
+    CGFloat wh = MAX(frame.size.width, frame.size.height);
+    CGRect newFrame = frame;
+    newFrame.size.width = wh;
+    newFrame.size.height = wh;
+    [[OOMStatisticsInfoCenter getInstance] setupMemoryIndicatorFrame:newFrame];
+}
+
 - (void)setupLeakChecker
 {
     QQLeakChecker *leakChecker = [QQLeakChecker getInstance];

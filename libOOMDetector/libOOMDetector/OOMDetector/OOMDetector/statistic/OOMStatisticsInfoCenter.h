@@ -20,6 +20,7 @@
 #define OOMStaticsInfoCenter_h
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 typedef void (^StatisticsInfoBlock)(NSInteger memorySize_M);
 
@@ -34,6 +35,8 @@ typedef void (^StatisticsInfoBlock)(NSInteger memorySize_M);
 @property (nonatomic, copy) StatisticsInfoBlock statisticsInfoBlock;
 
 - (void)showMemoryIndicatorView:(BOOL)yn;
+- (void)setupMemoryIndicatorFrame:(CGRect)frame;
+
 -(void)updateMemory;
 
 @end

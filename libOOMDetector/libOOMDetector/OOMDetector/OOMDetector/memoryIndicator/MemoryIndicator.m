@@ -85,13 +85,15 @@
     [super layoutSubviews];
     
     self.label.frame = self.bounds;
-    
+    self.label.font = [UIFont systemFontOfSize:self.frame.size.width * 0.2];
     self.waveLayer.frame = self.bounds;
+    self.layer.cornerRadius = self.frame.size.width * 0.5;
+    self.layer.borderWidth = self.frame.size.width * 0.04;
 }
 
 - (void)setup
 {
-    _threshold = 200;
+    _threshold = 300;
     
     self.waveLayer = [CAShapeLayer new];
     self.waveLayer.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.6].CGColor;
@@ -101,14 +103,12 @@
     
     self.backgroundColor = [UIColor whiteColor];
     
-    self.layer.cornerRadius = 40;
+    
     self.layer.borderColor = [[UIColor greenColor] colorWithAlphaComponent:0.7].CGColor;
-    self.layer.borderWidth = 3;
     self.clipsToBounds = YES;
     
     self.label = [UILabel new];
     self.label.textColor = [UIColor blackColor];
-    self.label.font = [UIFont systemFontOfSize:12];
     self.label.textAlignment = NSTextAlignmentCenter;
     [self addSubview:self.label];
     
@@ -189,15 +189,18 @@
     
     // 正弦曲线公式：y=Asin(ωx+φ)+k
     
-    CGFloat wh = 80.f;
+    CGFloat wh = self.bounds.size.width;
+    if (0 == wh) {
+        return;
+    }
     CGFloat persent = 1 - MIN(1, self.memory / _threshold);
-    CGFloat s_ω = 2.0 * M_PI / wh;
+    CGFloat s_ω = 2 * M_PI / wh;
     CGFloat s_k = wh * persent;
     CGFloat s_φ = 0;
-    CGFloat s_A = 1.3f;
+    CGFloat s_A = 1.3f * wh / 80.f;
 
     UIBezierPath *path = [UIBezierPath bezierPath];
-    [path moveToPoint:CGPointMake(-40, wh * persent)];
+    [path moveToPoint:CGPointMake(0, wh * persent)];
     
     static CGFloat controlX = 0;
     s_φ = controlX;
@@ -208,7 +211,7 @@
         [path addLineToPoint:CGPointMake(x, y)];
     }
     
-    [path addLineToPoint:CGPointMake(wh + 40, 0)];
+    [path addLineToPoint:CGPointMake(wh, 0)];
     [path addLineToPoint:CGPointMake(0, 0)];
     [path closePath];
     

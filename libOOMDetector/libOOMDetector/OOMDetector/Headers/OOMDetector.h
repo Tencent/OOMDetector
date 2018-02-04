@@ -26,10 +26,12 @@
 #import "OOMStatisticsInfoCenter.h"
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "QQLeakDataUploadCenter.h"
 #import "QQLeakFileUploadCenter.h"
 #import "QQLeakChecker.h"
+
 
 /*! @brief 单次堆内存分配超过限制后的回调
  *
@@ -103,6 +105,9 @@ typedef void (^ChunkMallocBlock)(size_t bytes, NSString *stack);
 
 /** 显示或者隐藏实时内存监控悬浮球。单击悬浮球可设置内存触顶阈值，长按悬浮球可调节悬浮球大小。 */
 - (void)showMemoryIndicatorView:(BOOL)yn;
+
+/** 自定义悬浮球frame */
+- (void)setupMemoryIndicatorFrame:(CGRect)frame;
 
 /** 监听实时内存回调block */
 - (void)setStatisticsInfoBlock:(StatisticsInfoBlock)block;
