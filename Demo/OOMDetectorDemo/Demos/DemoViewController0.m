@@ -22,15 +22,29 @@
 
 @end
 
+//realloc need a larger size set to different memory zone.
 #define Demo0Code \
 dispatch_async(dispatch_get_global_queue(0, 0), ^{\
-    int i = 0;\
-    while (i < 50) {\
-        int size = 100 * 1024;\
-        char *info = malloc(size);\
-        memset(info, 1, size);\
-        ++i;\
-    }\
+    int i = 0; \
+    while (i < 50) { \
+        int size = 1 * 1024; \
+        char *info = calloc(100, size); \
+        memset(info, 1, size); \
+        \
+        info = valloc(size); \
+        memset(info, 1, size); \
+        \
+        info = malloc(size); \
+        memset(info, 1, size); \
+        \
+        size = 100 * 1024; \
+        char *info2 = realloc(info, size); \
+        memset(info2, 1, size); \
+        \
+        info = malloc(size); \
+        memset(info, 1, size); \
+        ++i; \
+    } \
 });
 
 @implementation DemoViewController0
