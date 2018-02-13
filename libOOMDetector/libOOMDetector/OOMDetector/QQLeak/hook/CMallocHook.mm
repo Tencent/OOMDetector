@@ -103,13 +103,11 @@ void *new_calloc(size_t n,size_t size)
 void *new_realloc(void *old_ptr, size_t size)
 {
     void *ptr = orig_realloc(old_ptr, size);
-    if (ptr != old_ptr) {
-        if(!isPaused){
-            if (old_ptr) {
-                global_leakChecker->removeMallocStack((vm_address_t)old_ptr);
-            }
-            global_leakChecker->recordMallocStack((vm_address_t)ptr, (uint32_t)(size),"realloc",2);
+    if(!isPaused){
+        if (old_ptr) {
+            global_leakChecker->removeMallocStack((vm_address_t)old_ptr);
         }
+        global_leakChecker->recordMallocStack((vm_address_t)ptr, (uint32_t)(size),"realloc",2);
     }
 #ifdef __enable_malloc_logger__
     malloc_printf("realloc newptr: %p ptr:%p size:%lu thread:%lu\n", ptr, old_ptr, size, mach_thread_self());
