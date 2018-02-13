@@ -57,6 +57,10 @@ static const char *vm_flags[] = {
 
 void oom_malloc_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t result, uint32_t backtrace_to_skip)
 {
+    if (global_oomdetector == NULL) {
+        return;
+    }
+    
     if (type & stack_logging_flag_zone) {
         type &= ~stack_logging_flag_zone;
     }
