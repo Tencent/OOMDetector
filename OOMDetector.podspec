@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "OOMDetector"
-  s.version      = "1.3"
+  s.version      = "1.4"
   s.summary      = "OOMDetector is an iOS memory detector, which is used to detect OutOfMemory warnings, big memory allocations and memory leaks."
 
   # This description is used to generate tags and improve search results.
