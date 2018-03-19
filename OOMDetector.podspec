@@ -146,4 +146,7 @@ Pod::Spec.new do |s|
 
   s.dependency "fishhook", "0.2"
 
+  # ――― Project Settings ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
+  s.documentation_url = 'https://github.com/Tencent/OOMDetector/blob/master/README.md'
+
 end
