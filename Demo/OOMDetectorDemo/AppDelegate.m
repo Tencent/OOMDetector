@@ -32,8 +32,8 @@ NSString *const kChunkMallocNoti = @"kChunkMallocNoti";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    [self setupOOMDetector];
     [self setupWindow];
+    [self setupOOMDetector];
     
     return YES;
 }
