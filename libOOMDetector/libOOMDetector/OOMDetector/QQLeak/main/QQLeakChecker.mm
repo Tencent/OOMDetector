@@ -138,7 +138,7 @@ CLeakChecker* global_leakChecker;
 
 -(size_t)getRecordStackNumber
 {
-    return global_leakChecker->getPtrHashmap()->getRecordNum();
+    return global_leakChecker->getStackHashmap()->getRecordNum();
 }
 
 @end
