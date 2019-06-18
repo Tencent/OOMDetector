@@ -17,10 +17,20 @@
 //
 
 #import "CStackHelper.h"
+#import "RapidCRC.h"
+#import "CommonMallocLogger.h"
 
 #if __has_feature(objc_arc)
 #error This file must be compiled without ARC. Use -fno-objc-arc flag.
 #endif
+
+typedef struct
+{
+    vm_address_t beginAddr;
+    vm_address_t endAddr;
+}App_Address;
+
+static App_Address app_addrs[3];
 
 CStackHelper::~CStackHelper()
 {
@@ -33,7 +43,7 @@ CStackHelper::~CStackHelper()
     allImages.size = 0;
 }
 
-CStackHelper::CStackHelper()
+CStackHelper::CStackHelper(NSString *saveDir)
 {
     uint32_t count = _dyld_image_count();
     allImages.imageInfos =(segImageInfo **)malloc(count*sizeof(segImageInfo*));
@@ -47,7 +57,7 @@ CStackHelper::CStackHelper()
             name = tmp + 1;
         }
         long offset = (long)header + sizeof(mach_header_t);
-        for (unsigned int i = 0; i < header->ncmds; i++) {
+        for (unsigned int j = 0; j < header->ncmds; j++) {
             const segment_command_t* segment = (const segment_command_t*)offset;
             if (segment->cmd == MY_SEGMENT_CMD_TYPE && strcmp(segment->segname, SEG_TEXT) == 0) {
                 long begin = (long)segment->vmaddr + slide;
@@ -57,16 +67,89 @@ CStackHelper::CStackHelper()
                 image->beginAddr = begin;
                 image->endAddr = end;
                 image->name = name;
+#ifdef build_for_QQ
+                static int index = 0;
+                if((strcmp(name, "TlibDy") == 0 || strcmp(name, "QQMainProject") == 0  || strcmp(name, "QQStoryCommon") == 0) && index < 3)
+                {
+                    app_addrs[index].beginAddr = image->beginAddr;
+                    app_addrs[index++].endAddr = image->endAddr;
+                }
+#else
+                if(i == 0){
+                    app_addrs[0].beginAddr = image->beginAddr;
+                    app_addrs[0].endAddr = image->endAddr;
+                }
+#endif
                 allImages.imageInfos[allImages.size++] = image;
                 break;
             }
             offset += segment->cmdsize;
         }
     }
+    if(saveDir){
+        saveImages(saveDir);
+    }
+}
+
+void CStackHelper::saveImages(NSString *saveDir)
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableArray *result = [[[NSMutableArray alloc] init] autorelease];
+        for (size_t i = 0; i < allImages.size; i++)
+        {
+            NSString *imageName = [NSString stringWithCString:allImages.imageInfos[i]->name encoding:NSUTF8StringEncoding];
+            NSDictionary *app_image = [NSDictionary dictionaryWithObjectsAndKeys:imageName,@"name",[NSNumber numberWithInteger:allImages.imageInfos[i]->beginAddr],@"beginAddr",[NSNumber numberWithInteger:allImages.imageInfos[i]->endAddr],@"endAddr",nil];
+            [result addObject:app_image];
+        }
+        NSString *save_path = [saveDir stringByAppendingPathComponent:@"app.images"];
+        [result writeToFile:save_path atomically:YES];
+    });
+}
+
+AppImages* CStackHelper::parseImages(NSArray *imageArray)
+{
+    AppImages *result = new AppImages();
+    result->size = 0;
+    result->imageInfos = (segImageInfo **)malloc([imageArray count]*sizeof(segImageInfo*));
+    for(NSDictionary *image in imageArray){
+        NSNumber *beginAddr = [image objectForKey:@"beginAddr"];
+        NSNumber *endAddr = [image objectForKey:@"endAddr"];
+        NSString *name = [image objectForKey:@"name"];
+        if(beginAddr && endAddr && name){
+            segImageInfo *image = (segImageInfo *)malloc(sizeof(segImageInfo));
+            image->loadAddr = [beginAddr integerValue];
+            image->beginAddr = [beginAddr integerValue];;
+            image->endAddr = [endAddr integerValue];;
+            image->name = [name UTF8String];
+            result->imageInfos[result->size++] = image;
+        }
+    }
+    return result;
+}
+
+bool CStackHelper::parseAddrOfImages(AppImages *images,vm_address_t addr,segImageInfo *image){
+    for (size_t i = 0; i < images->size; i++)
+    {
+        if (addr > images->imageInfos[i]->beginAddr && addr < images->imageInfos[i]->endAddr) {
+            image->name = images->imageInfos[i]->name;
+            image->loadAddr = images->imageInfos[i]->loadAddr;
+            image->beginAddr = images->imageInfos[i]->beginAddr;
+            image->endAddr = images->imageInfos[i]->endAddr;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool CStackHelper::isInAppAddress(vm_address_t addr){
-    if(addr > allImages.imageInfos[0]->beginAddr && addr < allImages.imageInfos[0]->endAddr) return true;
+    if((addr >= app_addrs[0].beginAddr && addr < app_addrs[0].endAddr)
+#ifdef build_for_QQ
+       || (addr >= app_addrs[1].beginAddr && addr < app_addrs[1].endAddr) || (addr >= app_addrs[2].beginAddr && addr < app_addrs[2].endAddr)
+#endif
+       )
+    {
+        return true;
+    }
     return false;
 }
 
@@ -84,47 +167,54 @@ bool CStackHelper::getImageByAddr(vm_address_t addr,segImageInfo *image){
     return false;
 }
 
-size_t CStackHelper::recordBacktrace(BOOL needSystemStack,size_t needAppStackCount,size_t backtrace_to_skip, vm_address_t **app_stack,unsigned char *md5,size_t max_stack_depth)
+size_t CStackHelper::recordBacktrace(BOOL needSystemStack,uint32_t type ,size_t needAppStackCount,size_t backtrace_to_skip, vm_address_t **app_stack,uint64_t *digest,size_t max_stack_depth)
 {
-    CC_MD5_CTX mc;
-    CC_MD5_Init(&mc);
     vm_address_t *orig_stack[max_stack_depth_sys];
     size_t depth = backtrace((void**)orig_stack, max_stack_depth_sys);
-    size_t appstack_count = 0;
+    size_t orig_depth = depth;
+    if(depth > max_stack_depth){
+        depth = max_stack_depth;
+    }
+    uint32_t compress_stacks[max_stack_depth_sys] = {'\0'};
     size_t offset = 0;
-    vm_address_t *last_stack = NULL;
-    for(size_t i = backtrace_to_skip;i < depth;i++){
-        if(appstack_count == 0){
-            if(isInAppAddress((vm_address_t)orig_stack[i])){
-                if(i < depth - 2) {
-                    appstack_count++;
-                }
-                if(last_stack != NULL){
-                    app_stack[offset++] = last_stack;
-                }
-                app_stack[offset++] = orig_stack[i];
+    size_t appstack_count = 0;
+    if(depth <= 3 + backtrace_to_skip){
+        return 0;
+    }
+    size_t real_length = depth - 2 - backtrace_to_skip;
+    size_t index = 0;
+    compress_stacks[index++] = type;
+    for(size_t j = backtrace_to_skip;j < backtrace_to_skip + real_length;j++){
+        if(needAppStackCount != 0){
+            if(isInAppAddress((vm_address_t)orig_stack[j])){
+                appstack_count++;
+                app_stack[offset++] = orig_stack[j];
+                compress_stacks[index++] = (uint32_t)(uint64_t)orig_stack[j];
             }
             else {
                 if(needSystemStack){
-                    app_stack[offset++] = orig_stack[i];
-                }
-                else {
-                    last_stack = orig_stack[i];
+                    app_stack[offset++] = orig_stack[j];
+                    compress_stacks[index++] = (uint32_t)(uint64_t)orig_stack[j];
                 }
             }
-            if(offset >= max_stack_depth) break;
         }
         else{
-            if(isInAppAddress((vm_address_t)orig_stack[i]) || i == depth -1 || needSystemStack)
-            {
-                if(i != depth - 2) appstack_count++;
-                app_stack[offset++] = orig_stack[i];
-            }
-            if(offset >= max_stack_depth) break;
+            app_stack[offset++] = orig_stack[j];
+            compress_stacks[index++] = (uint32_t)(uint64_t)orig_stack[j];
         }
-        CC_MD5_Update(&mc, &orig_stack[i], sizeof(void*));
     }
-    CC_MD5_Final(md5, &mc);
-    if(appstack_count >= needAppStackCount) return offset;
+    app_stack[offset] = orig_stack[orig_depth - 2];
+    if((needAppStackCount > 0 && appstack_count > 0) || (needAppStackCount == 0 && offset > 0)){
+        size_t remainder = (index*4)%8;
+        size_t compress_len = index*4 + (remainder == 0 ? 0 : (8 - remainder));
+        //    CC_MD5(&compress_stacks,(CC_LONG)2*depth,md5);
+        //    memcpy(md5, &compress_stacks, 16);
+        //    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+        //    CC_SHA1(&compress_stacks,(CC_LONG)2*depth, md5);
+        uint64_t crc = 0;
+        crc = rapid_crc64(crc, (const char *)&compress_stacks, compress_len);
+        *digest = crc;
+        return offset + 1;
+    }
     return 0;
 }

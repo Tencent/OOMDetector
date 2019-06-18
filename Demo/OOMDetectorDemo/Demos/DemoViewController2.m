@@ -61,7 +61,12 @@ free(info);\
 
 - (void)runDemoCode
 {
-    DemoCode2
+    int size = 51 * 1024 * 1024;
+    char *info = malloc(size);
+    memset(info, 1, size);
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{\
+//        free(info);
+//    });
 }
 
 - (NSString *)demoCodeText

@@ -37,21 +37,21 @@ CLeakedHashmap::~CLeakedHashmap()
     }
 }
 
-void CLeakedHashmap::insertLeakPtrAndIncreaseCountIfExist(unsigned char *md5,ptr_log_t *ptr_log)
+void CLeakedHashmap::insertLeakPtrAndIncreaseCountIfExist(uint64_t digest,ptr_log_t *ptr_log)
 {
-    size_t offset = hash_code(md5);
+    size_t offset = hash_code(digest);
     base_entry_t *entry = hashmap_entry + offset;
     leaked_ptr_t *parent = (leaked_ptr_t *)entry->root;
     access_num++;
     collision_num++;
     if(parent == NULL){
-        leaked_ptr_t *insert_data = create_hashmap_data(md5,ptr_log);
+        leaked_ptr_t *insert_data = create_hashmap_data(digest,ptr_log);
         entry->root = insert_data;
         record_num++;
         return ;
     }
     else{
-        if(compare(parent,md5) == 0){
+        if(compare(parent,digest) == 0){
             parent->leak_count++;
             parent->address = ptr_log->address;
             return;
@@ -59,7 +59,7 @@ void CLeakedHashmap::insertLeakPtrAndIncreaseCountIfExist(unsigned char *md5,ptr
         leaked_ptr_t *current = parent->next;
         while(current != NULL){
             collision_num++;
-            if(compare(current,md5) == 0){
+            if(compare(current,digest) == 0){
                 current->leak_count++;
                 current->address = ptr_log->address;
                 return ;
@@ -67,34 +67,32 @@ void CLeakedHashmap::insertLeakPtrAndIncreaseCountIfExist(unsigned char *md5,ptr
             parent = current;
             current = current->next;
         }
-        leaked_ptr_t *insert_data = create_hashmap_data(md5,ptr_log);
+        leaked_ptr_t *insert_data = create_hashmap_data(digest,ptr_log);
         parent->next = insert_data;
         record_num++;
         return;
     }
 }
 
-leaked_ptr_t *CLeakedHashmap::create_hashmap_data(unsigned char *md5,ptr_log_t *ptr_log)
+leaked_ptr_t *CLeakedHashmap::create_hashmap_data(uint64_t digest,ptr_log_t *ptr_log)
 {
     leaked_ptr_t *leak_ptr = (leaked_ptr_t *)hashmap_malloc(sizeof(leaked_ptr_t));
-    memcpy(leak_ptr->md5,md5,16*sizeof(char));
-    leak_ptr->address = ptr_log->address;
+    leak_ptr->digest = digest;
+    vm_address_t address = (vm_address_t)(0x100000000 | ptr_log->address);
+    leak_ptr->address = address;
     leak_ptr->leak_count = 1;
     leak_ptr->next = NULL;
     return leak_ptr;
 }
 
-int CLeakedHashmap::compare(leaked_ptr_t *leak_ptr,unsigned char *md5)
+int CLeakedHashmap::compare(leaked_ptr_t *leak_ptr,uint64_t digest)
 {
-    unsigned char *md5_1 = leak_ptr->md5;
-    if(strncmp((char *)md5_1,(char *)md5,16)== 0) return 0;
+    if(leak_ptr->digest == digest) return 0;
     return -1;
 }
 
-size_t CLeakedHashmap::hash_code(void *key)
+size_t CLeakedHashmap::hash_code(uint64_t digest)
 {
-    uint64_t *value_1 = (uint64_t *)key;
-    uint64_t *value_2 = value_1 + 1;
-    size_t offset = (size_t)(*value_1 + *value_2)%(entry_num - 1);
+    size_t offset = (size_t)digest%(entry_num - 1);
     return offset;
 }

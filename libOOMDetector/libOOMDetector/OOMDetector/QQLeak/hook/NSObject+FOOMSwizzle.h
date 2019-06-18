@@ -1,5 +1,4 @@
-//
-//  HighSpeedLogger.h
+//  NSObject+FOOMSwizzle.h
 //  QQLeak
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
@@ -16,32 +15,11 @@
 //
 //
 
-#ifndef HighSpeedLogger_h
-#define HighSpeedLogger_h
-
 #import <Foundation/Foundation.h>
-#import <malloc/malloc.h>
 
-typedef void (*LogPrinter)(char *log);
+@interface NSObject (FOOMSwizzle)
 
-class HighSpeedLogger
-{
-public:
-    ~HighSpeedLogger();
-    HighSpeedLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size);
-    BOOL sprintfLogger(size_t grain_size,const char *format, ...);
-    size_t memcpyLogger(const char *content, size_t length);
-    void cleanLogger();
-    void syncLogger();
-    bool isValid();
-    LogPrinter logPrinterCallBack;
-public:
-    char *mmap_ptr;
-    size_t mmap_size;
-    size_t current_len;
-    malloc_zone_t *memory_zone;
-    FILE *mmap_fp;
-    bool isFailed;
-};
++ (BOOL)swizzleMethod:(SEL)origSel withMethod:(SEL)altSel;
++ (BOOL)swizzleClassMethod:(SEL)origSel withClassMethod:(SEL)altSel;
 
-#endif /* HighSpeedLogger_h */
+@end

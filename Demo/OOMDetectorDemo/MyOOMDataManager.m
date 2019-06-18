@@ -45,9 +45,13 @@
     
     if (type == QQStackReportTypeOOMLog) {
         // 此处为了Demo演示需要传参数NO，NO表示我们自己业务对data处理尚未完成或者失败，OOMDetector内部暂时不会删除临时文件
-        completionHandler(NO);
+        if(completionHandler){
+            completionHandler(NO);
+        }
     } else {
-        completionHandler(YES);
+        if(completionHandler){
+            completionHandler(YES);
+        }
     }
 }
 

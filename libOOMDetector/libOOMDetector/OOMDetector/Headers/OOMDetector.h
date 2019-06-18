@@ -1,6 +1,6 @@
 //
 //  OOMDetector.h
-//  QQLeak
+//  libOOMDetector
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
 //  Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
@@ -14,10 +14,6 @@
 //  either express or implied. See the License for the specific language governing permissions
 //  and limitations under the License.
 //
-//
-//  version:1.4
-//  增加log回调，修复vmlogger为空时的crash
-//  屏蔽私有API
 //
 
 #ifndef OOMDetector_h
@@ -61,6 +57,12 @@ typedef void (^ChunkMallocBlock)(size_t bytes, NSString *stack);
  * @param overFlowLimit 为当前机型设置触定的阈值（Mb）
  */
 -(void)startMaxMemoryStatistic:(double)overFlowLimit;
+
+/*! @brief 注册SDK内部日志回调，用于输出SDK内部日志
+ *
+ * @param logger 外部的日志打印方法
+ */
+-(void)registerLogCallback:(logCallback)logger;
 
 /** 在调用startMaxMemoryStatistic:开启内存触顶监控后会触发此回调，返回前一次app运行时单次生命周期内的最大物理内存数据 */
 -(void)setPerformanceDataDelegate:(id<QQOOMPerformanceDataDelegate>)delegate;
@@ -115,21 +117,34 @@ typedef void (^ChunkMallocBlock)(size_t bytes, NSString *stack);
 /** 日志打印回调block */
 @property (nonatomic, copy) LogPrintBlock logPrintBlock;
 
-/*! @brief 开始堆内存堆栈监控，成功则返回YES
-        1.有一定性能开销，建议增加控制策略选择性打开
-        2.该功能开启后会实时记录所有的内存分配堆栈，并将多次重复调用的相同堆栈合并，如果合并后的size大于threshHoldInbytes，该分配堆栈将被输出到log用于分析，log路径Library/OOMDetector
+/*! @brief 开始堆内存堆栈监控，成功则返回YES（会增加8%左右的cpu开销和10Mb内存,建议抽样开启）
  
  * @param threshholdInBytes 堆内存阈值（bytes）
- * @param needAutoDump 如果设置为YES，当app占用的内存超过dumpLimit时，自动执行dump堆栈操作
- * @param dumpLimit 只有needAutoDump设置为YES，app占用的内存超过dumpLimit（Mb）时，自动执行dump堆栈操作
- * @param sampleInterval 检测内存的间隔（单位s），一般情况下此值设为0.1即可
+ * @param uuid 用于唯一标识输出的堆栈日志
  */
--(BOOL)startMallocStackMonitor:(size_t)threshholdInBytes needAutoDumpWhenOverflow:(BOOL)needAutoDump dumpLimit:(double)dumpLimit sampleInterval:(NSTimeInterval)sampleInterval;
+-(BOOL)startMallocStackMonitor:(size_t)threshholdInBytes logUUID:(NSString *)uuid;
+
+/*! @brief 设置堆内存监控抽样因子,用于对小块内存抽样监控
+ 
+ * @param factor 如factor=1/10，则按照1/10抽样
+ */
+-(void)setMallocSampleFactor:(uint32_t)factor;
+
+/*! @brief 设置不进行抽样的内存阀值（bytes）
+ 
+ * @param sampleThreshhold 如sampleThreshhold=1024*1024，则超过1Mb的内存分配不进行抽样
+ */
+-(void)setMallocNoSampleThreshold:(uint32_t)sampleThreshhold;
 
 /*! @brief 关闭堆内存堆栈监控
  *
  */
 -(void)stopMallocStackMonitor;
+
+/*! @brief 设置系统的私有API __syscall_logger，因为__syscall_logger是系统私有API，该功能不要在appstore版本打开
+ *
+ */
+-(void)setVMLogger:(void**)logger;
 
 /*! @brief 开始VM内存堆栈监控，成功则返回YES(有一定性能开销，建议增加控制策略选择性打开）。
  *  因为startVMStackMonitor:方法用到了私有API __syscall_logger会带来app store审核不通过的风险，此方法默认只在DEBUG模式下生效，如果
@@ -139,22 +154,12 @@ typedef void (^ChunkMallocBlock)(size_t bytes, NSString *stack);
  */
 
 //#define USE_VM_LOGGER_FORCEDLY
--(BOOL)startVMStackMonitor:(size_t)threshHoldInbytes;
+-(BOOL)startVMStackMonitor:(size_t)threshHoldInbytes logUUID:(NSString *)uuid;
 
 /*! @brief 关闭堆内存监控
  *
  */
 -(void)stopVMStackMonitor;
-
-/*! @brief 立即将内存中纪录的分配堆栈信息写入磁盘，当前log路径可通过currentStackLogDir获取
- * 说明:当需要立即纪录当前内存中的分配信息时候调用
- */
--(void)flush_allocation_stack;
-
-/*! @brief 调用该接口上报所有缓存的OOM相关log给通过setFileDataDelegate:方法设置的代理，建议在启动的时候调用
- *  说明：dump数据存储在Library/OOMDetector目录中，上报成功后自动删除
- */
--(void)uploadAllStack;
 
 /*! @brief 设置输出的log中的最大堆栈深度
  *
@@ -178,7 +183,31 @@ typedef void (^ChunkMallocBlock)(size_t bytes, NSString *stack);
  */
 -(NSString *)currentStackLogDir;
 
+/*! @brief 根据uuid获取上一次的OOM数据
+ *
+ */
+-(NSArray *)getOOMDataByUUID:(NSString *)uuid;
+
+/*! @brief 当记录的堆栈超过一定数量限制时候是否需要清理（默认清理，maxNum=300000，minimumStackSize=1024000bytes）
+ *
+* @param isNeed YES表示需要清理
+* @param maxNum 当记录的总堆栈个数超过maxNum时自动清理低于mininumSize的堆栈
+* @param mininumSize 低于mininumSize的堆栈将被清理
+ */
+-(void)setNeedCleanStack:(BOOL)isNeed maxStackNum:(size_t)maxNum minimumStackSize:(size_t)mininumSize;
+
+/*! @brief 清空磁盘中的OOM堆栈日志
+ *
+ */
+-(void)clearOOMLog;
+
+/*! @brief 获取工具占用内存(Mb)
+ *
+ */
+-(double)getOccupyMemory;
+
 @property (nonatomic, copy) ChunkMallocBlock chunkMallocBlock;
+
 
 @end
 

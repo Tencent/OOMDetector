@@ -18,14 +18,15 @@
 
 #import "CStacksHashmap.h"
 #import "QQLeakMallocStackTracker.h"
+#import "CStackHighSpeedLogger.h"
 
 #if __has_feature(objc_arc)
 #error This file must be compiled without ARC. Use -fno-objc-arc flag.
 #endif
 
-CStacksHashmap::CStacksHashmap(size_t entrys,malloc_zone_t *zone,monitor_mode monitorMode):CBaseHashmap(entrys,zone)
+CStacksHashmap::CStacksHashmap(size_t entrys,malloc_zone_t *zone,NSString *path, size_t mmap_size):CBaseHashmap(entrys,zone)
 {
-    mode = monitorMode;
+    logger = new CStackHighSpeedLogger(500,zone,path);
 }
 
 CStacksHashmap::~CStacksHashmap()
@@ -36,96 +37,107 @@ CStacksHashmap::~CStacksHashmap()
         entry->root = NULL;
         while(current != NULL){
             merge_stack_t *next = current->next;
-            if(current->stack != NULL){
-                hashmap_free(current->stack);
-            }
             hashmap_free(current);
             current = next;
         }
     }
+    if(logger != NULL){
+        delete logger;
+    }
 }
 
-void CStacksHashmap::insertStackAndIncreaseCountIfExist(unsigned char *md5,base_stack_t *stack)
+void CStacksHashmap::insertStackAndIncreaseCountIfExist(uint64_t digest,base_stack_t *stack)
 {
-    size_t offset = hash_code(md5);
+    size_t offset = (size_t)digest%(entry_num - 1);
     base_entry_t *entry = hashmap_entry + offset;
     merge_stack_t *parent = (merge_stack_t *)entry->root;
     access_num++;
     collision_num++;
     if(parent == NULL){
-        merge_stack_t *insert_data = create_hashmap_data(md5,stack);
+        merge_stack_t *insert_data = create_hashmap_data(digest,stack);
         entry->root = insert_data;
+        if(insert_data->size > oom_threshold)
+        {
+            insert_data->cache_flag = 1;
+            logger->updateStack(insert_data, stack);
+        }
         record_num++;
         return ;
     }
     else{
-        if(compare(parent,md5) == 0){
-            parent->count++;
-            if(mode == QQLeakMode){
-                parent->extra.name = stack->extra.name;
-            }
-            else {
-                parent->extra.name = stack->extra.name;
-                parent->extra.size += stack->extra.size;
-                if(parent->extra.size > oom_threshold && parent->stack == NULL)
-                {
-                    parent->stack = (vm_address_t **)hashmap_malloc(stack->depth*sizeof(vm_address_t*));
-                    memcpy(parent->stack, stack->stack, stack->depth * sizeof(vm_address_t *));
-                    parent->depth = stack->depth;
-                }
+        if(parent->digest == digest){
+            parent->count += stack->count;
+            parent->size += stack->size;
+            if(parent->size > oom_threshold)
+            {
+                parent->cache_flag = 1;
+                logger->updateStack(parent, stack);
             }
             return;
         }
         merge_stack_t *current = parent->next;
         while(current != NULL){
             collision_num++;
-            if(compare(current,md5) == 0){
-                current->count++;
-                if(mode == QQLeakMode){
-                    current->extra.name = stack->extra.name;
-                }
-                else {
-                    current->extra.name = stack->extra.name;
-                    current->extra.size += stack->extra.size;
-                    if(current->extra.size > oom_threshold && current->stack == NULL)
-                    {
-                        current->stack = (vm_address_t **)hashmap_malloc(stack->depth*sizeof(vm_address_t*));
-                        memcpy(current->stack, stack->stack, stack->depth * sizeof(vm_address_t *));
-                        current->depth = stack->depth;
-                    }
+            if(current->digest == digest){
+                current->count += stack->count;
+                current->size += stack->size;
+                if(current->size > oom_threshold)
+                {
+                    current->cache_flag = 1;
+                    logger->updateStack(current, stack);
                 }
                 return ;
             }
             parent = current;
             current = current->next;
         }
-        merge_stack_t *insert_data = create_hashmap_data(md5,stack);
+        merge_stack_t *insert_data = create_hashmap_data(digest,stack);
         parent->next = insert_data;
+        current = parent->next;
+        if(current->size > oom_threshold)
+        {
+            current->cache_flag = 1;
+            logger->updateStack(current, stack);
+        }
         record_num++;
         return ;
     }
 }
 
-void CStacksHashmap::removeIfCountIsZero(unsigned char *md5,size_t size)
+void CStacksHashmap::removeIfCountIsZero(uint64_t digest,uint32_t size,uint32_t count)
 {
-    size_t offset = hash_code(md5);
+    size_t offset = (size_t)digest%(entry_num - 1);
     base_entry_t *entry = hashmap_entry + offset;
     merge_stack_t *parent = (merge_stack_t *)entry->root;
     if(parent == NULL){
         return ;
     }
     else{
-        if(compare(parent,md5) == 0){
-            if(mode == OOMDetectorMode){
-                if(parent->extra.size < size) parent->extra.size = 0;
-                else parent->extra.size -= size;
+        if(parent->digest == digest){
+            if(parent->size < size) {
+                parent->size = 0;
             }
-            if(--(parent->count) <= 0 || (mode == OOMDetectorMode && parent->extra.size == 0))
+            else {
+                parent->size -= size;
+            }
+            if(parent->count < count){
+                parent->count = 0;
+            }
+            else {
+                parent->count -= count;
+            }
+            if(parent->cache_flag == 1){
+                if(parent->size < oom_threshold){
+                    logger->removeStack(parent,true);
+                    parent->cache_flag = 0;
+                }
+                else {
+                    logger->removeStack(parent,false);
+                }
+            }
+            if(parent->count <= 0)
             {
                 entry->root = parent->next;
-                if(parent->stack != NULL){
-                    hashmap_free(parent->stack);
-                }
                 hashmap_free(parent);
                 record_num--;
             }
@@ -133,17 +145,33 @@ void CStacksHashmap::removeIfCountIsZero(unsigned char *md5,size_t size)
         }
         merge_stack_t *current = parent->next;
         while(current != NULL){
-            if(compare(current,md5) == 0){
-                if(mode == OOMDetectorMode){
-                    if(current->extra.size < size) current->extra.size = 0;
-                    else current->extra.size -= size;
+            if(current->digest == digest){
+                if(current->size < size)
+                {
+                    current->size = 0;
                 }
-                if(--(current->count) <= 0 || (mode == OOMDetectorMode && current->extra.size == 0))
+                else
+                {
+                    current->size -= size;
+                }
+                if(current->count < count){
+                    current->count = 0;
+                }
+                else {
+                    current->count -= count;
+                }
+                if(current->cache_flag == 1){
+                    if(current->size < oom_threshold){
+                        logger->removeStack(current,true);
+                        current->cache_flag = 0;
+                    }
+                    else {
+                        logger->removeStack(current,false);
+                    }
+                }
+                if((current->count) <= 0)
                 {
                     parent->next = current->next;
-                    if(current->stack != NULL){
-                        hashmap_free(current->stack);
-                    }
                     hashmap_free(current);
                     record_num--;
                 }
@@ -155,21 +183,21 @@ void CStacksHashmap::removeIfCountIsZero(unsigned char *md5,size_t size)
     }
 }
 
-merge_stack_t *CStacksHashmap::lookupStack(unsigned char *md5)
+merge_stack_t *CStacksHashmap::lookupStack(uint64_t digest)
 {
-    size_t offset = hash_code(md5);
+    size_t offset = (size_t)digest%(entry_num - 1);
     base_entry_t *entry = hashmap_entry + offset;
     merge_stack_t *parent = (merge_stack_t *)entry->root;
     if(parent == NULL){
         return NULL;
     }
     else{
-        if(compare(parent,md5) == 0){
+        if(parent->digest == digest){
             return parent;
         }
         merge_stack_t *current = parent->next;
         while(current != NULL){
-            if(compare(current,md5) == 0){
+            if(current->digest == digest){
                 return current;
             }
             parent = current;
@@ -179,44 +207,15 @@ merge_stack_t *CStacksHashmap::lookupStack(unsigned char *md5)
     return NULL;
 }
 
-merge_stack_t *CStacksHashmap::create_hashmap_data(unsigned char *md5,base_stack_t *base_stack)
+merge_stack_t *CStacksHashmap::create_hashmap_data(uint64_t digest,base_stack_t *base_stack)
 {
     merge_stack_t *merge_data = (merge_stack_t *)hashmap_malloc(sizeof(merge_stack_t));
-    memcpy(merge_data->md5,md5,16*sizeof(char));
-    merge_data->count = 1;
-    BOOL needStack = NO;
-    if(mode == QQLeakMode){
-        merge_data->extra.name = base_stack->extra.name;
-        needStack = YES;
-    }
-    else {
-        merge_data->extra.name = base_stack->extra.name;
-        merge_data->extra.size = base_stack->extra.size;
-    }
-    if(base_stack->extra.size > oom_threshold || mode == QQLeakMode){
-        merge_data->stack = (vm_address_t **)hashmap_malloc(base_stack->depth*sizeof(vm_address_t*));
-        memcpy(merge_data->stack, base_stack->stack, base_stack->depth * sizeof(vm_address_t *));
-        merge_data->depth = base_stack->depth;
-    }
-    else {
-        merge_data->stack = NULL;
-        merge_data->depth = 0;
-    }
+    merge_data->digest = digest;
+    merge_data->count = base_stack->count;
+    merge_data->cache_flag = 0;
+    merge_data->size = base_stack->size;
+    merge_data->depth = 0;
     merge_data->next = NULL;
     return merge_data;
 }
 
-int CStacksHashmap::compare(merge_stack_t *stack,unsigned char *md5)
-{
-    unsigned char *md5_1 = stack->md5;
-    if(strncmp((char *)md5_1,(char *)md5,16) == 0) return 0;
-    return -1;
-}
-
-size_t CStacksHashmap::hash_code(void *key)
-{
-    uint64_t *value_1 = (uint64_t *)key;
-    uint64_t *value_2 = value_1 + 1;
-    size_t offset = (size_t)(*value_1 + *value_2)%(entry_num - 1);
-    return offset;
-}

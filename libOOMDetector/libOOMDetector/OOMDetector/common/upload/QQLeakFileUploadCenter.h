@@ -27,7 +27,7 @@ typedef enum : NSUInteger {
 @protocol QQOOMFileDataDelegate <NSObject>
 
 /** 在出现单次大块内存分配、检查到内存泄漏且时、调用uploadAllStack方法时触发回调 */
--(void)fileData:(NSData *)data extra:(NSDictionary<NSString*,NSString*> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler;
+-(void)fileData:(id)data extra:(NSDictionary<NSString*,NSString*> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler;
 
 @end
 
@@ -37,6 +37,6 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, assign) id<QQOOMFileDataDelegate> fileDataDelegate;
 
--(void)fileData:(NSData *)data extra:(NSDictionary<NSString*,NSString*> *)extra type:(QQStackReportType)type completionHandler:(void(^)(BOOL completed))completionHandler;
+-(void)fileData:(id)data extra:(NSDictionary<NSString*,NSString*> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler;
 
 @end

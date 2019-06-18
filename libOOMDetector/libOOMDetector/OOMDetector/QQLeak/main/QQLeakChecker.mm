@@ -27,12 +27,12 @@
 #import "QQLeakPredefines.h"
 #import "CMallocHook.h"
 #import "CThreadTrackingHashmap.h"
-#import "CStacksHashmap.h"
 #import "CPtrsHashmap.h"
 #import "CLeakedHashmap.h"
 #import "CObjcFilter.h"
 #import <malloc/malloc.h>
 #import "CLeakChecker.h"
+#import "CLeakedStacksHashmap.h"
 
 #if __has_feature(objc_arc)
 #error This file must be compiled without ARC. Use -fno-objc-arc flag.
@@ -138,7 +138,7 @@ CLeakChecker* global_leakChecker;
 
 -(size_t)getRecordStackNumber
 {
-    return global_leakChecker->getStackHashmap()->getRecordNum();
+    return global_leakChecker->getPtrHashmap()->getRecordNum();
 }
 
 @end

@@ -39,6 +39,7 @@
 #import "QQLeakFileUploadCenter.h"
 #import "QQLeakDeviceInfo.h"
 #import "AllocationTracker.h"
+#import "CLeakedStacksHashmap.h"
 #ifdef __IPHONE_10_0
 #import <os/lock.h>
 #endif
@@ -74,7 +75,7 @@ public:
 public:
     malloc_zone_t *getMemoryZone();
     CPtrsHashmap *getPtrHashmap();
-    CStacksHashmap *getStackHashmap();
+    CLeakedStacksHashmap *getStackHashmap();
     void setMaxStackDepth(size_t depth);
     void setNeedSysStack(BOOL need);
     size_t getMaxStackDepth();
@@ -88,12 +89,11 @@ private:
     void lockHashmap();
     void lockThreadTracking();
     void unlockThreadTracking();
-    
 private:
     CLeakedHashmap *leaked_hashmap = NULL;
     CThreadTrackingHashmap *threadTracking_hashmap = NULL;
     CPtrsHashmap *qleak_ptrs_hashmap = NULL;
-    CStacksHashmap *qleak_stacks_hashmap = NULL;
+    CLeakedStacksHashmap *qleak_stacks_hashmap = NULL;
     CObjcFilter *objcFilter = NULL;
     malloc_zone_t *malloc_zone = NULL;
     CStackHelper *stackHelper = NULL;

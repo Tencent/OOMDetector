@@ -18,13 +18,13 @@
 
 #import "execinfo.h"
 #import "CStackHelper.h"
-#import "HighSpeedLogger.h"
 #import "OOMDetector.h"
 #import "QQLeakMallocStackTracker.h"
 #import "OOMMemoryStackTracker.h"
 #import "QQLeakFileUploadCenter.h"
 #import "QQLeakDeviceInfo.h"
 #import "CommonMallocLogger.h"
+#import <pthread/pthread.h>
 
 #if __has_feature(objc_arc)
 #error This file must be compiled without ARC. Use -fno-objc-arc flag.
@@ -60,7 +60,6 @@ void oom_malloc_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t 
     if (global_oomdetector == NULL) {
         return;
     }
-    
     if (type & stack_logging_flag_zone) {
         type &= ~stack_logging_flag_zone;
     }
@@ -70,28 +69,45 @@ void oom_malloc_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t 
         }
         if (arg2 == result) {
             if(global_oomdetector->enableOOMMonitor){
-                global_oomdetector->removeMallocStack((vm_address_t)arg2,OOMDetectorMode);
-                global_oomdetector->recordMallocStack(result, (uint32_t)arg3,NULL,2);
+                global_oomdetector->removeMallocStack((vm_address_t)arg2);
+                if(global_oomdetector->sampleFactor > 1){
+                    if(rand()%(global_oomdetector->sampleFactor) != 0 && arg3 < global_oomdetector->sampleThreshold){
+                        return;
+                    }
+                }
+                global_oomdetector->recordMallocStack(result, (uint32_t)arg3,2);
             }
             return;
         }
         if (!arg2) {
             if(global_oomdetector->enableOOMMonitor){
-                global_oomdetector->recordMallocStack(result, (uint32_t)arg3,NULL,2);
+                if(global_oomdetector->sampleFactor > 1){
+                    if(rand()%(global_oomdetector->sampleFactor) != 0 && arg3 < global_oomdetector->sampleThreshold){
+                        return;
+                    }
+                }
+                global_oomdetector->recordMallocStack(result, (uint32_t)arg3,2);
             }
             return;
         } else {
             if(global_oomdetector->enableOOMMonitor){
-                global_oomdetector->removeMallocStack((vm_address_t)arg2,OOMDetectorMode);
-                global_oomdetector->recordMallocStack(result, (uint32_t)arg3,NULL,2);
-            }
+                global_oomdetector->removeMallocStack((vm_address_t)arg2);
+                if(global_oomdetector->sampleFactor > 1){
+                    if(rand()%(global_oomdetector->sampleFactor) != 0 && arg3 < global_oomdetector->sampleThreshold){
+                        return;
+                    }
+                }
+                global_oomdetector->recordMallocStack(result, (uint32_t)arg3,2);
+            };
             return;
         }
     }
     else if (type == stack_logging_type_dealloc) {
-        if (!arg2) return;
+        if (!arg2) {
+            return;
+        }
         if(global_oomdetector->enableOOMMonitor){
-            global_oomdetector->removeMallocStack((vm_address_t)arg2,OOMDetectorMode);
+            global_oomdetector->removeMallocStack((vm_address_t)arg2);
         }
     }
     else if((type & stack_logging_type_alloc) != 0){
@@ -99,7 +115,12 @@ void oom_malloc_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t 
             global_oomdetector->get_chunk_stack((size_t)arg2);
         }
         if(global_oomdetector->enableOOMMonitor){
-            global_oomdetector->recordMallocStack(result, (uint32_t)arg2,NULL,2);
+            if(global_oomdetector->sampleFactor > 1){
+                if(rand()%(global_oomdetector->sampleFactor) != 0 && arg2 < global_oomdetector->sampleThreshold){
+                    return;
+                }
+            }
+            global_oomdetector->recordMallocStack(result, (uint32_t)arg2,2);
         }
     }
 }
@@ -109,17 +130,19 @@ void oom_vm_logger(uint32_t type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3
     if(type & stack_logging_type_vm_allocate){   //vm_mmap or vm_allocate
         type = (type & ~stack_logging_type_vm_allocate);
         type = type >> 24;
-        if((type >= 1 && type <= 11) || type == 32 || arg2 == 0){
+        if((type >= 1 && type <= 11) || type == 32 || arg2 == 0  || type == 35){
             return;
         }
-        const char *flag = "unknown";
-        if(type <= 89){
-            flag = vm_flags[type];
-        }
-        global_oomdetector->recordVMStack(vm_address_t(result), uint32_t(arg2), flag, 2);
+//        const char *flag = "unknown";
+//        if(type <= 89){
+//            flag = vm_flags[type];
+//        }
+        global_oomdetector->recordVMStack(vm_address_t(result), uint32_t(arg2), 2);
     }
     else if(type & stack_logging_type_vm_deallocate){  //vm_deallocate or munmap
-        if((type >= 1 && type <= 11) || type == 32 || arg2 == 0){
+        type = (type & ~stack_logging_type_vm_allocate);
+        type = type >> 24;
+        if((type >= 1 && type <= 11) || type == 32 || arg2 == 0  || type == 35){
             return;
         }
         global_oomdetector->removeVMStack(vm_address_t(arg2));

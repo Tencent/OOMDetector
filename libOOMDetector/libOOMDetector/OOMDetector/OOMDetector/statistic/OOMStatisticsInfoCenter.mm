@@ -78,7 +78,7 @@ double overflow_limit;
     overflow_limit = overFlowLimit;
     _thread = [[NSThread alloc] initWithTarget:self selector:@selector(threadMain) object:nil];
     [_thread setName:@"MemoryOverflowMonitor"];
-    _timer = [[NSTimer timerWithTimeInterval:0.03 target:self selector:@selector(updateMemory) userInfo:nil repeats:YES] retain];
+    _timer = [[NSTimer timerWithTimeInterval:0.5 target:self selector:@selector(updateMemory) userInfo:nil repeats:YES] retain];
     [_thread start];
 }
 
@@ -106,11 +106,12 @@ double overflow_limit;
     if (self.statisticsInfoBlock) {
         self.statisticsInfoBlock(_residentMemSize);
     }
-    _indicatorView.memory = _residentMemSize;
+    double physFootprintMemory = [self physFootprintMemory];
+    _indicatorView.memory = _residentMemSize;//physFootprintMemory;
+    NSLog(@"resident:%lfMb footprint:%lfMb",_residentMemSize,physFootprintMemory);
     ++flag;
     if(maxMemory && flag >= 30){
         if(maxMemory > _singleLoginMaxMemory){
-//            NSLog(@"OOMStatisticsInfoCenter update maxMemory:%.2fMb",maxMemory);
             _singleLoginMaxMemory = maxMemory;
             [self saveLastSingleLoginMaxMemory];
             flag = 0;
@@ -193,6 +194,18 @@ double overflow_limit;
     _residentMemSize = taskInfo.resident_size / 1024.0 / 1024.0;
     return taskInfo.resident_size_max / 1024.0 / 1024.0;
 }
+
+- (double)physFootprintMemory{
+    int64_t memoryUsageInByte = 0;
+    task_vm_info_data_t vmInfo;
+    mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+    kern_return_t kernelReturn = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t) &vmInfo, &count);
+    if(kernelReturn == KERN_SUCCESS) {
+        memoryUsageInByte = (int64_t) vmInfo.phys_footprint;
+    }
+    return (double)memoryUsageInByte/ 1024.0 / 1024.0;
+}
+
 
 - (void)showMemoryIndicatorView:(BOOL)yn
 {

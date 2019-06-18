@@ -62,7 +62,14 @@ dispatch_async(dispatch_get_global_queue(0, 0), ^{\
 
 - (void)runDemoCode
 {
-    Demo0Code
+    for(int i = 0; i < 600000; i++){
+        char *test1 = malloc(1024);
+        memset(test1, 0, 1024);
+        if(i % 2 == 0){
+            free(test1);
+        }
+    }
+//    Demo0Code
 }
 
 - (NSString *)demoCodeText

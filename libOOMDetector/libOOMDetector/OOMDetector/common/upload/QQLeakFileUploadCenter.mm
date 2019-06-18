@@ -38,7 +38,7 @@ static QQLeakFileUploadCenter *center;
     return center;
 }
 
--(void)fileData:(NSData *)data extra:(NSDictionary<NSString*,NSString*> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler
+-(void)fileData:(id)data extra:(NSDictionary<NSString*,NSString*> *)extra type:(QQStackReportType)type completionHandler:(void (^)(BOOL))completionHandler
 {
     if(data){
         if (self.fileDataDelegate && [self.fileDataDelegate respondsToSelector:@selector(fileData:extra:type:completionHandler:)]) {

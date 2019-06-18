@@ -38,7 +38,7 @@ CPtrsHashmap::~CPtrsHashmap()
 
 BOOL CPtrsHashmap::insertPtr(vm_address_t addr,base_ptr_log *ptr_log)
 {
-    size_t offset = hash_code(addr);
+    size_t offset = addr%(entry_num - 1);
     base_entry_t *entry = hashmap_entry + offset;
     ptr_log_t *parent = (ptr_log_t *)entry->root;
     access_num++;
@@ -50,13 +50,13 @@ BOOL CPtrsHashmap::insertPtr(vm_address_t addr,base_ptr_log *ptr_log)
         return YES;
     }
     else{
-        if(compare(parent,addr) == 0){
+        if(parent->address == addr){
             return NO;
         }
         ptr_log_t *current = parent->next;
         while(current != NULL){
             collision_num++;
-            if(compare(current,addr) == 0){
+            if(current->address == addr){
                 return NO;
             }
             parent = current;
@@ -69,25 +69,33 @@ BOOL CPtrsHashmap::insertPtr(vm_address_t addr,base_ptr_log *ptr_log)
     }
 }
 
-BOOL CPtrsHashmap::removePtr(vm_address_t addr)
+BOOL CPtrsHashmap::removePtr(vm_address_t addr, uint32_t *removeSize, uint64_t *removeDigest)
 {
-    size_t offset = hash_code(addr);
+    size_t offset = addr%(entry_num - 1);
     base_entry_t *entry = hashmap_entry + offset;
     ptr_log_t *parent = (ptr_log_t *)entry->root;
     if(parent == NULL){
         return NO;
     }
     else{
-        if(compare(parent,addr) == 0){
+        if(parent->address == addr){
             entry->root = parent->next;
+            if(removeSize && removeDigest){
+                *removeSize = parent->size;
+                *removeDigest = parent->digest;
+            }
             hashmap_free(parent);
             record_num--;
             return YES;
         }
         ptr_log_t *current = parent->next;
         while(current != NULL){
-            if(compare(current,addr) == 0){
+            if(current->address == addr){
                 parent->next = current->next;
+                if(removeSize && removeDigest){
+                    *removeSize = current->size;
+                    *removeDigest = current->digest;
+                }
                 hashmap_free(current);
                 record_num--;
                 return YES;
@@ -101,16 +109,16 @@ BOOL CPtrsHashmap::removePtr(vm_address_t addr)
 
 ptr_log_t *CPtrsHashmap::lookupPtr(vm_address_t addr)
 {
-    size_t offset = hash_code(addr);
+    size_t offset = addr%(entry_num - 1);
     base_entry_t *entry = hashmap_entry + offset;
     ptr_log_t *parent = (ptr_log_t *)entry->root;
     if(parent != NULL){
-        if(compare(parent,addr) == 0){
+        if(parent->address == addr){
             return parent;
         }
         ptr_log_t *current = parent->next;
         while(current != NULL){
-            if(compare(current,addr) == 0){
+            if(current->address == addr){
                 return current;
             }
             parent = current;
@@ -123,23 +131,23 @@ ptr_log_t *CPtrsHashmap::lookupPtr(vm_address_t addr)
 ptr_log_t *CPtrsHashmap::create_hashmap_data(vm_address_t addr,base_ptr_log *base_ptr)
 {
     ptr_log_t *ptr_log = (ptr_log_t *)hashmap_malloc(sizeof(ptr_log_t));
-    memcpy(ptr_log->md5,base_ptr->md5,16*sizeof(char));
-    ptr_log->refer = 0;
-    ptr_log->size = (size_t)base_ptr->size;
+    ptr_log->digest = base_ptr->digest;
+    ptr_log->size = (uint32_t)base_ptr->size;
     ptr_log->address = addr;
     ptr_log->next = NULL;
     return ptr_log;
 }
 
-int CPtrsHashmap::compare(ptr_log_t *ptr_log,vm_address_t addr)
-{
-    vm_address_t addr1 = ptr_log->address;
-    if(addr1 == addr) return 0;
-    return -1;
-}
+//int CPtrsHashmap::compare(ptr_log_t *ptr_log,vm_address_t addr)
+//{
+//    vm_address_t addr1 = ptr_log->address;
+//    if(addr1 == addr) return 0;
+//    return -1;
+//}
 
-size_t CPtrsHashmap::hash_code(vm_address_t addr)
-{
-    size_t offset = addr%(entry_num - 1);
-    return offset;
-}
+//size_t CPtrsHashmap::hash_code(vm_address_t addr)
+//{
+//    size_t offset = addr%(entry_num - 1);
+//    return offset;
+//}
+

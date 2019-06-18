@@ -17,15 +17,67 @@
 //  and limitations under the License.
 
 #import "COOMDetector.h"
+#import "fishhook.h"
+#import <dlfcn.h>
 
-static size_t grained_size = 512*1024;
-//extern malloc_logger_t** vm_sys_logger;
+#define do_lockHashmap \
+    if(use_unfair_lock){ \
+        os_unfair_lock_lock(&hashmap_unfair_lock); \
+    } \
+    else { \
+        dispatch_semaphore_wait(hashmap_sema, DISPATCH_TIME_FOREVER); \
+    }
+
+#define do_unlockHashmap \
+    if(use_unfair_lock){ \
+        os_unfair_lock_unlock(&hashmap_unfair_lock); \
+    } \
+    else { \
+        dispatch_semaphore_signal(hashmap_sema);\
+    }
+
+#define do_lockVMHashmap \
+if(use_unfair_lock){ \
+os_unfair_lock_lock(&vm_hashmap_unfair_lock); \
+} \
+else { \
+dispatch_semaphore_wait(vm_hashmap_sema, DISPATCH_TIME_FOREVER); \
+}
+
+#define do_unlockVMHashmap \
+if(use_unfair_lock){ \
+os_unfair_lock_unlock(&vm_hashmap_unfair_lock); \
+} \
+else { \
+dispatch_semaphore_signal(vm_hashmap_sema);\
+}
+
+extern COOMDetector* global_oomdetector;
+
+static void* (*orig_mmap)(void *, size_t, int, int, int, off_t);
+static int (*orig_munmap)(void *, size_t);
+
+//static void* orig_mmap = NULL;
+//static void* orig_munmap = NULL;
+
+void *new_mmap(void *dest, size_t size, int author, int type, int fp, off_t offset)
+{
+    void *ptr = ((void *(*)(void *, size_t, int, int, int, off_t))orig_mmap)(dest, size, author, type, fp, offset);
+    if(ptr != NULL && (author & 0x2) != 0){
+        global_oomdetector->recordVMStack(vm_address_t(dest), uint32_t(size),2);
+    }
+    return ptr;
+}
+
+int new_munmap(void *dest, size_t size)
+{
+    int result = ((int(*)(void *, size_t))orig_munmap)(dest,size);
+    global_oomdetector->removeVMStack(vm_address_t(dest));
+    return result;
+}
 
 COOMDetector::~COOMDetector()
 {
-    if(normal_stack_logger != NULL){
-        delete normal_stack_logger;
-    }
     if(stackHelper != NULL){
         delete stackHelper;
     }
@@ -33,11 +85,14 @@ COOMDetector::~COOMDetector()
 
 COOMDetector::COOMDetector()
 {
-    stackHelper = new CStackHelper();
-    pthread_mutex_init(&hashmap_mutex,NULL);
-    hashmap_mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_init(&vm_hashmap_mutex,NULL);
-    vm_hashmap_mutex = PTHREAD_MUTEX_INITIALIZER;
+    //ios10以上使用安全的unfair lock，ios10以下由于spinlock的系统bug，存在一定概率线程优先级反转问题，可能会引发卡死，建议ios10以下系统谨慎使用
+    if(@available(iOS 10.0,*)){
+        use_unfair_lock = true;
+    }
+    else {
+        hashmap_sema = dispatch_semaphore_create(1);
+        vm_hashmap_sema = dispatch_semaphore_create(1);
+    }
 }
 
 NSString *COOMDetector::chunkDataZipPath()
@@ -66,18 +121,18 @@ void COOMDetector::get_chunk_stack(size_t size)
         for(size_t j = 2; j < depth; j++){
             vm_address_t addr = (vm_address_t)stacks[j];
             segImageInfo segImage;
-            if(stackHelper->getImageByAddr(addr, &segImage)){
+            if(chunk_stackHelper->getImageByAddr(addr, &segImage)){
                 [stackInfo appendFormat:@"\"%lu %s 0x%lx 0x%lx\" ",j - 2,(segImage.name != NULL) ? segImage.name : "unknown",segImage.loadAddr,(long)addr];
             }
         }
         [stackInfo appendFormat:@"\n"];
         
-        if ([QQLeakFileUploadCenter defaultCenter].fileDataDelegate) {
+        if (fileUploadCenter.fileDataDelegate) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 NSData *data = [stackInfo dataUsingEncoding:NSUTF8StringEncoding];
                 if (data && data.length > 0) {
                     NSDictionary *extra = [NSDictionary dictionaryWithObjectsAndKeys:[[UIDevice currentDevice] systemVersion],@"systemversion",[QQLeakDeviceInfo platform],@"Device",@"chunk_malloc",@"type",nil];
-                    [[QQLeakFileUploadCenter defaultCenter] fileData:data extra:extra type:QQStackReportTypeChunkMemory completionHandler:^(BOOL completed) {
+                    [fileUploadCenter fileData:data extra:extra type:QQStackReportTypeChunkMemory completionHandler:^(BOOL completed) {
                         
                     }];
                 }
@@ -92,210 +147,163 @@ void COOMDetector::get_chunk_stack(size_t size)
 
 void COOMDetector::lockHashmap()
 {
-    pthread_mutex_lock(&hashmap_mutex);
+    do_lockHashmap
 }
 
 void COOMDetector::unlockHashmap()
 {
-    pthread_mutex_unlock(&hashmap_mutex);
+    do_unlockHashmap
 }
 
-void COOMDetector::lockVMHashmap()
-{
-    pthread_mutex_lock(&vm_hashmap_mutex);
-}
-
-void COOMDetector::unlockVMHashmap()
-{
-    pthread_mutex_unlock(&vm_hashmap_mutex);
-}
-
-void COOMDetector::recordVMStack(vm_address_t address,uint32_t size,const char*type,size_t stack_num_to_skip)
+void COOMDetector::recordMallocStack(vm_address_t address,uint32_t size,size_t stack_num_to_skip)
 {
     base_stack_t base_stack;
     base_ptr_log base_ptr;
-    unsigned char md5[16];
+    uint64_t digest;
     vm_address_t  *stack[max_stack_depth];
     if(needStackWithoutAppStack){
-        base_stack.depth = stackHelper->recordBacktrace(needSysStack,0,stack_num_to_skip, stack,md5,max_stack_depth);
+        base_stack.depth = (uint32_t)stackHelper->recordBacktrace(needSysStack,0,0,stack_num_to_skip, stack,&digest,max_stack_depth);
     }
     else {
-        base_stack.depth = stackHelper->recordBacktrace(needSysStack,1,stack_num_to_skip, stack,md5,max_stack_depth);
+        base_stack.depth = (uint32_t)stackHelper->recordBacktrace(needSysStack,0,1,stack_num_to_skip, stack,&digest,max_stack_depth);
     }
     if(base_stack.depth > 0){
+        base_stack.type = 0;
+        if(sampleFactor > 1 && size < sampleThreshold){
+            base_stack.size = size * sampleFactor;
+            base_stack.count = sampleFactor;
+        }
+        else {
+            base_stack.size = size;
+            base_stack.count = 1;
+        }
         base_stack.stack = stack;
-        base_stack.extra.size = size;
-        base_stack.extra.name = type;
-        base_ptr.md5 = md5;
+        base_ptr.digest = digest;
         base_ptr.size = size;
-        lockVMHashmap();
-        if(vm_ptrs_hashmap && vm_stacks_hashmap){
-            if(vm_ptrs_hashmap->insertPtr(address, &base_ptr)){
-                vm_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
+        do_lockHashmap
+        if(oom_ptrs_hashmap && oom_stacks_hashmap){
+            if(oom_ptrs_hashmap->insertPtr(address, &base_ptr)){
+                oom_stacks_hashmap->insertStackAndIncreaseCountIfExist(digest, &base_stack);
+            }
+            if(needCleanStackCache && oom_ptrs_hashmap->getRecordNum() > cache_clean_num){
+                removeTinyMallocStacks(cache_clean_threshold);
+                cache_clean_num += oom_ptrs_hashmap->getRecordNum();
             }
         }
-        unlockVMHashmap();
+        do_unlockHashmap
     }
 }
 
+void COOMDetector::removeTinyMallocStacks(size_t threshold)
+{
+    for(size_t i = 0; i < oom_ptrs_hashmap->getEntryNum(); i++){
+        base_entry_t *entry = oom_ptrs_hashmap->getHashmapEntry() + i;
+        ptr_log_t *current = (ptr_log_t *)entry->root;
+        while(current != NULL){
+            ptr_log_t *next = current->next;
+            merge_stack_t *lookupStack = oom_stacks_hashmap->lookupStack(current->digest);
+            if(lookupStack){
+                uint32_t size = lookupStack->size;
+                uint64_t digest = lookupStack->digest;
+                uint32_t count = lookupStack->count;
+                vm_address_t address = current->address;
+                if(size < threshold){
+                    if(oom_ptrs_hashmap->removePtr(address,NULL,NULL)){
+                        oom_stacks_hashmap->removeIfCountIsZero(digest, size, count);
+                    }
+                }
+            }
+            else {
+                vm_address_t address = current->address;
+                oom_ptrs_hashmap->removePtr(address,NULL,NULL);
+            }
+            current = next;
+        }
+    }
+}
+
+void COOMDetector::removeMallocStack(vm_address_t address)
+{
+    do_lockHashmap
+    if(oom_ptrs_hashmap && oom_stacks_hashmap){
+        uint32_t size = 0;
+        uint64_t digest = 0;
+        uint32_t count = 1;
+        if(oom_ptrs_hashmap->removePtr(address,&size,&digest)){
+            if(sampleFactor > 1 && size < sampleThreshold){
+                count = sampleFactor;
+                size = size * sampleFactor;
+            }
+            oom_stacks_hashmap->removeIfCountIsZero(digest, size, count);
+        }
+    }
+    do_unlockHashmap
+}
+
+void COOMDetector::recordVMStack(vm_address_t address,uint32_t size,size_t stack_num_to_skip)
+{
+    base_stack_t base_stack;
+    base_ptr_log base_ptr;
+    uint64_t digest;
+    vm_address_t  *stack[max_stack_depth];
+    base_stack.depth = (uint32_t)stackHelper->recordBacktrace(YES,1,0,stack_num_to_skip, stack,&digest,max_stack_depth);
+    if(base_stack.depth > 0){
+        base_stack.type = 1;
+        base_stack.size = size;
+        base_stack.count = 1;
+        base_stack.stack = stack;
+        base_ptr.digest = digest;
+        base_ptr.size = size;
+        do_lockVMHashmap
+        if(oom_vm_ptrs_hashmap && oom_vm_stacks_hashmap){
+            oom_vm_ptrs_hashmap->insertPtr(address, &base_ptr);
+            oom_vm_stacks_hashmap->insertStackAndIncreaseCountIfExist(digest, &base_stack);
+        }
+        do_unlockVMHashmap
+    }
+}
 
 void COOMDetector::removeVMStack(vm_address_t address)
 {
-    lockVMHashmap();
-    if(vm_ptrs_hashmap && vm_stacks_hashmap){
-        ptr_log_t *ptr_log = vm_ptrs_hashmap->lookupPtr(address);
-        if(ptr_log != NULL)
-        {
-            unsigned char md5[16];
-            strncpy((char *)md5, (const char *)ptr_log->md5, 16);
-            size_t size = (size_t)ptr_log->size;
-            if(vm_ptrs_hashmap->removePtr(address)){
-                vm_stacks_hashmap->removeIfCountIsZero(md5,size);
-            }
+    do_lockVMHashmap
+    if(oom_vm_ptrs_hashmap && oom_vm_stacks_hashmap){
+        uint32_t size = 0;
+        uint64_t digest = 0;
+        if(oom_vm_ptrs_hashmap->removePtr(address,&size,&digest)){
+            oom_vm_stacks_hashmap->removeIfCountIsZero(digest, size, 1);
         }
     }
-    unlockVMHashmap();
-}
-
-void COOMDetector::recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip)
-{
-    base_stack_t base_stack;
-    base_ptr_log base_ptr;
-    unsigned char md5[16];
-    vm_address_t  *stack[max_stack_depth];
-    if(needStackWithoutAppStack){
-        base_stack.depth = stackHelper->recordBacktrace(needSysStack,0,stack_num_to_skip, stack,md5,max_stack_depth);
-    }
-    else {
-        base_stack.depth = stackHelper->recordBacktrace(needSysStack,1,stack_num_to_skip, stack,md5,max_stack_depth);
-    }
-    
-    if(base_stack.depth > 0){
-        base_stack.stack = stack;
-        base_stack.extra.size = size;
-        base_ptr.md5 = md5;
-        base_ptr.size = size;
-        lockHashmap();
-        if(oom_ptrs_hashmap && oom_stacks_hashmap){
-            if(oom_ptrs_hashmap->insertPtr(address, &base_ptr)){
-                oom_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
-            }
-        }
-        unlockHashmap();
-    }
-}
-
-void COOMDetector::removeMallocStack(vm_address_t address,monitor_mode mode)
-{
-    lockHashmap();
-    if(oom_ptrs_hashmap && oom_stacks_hashmap){
-        ptr_log_t *ptr_log = oom_ptrs_hashmap->lookupPtr(address);
-        if(ptr_log != NULL)
-        {
-            unsigned char md5[16];
-            strncpy((char *)md5, (const char *)ptr_log->md5, 16);
-            size_t size = (size_t)ptr_log->size;
-            if(oom_ptrs_hashmap->removePtr(address)){
-                oom_stacks_hashmap->removeIfCountIsZero(md5, size);
-            }
-        }
-    }
-    unlockHashmap();
-}
-
-void COOMDetector::flush_allocation_stack()
-{
-    normal_stack_logger->current_len = 0;
-    NSDateFormatter* df = [[NSDateFormatter new] autorelease];
-    df.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
-    NSString *dateStr = [df stringFromDate:[NSDate date]];
-    int exceedNum = 0;
-    //flush malloc stack
-    if(enableOOMMonitor){
-        lockHashmap();
-        malloc_logger = NULL;
-        normal_stack_logger->sprintfLogger(grained_size,"%s normal_malloc_num:%ld stack_num:%ld\n",[dateStr UTF8String],oom_ptrs_hashmap->getRecordNum(),oom_stacks_hashmap->getRecordNum());
-        for(size_t i = 0; i < oom_stacks_hashmap->getEntryNum(); i++){
-            base_entry_t *entry = oom_stacks_hashmap->getHashmapEntry() + i;
-            merge_stack_t *current = (merge_stack_t *)entry->root;
-            while(current != NULL){
-                if(current->extra.size > oom_threshold){
-                    exceedNum++;
-                    normal_stack_logger->sprintfLogger(grained_size,"Malloc_size:%lfmb num:%u stack:\n",(double)(current->extra.size)/(1024*1024), current->count);
-                    for(size_t j = 0; j < current ->depth; j++){
-                        vm_address_t addr = (vm_address_t)current->stack[j];
-                        segImageInfo segImage;
-                        if(stackHelper->getImageByAddr(addr, &segImage)){
-                            normal_stack_logger->sprintfLogger(grained_size,"\"%lu %s 0x%lx 0x%lx\" ",j,(segImage.name != NULL) ? segImage.name : "unknown",segImage.loadAddr,(long)addr);
-                        }
-                    }
-                    normal_stack_logger->sprintfLogger(grained_size,"\n");
-                }
-                current = current->next;
-            }
-        }
-        malloc_logger = (malloc_logger_t *)common_stack_logger;//oom_malloc_logger;
-        unlockHashmap();
-    }
-    normal_stack_logger->sprintfLogger(grained_size,"\n");
-    //flush vm
-    if(enableVMMonitor){
-        lockVMHashmap();
-        *vm_sys_logger = NULL;
-        normal_stack_logger->sprintfLogger(grained_size,"%s vm_allocate_num:%ld stack_num:%ld\n",[dateStr UTF8String],vm_ptrs_hashmap->getRecordNum(),vm_stacks_hashmap->getRecordNum());
-        for(size_t i = 0; i < vm_stacks_hashmap->getEntryNum(); i++){
-            base_entry_t *entry = vm_stacks_hashmap->getHashmapEntry() + i;
-            merge_stack_t *current = (merge_stack_t *)entry->root;
-            while(current != NULL){
-                if(current->extra.size > vm_threshold){
-                    exceedNum++;
-                    normal_stack_logger->sprintfLogger(grained_size,"vm_allocate_size:%.2fmb num:%u type:%s stack:\n",(double)(current->extra.size)/(1024*1024), current->count,current->extra.name);
-                    for(size_t j = 0; j < current ->depth; j++){
-                        vm_address_t addr = (vm_address_t)current->stack[j];
-                        segImageInfo segImage;
-                        if(stackHelper->getImageByAddr(addr, &segImage)){
-                            normal_stack_logger->sprintfLogger(grained_size,"\"%lu %s 0x%lx 0x%lx\" ",j,(segImage.name != NULL) ? segImage.name : "unknown",segImage.loadAddr,(long)addr);
-                        }
-                    }
-                    normal_stack_logger->sprintfLogger(grained_size,"\n");
-                }
-                current = current->next;
-            }
-        }
-    }
-    if(exceedNum == 0){
-        normal_stack_logger->cleanLogger();
-    }
-    if(enableVMMonitor){
-        *vm_sys_logger = oom_vm_logger;
-    }
-    unlockVMHashmap();
-    normal_stack_logger->syncLogger();
+    do_unlockVMHashmap
 }
 
 
-void COOMDetector::initLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size,LogPrinter printer)
+
+void COOMDetector::initLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size)
 {
-    normal_stack_logger = new HighSpeedLogger(zone, path, mmap_size);
-    if(normal_stack_logger != NULL && normal_stack_logger->isValid()){
-        normal_stack_logger->logPrinterCallBack = printer;
+    NSString *dir = [path stringByDeletingLastPathComponent];
+    stackHelper = new CStackHelper(dir);
+    log_path = [path retain];
+    log_mmap_size = mmap_size;
+}
+
+void COOMDetector::initVMLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size)
+{
+    NSString *dir = [path stringByDeletingLastPathComponent];
+    if(stackHelper == NULL){
+        stackHelper = new CStackHelper(dir);
     }
+    vm_log_path = [path retain];
+    vm_log_mmap_size = mmap_size;
 }
 
 BOOL COOMDetector::startMallocStackMonitor(size_t threshholdInBytes)
 {
-    if(normal_stack_logger != NULL && normal_stack_logger->isValid()){
-        oom_stacks_hashmap = new CStacksHashmap(50000,global_memory_zone,OOMDetectorMode);
-        oom_stacks_hashmap->oom_threshold = threshholdInBytes;
-        oom_ptrs_hashmap = new CPtrsHashmap(250000,global_memory_zone);
-        enableOOMMonitor = YES;
-        oom_threshold = threshholdInBytes;
-        return YES;
-    }
-    else {
-        enableOOMMonitor = NO;
-        return NO;
-    }
+    oom_stacks_hashmap = new CStacksHashmap(50000,global_memory_zone,log_path,log_mmap_size);
+    oom_stacks_hashmap->oom_threshold = threshholdInBytes;
+    oom_ptrs_hashmap = new CPtrsHashmap(500000,global_memory_zone);
+    enableOOMMonitor = YES;
+    oom_threshold = threshholdInBytes;
+    return YES;
 }
 
 void COOMDetector::stopMallocStackMonitor()
@@ -312,32 +320,29 @@ void COOMDetector::stopMallocStackMonitor()
 
 BOOL COOMDetector::startVMStackMonitor(size_t threshholdInBytes)
 {
-    if(normal_stack_logger != NULL && normal_stack_logger->isValid()){
-        vm_stacks_hashmap = new CStacksHashmap(1000,global_memory_zone,OOMDetectorMode);
-        vm_ptrs_hashmap = new CPtrsHashmap(2000,global_memory_zone);
-        enableVMMonitor = YES;
-        vm_threshold = threshholdInBytes;
-        return YES;
-    }
-    else {
-        enableVMMonitor = NO;
-        return NO;
-    }
+    oom_vm_stacks_hashmap = new CStacksHashmap(1000,global_memory_zone,log_path,log_mmap_size);
+    oom_vm_stacks_hashmap->oom_threshold = threshholdInBytes;
+    oom_vm_ptrs_hashmap = new CPtrsHashmap(10000,global_memory_zone);
+    enableVMMonitor = YES;
+    vm_threshold = threshholdInBytes;
+//    rebind_symbols((struct rebinding[2]){
+//        {"mmap",(void*)new_mmap,(void**)&orig_mmap},
+//        {"munmap", (void*)new_munmap, (void **)&orig_munmap}},
+//                   2);
+    return YES;
 }
 
 void COOMDetector::stopVMStackMonitor()
 {
-    if(normal_stack_logger != NULL){
-        lockVMHashmap();
-        CPtrsHashmap *tmp_ptr = vm_ptrs_hashmap;
-        CStacksHashmap *tmp_stack = vm_stacks_hashmap;
-        vm_ptrs_hashmap = NULL;
-        vm_stacks_hashmap = NULL;
-        unlockVMHashmap();
-        delete tmp_ptr;
-        delete tmp_stack;
-        enableVMMonitor = NO;
-    }
+    enableVMMonitor = NO;
+    do_lockVMHashmap
+    CPtrsHashmap *tmp_ptr = oom_vm_ptrs_hashmap;
+    CStacksHashmap *tmp_stack = oom_vm_stacks_hashmap;
+    oom_vm_stacks_hashmap = NULL;
+    oom_vm_ptrs_hashmap = NULL;
+    do_unlockVMHashmap
+    delete tmp_ptr;
+    delete tmp_stack;
 }
 
 void COOMDetector::startSingleChunkMallocDetector(size_t threshholdInBytes,ChunkMallocBlock mallocBlock)
@@ -347,16 +352,15 @@ void COOMDetector::startSingleChunkMallocDetector(size_t threshholdInBytes,Chunk
     if(chunkMallocCallback != NULL){
         Block_release(chunkMallocCallback);
     }
+    if(chunk_stackHelper == NULL){
+        chunk_stackHelper = new CStackHelper(nil);
+    }
     chunkMallocCallback = Block_copy(mallocBlock);
+    fileUploadCenter = [QQLeakFileUploadCenter defaultCenter];
 }
 
 void COOMDetector::stopSingleChunkMallocDetector()
 {
     enableChunkMonitor = NO;
-}
-
-HighSpeedLogger *COOMDetector::getStackLogger()
-{
-    return normal_stack_logger;
 }
 

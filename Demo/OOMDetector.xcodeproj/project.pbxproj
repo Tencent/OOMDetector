@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4AE2C5E220883ACC0042D00B /* libOOMDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE2C5E120883ACC0042D00B /* libOOMDetector.framework */; };
 		6B12C6421F9621F9000B42F0 /* DemoListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C6411F9621F9000B42F0 /* DemoListViewController.m */; };
 		6B12C6461F962E14000B42F0 /* DemoViewController0.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C6451F962E14000B42F0 /* DemoViewController0.m */; };
 		6B12C6491F962EA9000B42F0 /* DemoViewController1.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C6481F962EA9000B42F0 /* DemoViewController1.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -16,12 +17,14 @@
 		6B9A04F51FD5823800414B1F /* BaseDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22E71F8E494C007DE399 /* BaseDemoViewController.m */; };
 		6B9A04F61FD5823800414B1F /* DemoViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B12C7011F974AB8000B42F0 /* DemoViewController2.m */; };
 		6B9A04F71FD5823800414B1F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8C22E41F8E494C007DE399 /* AppDelegate.m */; };
-		6BADA10D1FA8AC0F00668479 /* DemoViewController3.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */; };
+		6BADA10D1FA8AC0F00668479 /* DemoViewController3.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BADA10C1FA8AC0F00668479 /* DemoViewController3.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		6BF6879C1FC3C4D500054160 /* MyOOMDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BF6879B1FC3C4D500054160 /* MyOOMDataManager.m */; };
-		7DE3285020107E9B007A188B /* libOOMDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DE3285120107E9B007A188B /* libOOMDetector.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4A9C1E3A208499EC00E54134 /* libOOMDetector_QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libOOMDetector_QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A9C1E3C20849A7800E54134 /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AE2C5E120883ACC0042D00B /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B12C6401F9621F9000B42F0 /* DemoListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoListViewController.h; sourceTree = "<group>"; };
 		6B12C6411F9621F9000B42F0 /* DemoListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoListViewController.m; sourceTree = "<group>"; };
 		6B12C6441F962E14000B42F0 /* DemoViewController0.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController0.h; sourceTree = "<group>"; };
@@ -51,7 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7DE3285020107E9B007A188B /* libOOMDetector.framework in Frameworks */,
+				4AE2C5E220883ACC0042D00B /* libOOMDetector.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,6 +116,9 @@
 		6B9A04F21FD5816F00414B1F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4AE2C5E120883ACC0042D00B /* libOOMDetector.framework */,
+				4A9C1E3C20849A7800E54134 /* libOOMDetector.framework */,
+				4A9C1E3A208499EC00E54134 /* libOOMDetector_QQ.framework */,
 				7DE3285120107E9B007A188B /* libOOMDetector.framework */,
 			);
 			name = Frameworks;
@@ -329,19 +335,23 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 8D5EHT9KTL;
+				DEVELOPMENT_TEAM = JVT843N4EQ;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 					Build_For_Extern,
 				);
 				INFOPLIST_FILE = OOMDetectorDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				NEW_SETTING = "";
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-lc++";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tencentgsd.OOMDemo;
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-force_load",
+					"$(BUILT_PRODUCTS_DIR)/libOOMDetector.framework/libOOMDetector",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.rosen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -357,14 +367,18 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8D5EHT9KTL;
+				DEVELOPMENT_TEAM = JVT843N4EQ;
 				GCC_PREPROCESSOR_DEFINITIONS = Build_For_Extern;
 				INFOPLIST_FILE = OOMDetectorDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				NEW_SETTING = "";
-				OTHER_LDFLAGS = "-lc++";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tencentgsd.OOMDemo;
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-force_load",
+					"$(BUILT_PRODUCTS_DIR)/libOOMDetector.framework/libOOMDetector",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.rosen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";

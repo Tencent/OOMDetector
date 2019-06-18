@@ -22,20 +22,6 @@
 @import libOOMDetector;
 
 
-#define DemoCode3 \
-int i = 0;\
-while (i < 3000) {\
-    [self.arr addObject:[[NSObject alloc] init]];\
-    ++i;\
-}\
-
-@interface DemoViewController3 ()
-
-@property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, strong) NSMutableArray *arr;
-
-@end
-
 @implementation DemoViewController3
 
 - (void)viewDidLoad
@@ -44,18 +30,11 @@ while (i < 3000) {\
     
     self.isOOMDemo = YES;
     self.resultLabel.hidden = YES;
-    self.arr = [NSMutableArray new];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    
-    [self.timer invalidate];
-    self.timer = nil;
-    
-    [self.arr removeAllObjects];
-    self.arr = nil;
 }
 
 - (NSString *)demoDescriptionString
@@ -65,15 +44,15 @@ while (i < 3000) {\
 
 - (void)runDemoCode
 {
-    if (!self.timer) {
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(test) userInfo:nil repeats:YES];
-        [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
-    }
+    [self test];
 }
 
 - (void)test
 {
-    DemoCode3
+    while (1) {
+        NSObject *obj = [[[NSObject alloc] init] retain];
+        [obj class];
+    }
 }
 
 - (NSString *)demoCodeText

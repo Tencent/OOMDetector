@@ -1,6 +1,6 @@
 //
-//  HighSpeedLogger.h
-//  QQLeak
+//  CStackHighSpeedLogger.h
+//  OOMDetector
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
 //  Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
@@ -16,32 +16,31 @@
 //
 //
 
-#ifndef HighSpeedLogger_h
-#define HighSpeedLogger_h
-
-#import <Foundation/Foundation.h>
+#import "CStacksHashmap.h"
 #import <malloc/malloc.h>
 
-typedef void (*LogPrinter)(char *log);
+typedef struct cache_stack_t{
+    uint32_t            count;
+    uint32_t            size;
+    uint32_t            type;       //0:malloc 1:vm
+    uint32_t            stack_depth;
+    uint64_t            digest;
+    vm_address_t        *stacks[64];
+} cache_stack_t;
 
-class HighSpeedLogger
+class CStackHighSpeedLogger
 {
 public:
-    ~HighSpeedLogger();
-    HighSpeedLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size);
-    BOOL sprintfLogger(size_t grain_size,const char *format, ...);
-    size_t memcpyLogger(const char *content, size_t length);
-    void cleanLogger();
-    void syncLogger();
-    bool isValid();
-    LogPrinter logPrinterCallBack;
-public:
-    char *mmap_ptr;
+    CStackHighSpeedLogger(size_t num,malloc_zone_t *memory_zone,NSString *path);
+    void updateStack(merge_stack_t *current,base_stack_t *stack);
+    void removeStack(merge_stack_t *current,bool needRemove);
+    ~CStackHighSpeedLogger();
+private:
+    cache_stack_t *mmap_ptr;
     size_t mmap_size;
-    size_t current_len;
     malloc_zone_t *memory_zone;
     FILE *mmap_fp;
     bool isFailed;
+    size_t entry_num;
+    size_t total_logger_cnt;
 };
-
-#endif /* HighSpeedLogger_h */

@@ -22,14 +22,14 @@
 #import "CBaseHashmap.h"
 
 typedef struct base_ptr_log{
-    unsigned char *md5;
-    uint32_t size;
+    uint64_t digest;
+    uint64_t size;
+    uint64_t record_num;
 } base_ptr_log;
 
 typedef struct ptr_log_t{
-    unsigned char  md5[16];
-    size_t size;
-    size_t refer;
+    uint64_t digest;
+    uint32_t size;
     vm_address_t address;
     ptr_log_t *next;
 } ptr_log_t;
@@ -39,13 +39,13 @@ class CPtrsHashmap : public CBaseHashmap
 public:
     CPtrsHashmap(size_t entrys,malloc_zone_t *memory_zone):CBaseHashmap(entrys,memory_zone){};
     BOOL insertPtr(vm_address_t addr,base_ptr_log *ptr_log);
-    BOOL removePtr(vm_address_t addr);
+    BOOL removePtr(vm_address_t addr,uint32_t *removeSize, uint64_t *removeDigest);
     ptr_log_t *lookupPtr(vm_address_t addr);
     ~CPtrsHashmap();
 protected:
     ptr_log_t *create_hashmap_data(vm_address_t addr,base_ptr_log *base_ptr);
-    int compare(ptr_log_t *ptr_log,vm_address_t addr);
-    size_t hash_code(vm_address_t addr);
+//    int compare(ptr_log_t *ptr_log,vm_address_t addr);
+//    size_t hash_code(vm_address_t addr);
 };
 
 #endif /* CPtrHashmap_h */

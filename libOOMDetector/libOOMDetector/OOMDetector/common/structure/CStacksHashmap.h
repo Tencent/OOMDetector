@@ -21,48 +21,40 @@
 
 #import "CBaseHashmap.h"
 
-typedef struct extra_t{
-    const char      *name;
-    uint32_t        size;
-}extra_t;
+class CStackHighSpeedLogger;
 
 typedef struct base_stack_t{
-    uint16_t            depth;
+    uint32_t            depth;
     vm_address_t        **stack;
-    extra_t             extra;
+    uint32_t            size;
+    uint32_t            type;
+    uint32_t            count;
 }base_stack_t;
 
 typedef struct merge_stack_t{
-    unsigned char       md5[16];
+    uint64_t            digest;
     uint32_t            depth;
     uint32_t            count;
-    vm_address_t        **stack;
+    uint32_t            cache_flag;
+    uint32_t            size;
     merge_stack_t       *next;
-    extra_t             extra;
 } merge_stack_t;
-
-typedef enum
-{
-    QQLeakMode = 1,
-    OOMDetectorMode
-}monitor_mode;
-
 
 class CStacksHashmap : public CBaseHashmap
 {
 public:
-    CStacksHashmap(size_t entrys,malloc_zone_t *memory_zone,monitor_mode mode);
-    void insertStackAndIncreaseCountIfExist(unsigned char *md5,base_stack_t *stack);
-    void removeIfCountIsZero(unsigned char *md5, size_t size);
-    merge_stack_t *lookupStack(unsigned char *md5);
-    monitor_mode mode;
+    CStacksHashmap(size_t entrys,malloc_zone_t *memory_zone,NSString *path, size_t mmap_size);
+    void insertStackAndIncreaseCountIfExist(uint64_t digest,base_stack_t *stack);
+    void removeIfCountIsZero(uint64_t digest,uint32_t size,uint32_t count);
+    merge_stack_t *lookupStack(uint64_t digest);
     ~CStacksHashmap();
 public:
     size_t oom_threshold;
+    bool is_vm = false;
 protected:
-    merge_stack_t *create_hashmap_data(unsigned char *md5,base_stack_t *stack);
-    int compare(merge_stack_t *stack,unsigned char *md5);
-    size_t hash_code(void *key);
+    merge_stack_t *create_hashmap_data(uint64_t digest,base_stack_t *stack);
+private:
+    CStackHighSpeedLogger *logger;
 };
 
 #endif /* CMergestackHashmap_h */

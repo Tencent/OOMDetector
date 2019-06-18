@@ -21,11 +21,12 @@
 #import "CLeakChecker.h"
 #import "QQLeakChecker.h"
 #import "CommonMallocLogger.h"
-
+#import "RapidCRC.h"
+#import "CLeakedStacksHashmap.h"
 
 CLeakChecker::CLeakChecker()
 {
-    stackHelper = new CStackHelper();
+    stackHelper = new CStackHelper(nil);
     pthread_mutex_init(&hashmap_mutex,NULL);
     hashmap_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_init(&threadTracking_mutex,NULL);
@@ -57,7 +58,7 @@ CLeakChecker::~CLeakChecker()
 bool CLeakChecker::findPtrInMemoryRegion(vm_address_t address){
     ptr_log_t *ptr_log = qleak_ptrs_hashmap->lookupPtr(address);
     if(ptr_log != NULL){
-        ptr_log->refer++;
+        ptr_log->size++;
         return true;
     }
     return false;
@@ -96,7 +97,8 @@ void CLeakChecker::initLeakChecker(){
     objcFilter = new CObjcFilter();
     objcFilter->initBlackClass();
     qleak_ptrs_hashmap = new CPtrsHashmap(100000,global_memory_zone);
-    qleak_stacks_hashmap = new CStacksHashmap(50000,global_memory_zone,QQLeakMode);
+    qleak_stacks_hashmap = new CLeakedStacksHashmap(50000,global_memory_zone);
+    init_crc_table_for_oom();
 }
 
 void CLeakChecker::beginLeakChecker(){
@@ -158,21 +160,21 @@ void CLeakChecker::unlockThreadTracking()
 
 void CLeakChecker::recordMallocStack(vm_address_t address,uint32_t size,const char*name,size_t stack_num_to_skip)
 {
-    base_stack_t base_stack;
+    base_leaked_stack_t base_stack;
     base_ptr_log base_ptr;
-    unsigned char md5[16];
+    uint64_t digest;
     vm_address_t *stack[max_stack_depth];
-    base_stack.depth = stackHelper->recordBacktrace(needSysStack,0,stack_num_to_skip + 1, stack,md5,max_stack_depth);
-    
+    base_stack.depth = stackHelper->recordBacktrace(needSysStack,0,0,stack_num_to_skip + 1, stack,&digest,max_stack_depth);
     if(base_stack.depth > 0){
         base_stack.stack = stack;
         base_stack.extra.name = name;
-        base_ptr.md5 = md5;
-        base_ptr.size = size;
+        base_stack.extra.size = size;
+        base_ptr.digest = digest;
+        base_ptr.size = 0;
         lockHashmap();
         if(qleak_ptrs_hashmap && qleak_stacks_hashmap){
             if(qleak_ptrs_hashmap->insertPtr(address, &base_ptr)){
-                qleak_stacks_hashmap->insertStackAndIncreaseCountIfExist(md5, &base_stack);
+                qleak_stacks_hashmap->insertStackAndIncreaseCountIfExist(digest, &base_stack);
             }
         }
         unlockHashmap();
@@ -183,15 +185,10 @@ void CLeakChecker::removeMallocStack(vm_address_t address)
 {
     lockHashmap();
     if(qleak_ptrs_hashmap && qleak_stacks_hashmap){
-        ptr_log_t *ptr_log = qleak_ptrs_hashmap->lookupPtr(address);
-        if(ptr_log != NULL)
-        {
-            unsigned char md5[16];
-            strncpy((char *)md5, (const char *)ptr_log->md5, 16);
-            size_t size = (size_t)ptr_log->size;
-            if(qleak_ptrs_hashmap->removePtr(address)){
-                qleak_stacks_hashmap->removeIfCountIsZero(md5,size);
-            }
+        uint32_t size = 0;
+        uint64_t digest = 0;
+        if(qleak_ptrs_hashmap->removePtr(address,&size,&digest)){
+            qleak_stacks_hashmap->removeIfCountIsZero(digest,size);
         }
     }
     unlockHashmap();
@@ -204,30 +201,33 @@ void CLeakChecker::get_all_leak_ptrs()
         base_entry_t *entry = qleak_ptrs_hashmap->getHashmapEntry() + i;
         ptr_log_t *current = (ptr_log_t *)entry->root;
         while(current != NULL){
-            merge_stack_t *merge_stack = qleak_stacks_hashmap->lookupStack(current->md5);
+            merge_leaked_stack_t *merge_stack = qleak_stacks_hashmap->lookupStack(current->digest);
             if(merge_stack == NULL) {
                 current = current->next;
                 continue;
             }
             if(merge_stack->extra.name != NULL){
-                if(current->refer == 0){
-                    leaked_hashmap->insertLeakPtrAndIncreaseCountIfExist(current->md5, current);
-                    qleak_ptrs_hashmap->removePtr(current->address);
+                if(current->size == 0){
+                    leaked_hashmap->insertLeakPtrAndIncreaseCountIfExist(current->digest, current);
+                    vm_address_t address = current->address;
+                    qleak_ptrs_hashmap->removePtr(address,NULL,NULL);
                 }
-                current->refer = 0;
+                current->size = 0;
             }
             else{
-                const char* name = objcFilter->getObjectNameExceptBlack((void *)current->address);
+                vm_address_t address = current->address;
+                const char* name = objcFilter->getObjectNameExceptBlack((void *)address);
                 if(name != NULL){
-                    merge_stack->extra.name = name;
-                    if(current->refer == 0){
-                        leaked_hashmap->insertLeakPtrAndIncreaseCountIfExist(current->md5, current);
-                        qleak_ptrs_hashmap->removePtr(current->address);
+                    if(current->size == 0){
+                        merge_stack->extra.name = name;
+                        leaked_hashmap->insertLeakPtrAndIncreaseCountIfExist(current->digest, current);
+                        vm_address_t address = (vm_address_t)(0x100000000 | current->address);
+                        qleak_ptrs_hashmap->removePtr(address,NULL,NULL);
                     }
-                    current->refer = 0;
+                    current->size = 0;
                 }
                 else {
-                    qleak_ptrs_hashmap->removePtr(current->address);
+                    qleak_ptrs_hashmap->removePtr(current->address,NULL,NULL);
                 }
             }
             current = current->next;
@@ -244,7 +244,7 @@ NSString* CLeakChecker::get_all_leak_stack(size_t *total_count)
         base_entry_t *entry = leaked_hashmap->getHashmapEntry() + i;
         leaked_ptr_t *current = (leaked_ptr_t *)entry->root;
         while(current != NULL){
-            merge_stack_t *merge_stack = qleak_stacks_hashmap->lookupStack(current->md5);
+            merge_leaked_stack_t *merge_stack = qleak_stacks_hashmap->lookupStack(current->digest);
             if(merge_stack == NULL) {
                 current = current->next;
                 continue;
@@ -275,6 +275,7 @@ NSString* CLeakChecker::get_all_leak_stack(size_t *total_count)
 
 void CLeakChecker::uploadLeakData(NSString *leakStr)
 {
+ //   NSLog(@"%@",leakStr);
     if ([QQLeakFileUploadCenter defaultCenter].fileDataDelegate) {
         NSMutableString *leakData = [[[NSMutableString alloc] initWithString:leakStr] autorelease];
         [leakData insertString:[NSString stringWithFormat:@"QQLeak montitor: os:%@, device_type:%@\n", [[NSProcessInfo processInfo] operatingSystemVersionString], [QQLeakDeviceInfo platform]] atIndex:0];
@@ -316,7 +317,7 @@ CPtrsHashmap *CLeakChecker::getPtrHashmap()
     return qleak_ptrs_hashmap;
 }
 
-CStacksHashmap *CLeakChecker::getStackHashmap()
+CLeakedStacksHashmap *CLeakChecker::getStackHashmap()
 {
     return qleak_stacks_hashmap;
 }

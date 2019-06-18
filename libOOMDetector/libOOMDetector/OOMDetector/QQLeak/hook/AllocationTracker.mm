@@ -31,6 +31,7 @@
 #import "QQLeakMallocStackTracker.h"
 #import "CObjcFilter.h"
 #import "CLeakChecker.h"
+#import "NSObject+FOOMSwizzle.h"
 
 #if __has_feature(objc_arc)
 #error This file must be compiled without ARC. Use -fno-objc-arc flag.
@@ -39,39 +40,6 @@
 extern CLeakChecker* global_leakChecker;
 
 static AllocationTracker *tracker;
-
-@interface NSObject(MethodSwizzling)
-+ (BOOL)swizzleMethod:(SEL)origSel withMethod:(SEL)altSel;
-+ (BOOL)swizzleClassMethod:(SEL)origSel withClassMethod:(SEL)altSel;
-
-@end
-
-
-@implementation NSObject (MethodSwizzling)
-
-+ (BOOL)swizzleMethod:(SEL)origSel withMethod:(SEL)altSel
-{
-    Method originMethod = class_getInstanceMethod(self, origSel);
-    Method newMethod = class_getInstanceMethod(self, altSel);
-    if (originMethod && newMethod) {
-        //2012年5月更新
-        if (class_addMethod(self, origSel, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))) {
-            class_replaceMethod(self, altSel, method_getImplementation(originMethod), method_getTypeEncoding(originMethod));
-        } else {
-            method_exchangeImplementations(originMethod, newMethod);
-        }
-        return YES;
-    }
-    return NO;
-}
-
-+ (BOOL)swizzleClassMethod:(SEL)origSel withClassMethod:(SEL)altSel
-{
-    Class c = object_getClass((id)self);
-    return [c swizzleMethod:origSel withMethod:altSel];
-}
-
-@end
 
 @interface NSObject(AllocationTracker)
 

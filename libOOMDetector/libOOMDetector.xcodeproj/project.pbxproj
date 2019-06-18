@@ -6,25 +6,24 @@
 	objectVersion = 48;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		6B9A04F81FD5839A00414B1F /* libOOMAggregate */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 6B9A04FB1FD5839A00414B1F /* Build configuration list for PBXAggregateTarget "libOOMAggregate" */;
-			buildPhases = (
-				6B9A04FC1FD583A700414B1F /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = libOOMAggregate;
-			productName = libOOMAggregate;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
+		4A212CAA206259D6001960DA /* RapidCRC.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A212CA8206259D6001960DA /* RapidCRC.c */; };
+		4A212CAB206259D6001960DA /* RapidCRC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A212CA9206259D6001960DA /* RapidCRC.h */; };
+		4A406D35207A18C900CAFBD2 /* CStackHighSpeedLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A406D33207A18C800CAFBD2 /* CStackHighSpeedLogger.mm */; };
+		4A406D36207A18C900CAFBD2 /* CStackHighSpeedLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A406D34207A18C900CAFBD2 /* CStackHighSpeedLogger.h */; };
+		4A6C2A18209C44FA005CCEE9 /* FOOMMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A6C2A16209C44FA005CCEE9 /* FOOMMonitor.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4A6C2A19209C44FA005CCEE9 /* FOOMMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A6C2A17209C44FA005CCEE9 /* FOOMMonitor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A6C2A1C209C5438005CCEE9 /* HighSpeedLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A6C2A1A209C5438005CCEE9 /* HighSpeedLogger.h */; };
+		4A6C2A1D209C5438005CCEE9 /* HighSpeedLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A6C2A1B209C5438005CCEE9 /* HighSpeedLogger.mm */; };
+		4A6C2A20209C6645005CCEE9 /* NSObject+FOOMSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A6C2A1E209C6645005CCEE9 /* NSObject+FOOMSwizzle.h */; };
+		4A6C2A21209C6645005CCEE9 /* NSObject+FOOMSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A6C2A1F209C6645005CCEE9 /* NSObject+FOOMSwizzle.m */; };
+		4A93E4B0206A1E9A006C0F56 /* CLeakedStacksHashmap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A93E4AE206A1E9A006C0F56 /* CLeakedStacksHashmap.mm */; };
+		4A93E4B1206A1E9A006C0F56 /* CLeakedStacksHashmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A93E4AF206A1E9A006C0F56 /* CLeakedStacksHashmap.h */; };
 		4AA4A0831FF13066009F2921 /* CLeakChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA4A0811FF13066009F2921 /* CLeakChecker.h */; };
 		4AA4A0841FF13066009F2921 /* CLeakChecker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AA4A0821FF13066009F2921 /* CLeakChecker.mm */; };
 		4AA4A0871FF1F9F6009F2921 /* COOMDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA4A0851FF1F9F6009F2921 /* COOMDetector.h */; };
 		4AA4A0881FF1F9F6009F2921 /* COOMDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AA4A0861FF1F9F6009F2921 /* COOMDetector.mm */; };
+		4AB88A2D22B8909800B44FA9 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 4AB88A2C22B8909800B44FA9 /* fishhook.c */; };
 		6B9A04671FD57C5700414B1F /* libOOMDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04651FD57C5700414B1F /* libOOMDetector.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6B9A04B91FD57C8A00414B1F /* QQLeakPredefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A046F1FD57C8A00414B1F /* QQLeakPredefines.h */; };
 		6B9A04BC1FD57C8A00414B1F /* CStackHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04731FD57C8A00414B1F /* CStackHelper.h */; };
@@ -47,8 +46,6 @@
 		6B9A04CD1FD57C8A00414B1F /* QQLeakChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04871FD57C8A00414B1F /* QQLeakChecker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6B9A04CE1FD57C8A00414B1F /* OOMMemoryStackTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A048A1FD57C8A00414B1F /* OOMMemoryStackTracker.h */; };
 		6B9A04CF1FD57C8A00414B1F /* OOMMemoryStackTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A048B1FD57C8A00414B1F /* OOMMemoryStackTracker.mm */; };
-		6B9A04D01FD57C8A00414B1F /* HighSpeedLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A048D1FD57C8A00414B1F /* HighSpeedLogger.h */; };
-		6B9A04D11FD57C8A00414B1F /* HighSpeedLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A048E1FD57C8A00414B1F /* HighSpeedLogger.mm */; };
 		6B9A04D21FD57C8A00414B1F /* OOMDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04901FD57C8A00414B1F /* OOMDetector.mm */; };
 		6B9A04D31FD57C8A00414B1F /* OOMDetectorLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04911FD57C8A00414B1F /* OOMDetectorLogger.h */; };
 		6B9A04D41FD57C8A00414B1F /* OOMDetectorLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04921FD57C8A00414B1F /* OOMDetectorLogger.mm */; };
@@ -56,7 +53,6 @@
 		6B9A04D61FD57C8A00414B1F /* MemoryIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04951FD57C8A00414B1F /* MemoryIndicator.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		6B9A04D71FD57C8A00414B1F /* OOMStatisticsInfoCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A04971FD57C8A00414B1F /* OOMStatisticsInfoCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6B9A04D81FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A04981FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm */; };
-		6B9A04D91FD57C8A00414B1F /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A049B1FD57C8A00414B1F /* fishhook.c */; };
 		6B9A04DA1FD57C8A00414B1F /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A049C1FD57C8A00414B1F /* fishhook.h */; };
 		6B9A04DB1FD57C8A00414B1F /* AllocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B9A049E1FD57C8A00414B1F /* AllocationTracker.h */; };
 		6B9A04DC1FD57C8A00414B1F /* AllocationTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B9A049F1FD57C8A00414B1F /* AllocationTracker.mm */; };
@@ -84,10 +80,25 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4A212CA8206259D6001960DA /* RapidCRC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = RapidCRC.c; sourceTree = "<group>"; };
+		4A212CA9206259D6001960DA /* RapidCRC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RapidCRC.h; sourceTree = "<group>"; };
+		4A406D33207A18C800CAFBD2 /* CStackHighSpeedLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CStackHighSpeedLogger.mm; sourceTree = "<group>"; };
+		4A406D34207A18C900CAFBD2 /* CStackHighSpeedLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CStackHighSpeedLogger.h; sourceTree = "<group>"; };
+		4A6C2A16209C44FA005CCEE9 /* FOOMMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FOOMMonitor.mm; sourceTree = "<group>"; };
+		4A6C2A17209C44FA005CCEE9 /* FOOMMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FOOMMonitor.h; path = ../OOMDetector/main/FOOMMonitor.h; sourceTree = "<group>"; };
+		4A6C2A1A209C5438005CCEE9 /* HighSpeedLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HighSpeedLogger.h; sourceTree = "<group>"; };
+		4A6C2A1B209C5438005CCEE9 /* HighSpeedLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HighSpeedLogger.mm; sourceTree = "<group>"; };
+		4A6C2A1E209C6645005CCEE9 /* NSObject+FOOMSwizzle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+FOOMSwizzle.h"; sourceTree = "<group>"; };
+		4A6C2A1F209C6645005CCEE9 /* NSObject+FOOMSwizzle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+FOOMSwizzle.m"; sourceTree = "<group>"; };
+		4A93E4AE206A1E9A006C0F56 /* CLeakedStacksHashmap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CLeakedStacksHashmap.mm; sourceTree = "<group>"; };
+		4A93E4AF206A1E9A006C0F56 /* CLeakedStacksHashmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLeakedStacksHashmap.h; sourceTree = "<group>"; };
+		4A9C1E332084557900E54134 /* libOOMDetector copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "libOOMDetector copy-Info.plist"; path = "/Users/rosen/Desktop/Application/QQLeak/OOMDetector/libOOMDetector/libOOMDetector copy-Info.plist"; sourceTree = "<absolute>"; };
 		4AA4A0811FF13066009F2921 /* CLeakChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CLeakChecker.h; sourceTree = "<group>"; };
 		4AA4A0821FF13066009F2921 /* CLeakChecker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CLeakChecker.mm; sourceTree = "<group>"; };
 		4AA4A0851FF1F9F6009F2921 /* COOMDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COOMDetector.h; sourceTree = "<group>"; };
 		4AA4A0861FF1F9F6009F2921 /* COOMDetector.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = COOMDetector.mm; sourceTree = "<group>"; };
+		4AB88A2C22B8909800B44FA9 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
+		4AD45263206130AA00116ED9 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		6B9A04621FD57C5700414B1F /* libOOMDetector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = libOOMDetector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B9A04651FD57C5700414B1F /* libOOMDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libOOMDetector.h; sourceTree = "<group>"; };
 		6B9A04661FD57C5700414B1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -112,8 +123,6 @@
 		6B9A04871FD57C8A00414B1F /* QQLeakChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QQLeakChecker.h; sourceTree = "<group>"; };
 		6B9A048A1FD57C8A00414B1F /* OOMMemoryStackTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OOMMemoryStackTracker.h; sourceTree = "<group>"; };
 		6B9A048B1FD57C8A00414B1F /* OOMMemoryStackTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMMemoryStackTracker.mm; sourceTree = "<group>"; };
-		6B9A048D1FD57C8A00414B1F /* HighSpeedLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HighSpeedLogger.h; sourceTree = "<group>"; };
-		6B9A048E1FD57C8A00414B1F /* HighSpeedLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HighSpeedLogger.mm; sourceTree = "<group>"; };
 		6B9A04901FD57C8A00414B1F /* OOMDetector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMDetector.mm; sourceTree = "<group>"; };
 		6B9A04911FD57C8A00414B1F /* OOMDetectorLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OOMDetectorLogger.h; sourceTree = "<group>"; };
 		6B9A04921FD57C8A00414B1F /* OOMDetectorLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMDetectorLogger.mm; sourceTree = "<group>"; };
@@ -121,7 +130,6 @@
 		6B9A04951FD57C8A00414B1F /* MemoryIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemoryIndicator.m; sourceTree = "<group>"; };
 		6B9A04971FD57C8A00414B1F /* OOMStatisticsInfoCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OOMStatisticsInfoCenter.h; sourceTree = "<group>"; };
 		6B9A04981FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OOMStatisticsInfoCenter.mm; sourceTree = "<group>"; };
-		6B9A049B1FD57C8A00414B1F /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
 		6B9A049C1FD57C8A00414B1F /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
 		6B9A049E1FD57C8A00414B1F /* AllocationTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AllocationTracker.h; sourceTree = "<group>"; };
 		6B9A049F1FD57C8A00414B1F /* AllocationTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AllocationTracker.mm; sourceTree = "<group>"; };
@@ -159,11 +167,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4AD45262206130A700116ED9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4AD45263206130AA00116ED9 /* libz.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6B9A04581FD57C5700414B1F = {
 			isa = PBXGroup;
 			children = (
 				6B9A04641FD57C5700414B1F /* libOOMDetector */,
 				6B9A04631FD57C5700414B1F /* Products */,
+				4AD45262206130A700116ED9 /* Frameworks */,
+				4A9C1E332084557900E54134 /* libOOMDetector copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -210,6 +228,8 @@
 		6B9A04701FD57C8A00414B1F /* stack */ = {
 			isa = PBXGroup;
 			children = (
+				4A212CA8206259D6001960DA /* RapidCRC.c */,
+				4A212CA9206259D6001960DA /* RapidCRC.h */,
 				6B9A04731FD57C8A00414B1F /* CStackHelper.h */,
 				6B9A04741FD57C8A00414B1F /* CStackHelper.mm */,
 				6B9A04751FD57C8A00414B1F /* CommonMallocLogger.h */,
@@ -221,6 +241,8 @@
 		6B9A04771FD57C8A00414B1F /* structure */ = {
 			isa = PBXGroup;
 			children = (
+				4A406D34207A18C900CAFBD2 /* CStackHighSpeedLogger.h */,
+				4A406D33207A18C800CAFBD2 /* CStackHighSpeedLogger.mm */,
 				6B9A04781FD57C8A00414B1F /* CBaseHashmap.h */,
 				6B9A04791FD57C8A00414B1F /* CBaseHashmap.mm */,
 				6B9A047A1FD57C8A00414B1F /* CPtrsHashmap.h */,
@@ -248,6 +270,7 @@
 			isa = PBXGroup;
 			children = (
 				6B9A04861FD57C8A00414B1F /* OOMDetector.h */,
+				4A6C2A17209C44FA005CCEE9 /* FOOMMonitor.h */,
 				6B9A04871FD57C8A00414B1F /* QQLeakChecker.h */,
 			);
 			path = Headers;
@@ -277,8 +300,6 @@
 		6B9A048C1FD57C8A00414B1F /* logger */ = {
 			isa = PBXGroup;
 			children = (
-				6B9A048D1FD57C8A00414B1F /* HighSpeedLogger.h */,
-				6B9A048E1FD57C8A00414B1F /* HighSpeedLogger.mm */,
 				6B9A04911FD57C8A00414B1F /* OOMDetectorLogger.h */,
 				6B9A04921FD57C8A00414B1F /* OOMDetectorLogger.mm */,
 			);
@@ -288,6 +309,9 @@
 		6B9A048F1FD57C8A00414B1F /* main */ = {
 			isa = PBXGroup;
 			children = (
+				4A6C2A1A209C5438005CCEE9 /* HighSpeedLogger.h */,
+				4A6C2A1B209C5438005CCEE9 /* HighSpeedLogger.mm */,
+				4A6C2A16209C44FA005CCEE9 /* FOOMMonitor.mm */,
 				6B9A04901FD57C8A00414B1F /* OOMDetector.mm */,
 				4AA4A0851FF1F9F6009F2921 /* COOMDetector.h */,
 				4AA4A0861FF1F9F6009F2921 /* COOMDetector.mm */,
@@ -329,7 +353,7 @@
 		6B9A049A1FD57C8A00414B1F /* extern */ = {
 			isa = PBXGroup;
 			children = (
-				6B9A049B1FD57C8A00414B1F /* fishhook.c */,
+				4AB88A2C22B8909800B44FA9 /* fishhook.c */,
 				6B9A049C1FD57C8A00414B1F /* fishhook.h */,
 			);
 			path = extern;
@@ -342,6 +366,8 @@
 				6B9A049F1FD57C8A00414B1F /* AllocationTracker.mm */,
 				6B9A04A01FD57C8A00414B1F /* CMallocHook.h */,
 				6B9A04A11FD57C8A00414B1F /* CMallocHook.mm */,
+				4A6C2A1E209C6645005CCEE9 /* NSObject+FOOMSwizzle.h */,
+				4A6C2A1F209C6645005CCEE9 /* NSObject+FOOMSwizzle.m */,
 			);
 			path = hook;
 			sourceTree = "<group>";
@@ -387,6 +413,8 @@
 		6B9A04B41FD57C8A00414B1F /* structures */ = {
 			isa = PBXGroup;
 			children = (
+				4A93E4AF206A1E9A006C0F56 /* CLeakedStacksHashmap.h */,
+				4A93E4AE206A1E9A006C0F56 /* CLeakedStacksHashmap.mm */,
 				6B9A04B51FD57C8A00414B1F /* CLeakedHashmap.h */,
 				6B9A04B61FD57C8A00414B1F /* CLeakedHashmap.mm */,
 				6B9A04B71FD57C8A00414B1F /* CThreadTrackingHashmap.h */,
@@ -404,25 +432,29 @@
 			files = (
 				6B9A04E61FD57C8A00414B1F /* CRegisterChecker.h in Headers */,
 				6B9A04CA1FD57C8A00414B1F /* QQLeakFileUploadCenter.h in Headers */,
+				4A6C2A19209C44FA005CCEE9 /* FOOMMonitor.h in Headers */,
 				6B9A04CD1FD57C8A00414B1F /* QQLeakChecker.h in Headers */,
 				6B9A04CC1FD57C8A00414B1F /* OOMDetector.h in Headers */,
+				6B9A04671FD57C5700414B1F /* libOOMDetector.h in Headers */,
 				6B9A04D71FD57C8A00414B1F /* OOMStatisticsInfoCenter.h in Headers */,
 				6B9A04C61FD57C8A00414B1F /* QQLeakDataUploadCenter.h in Headers */,
+				4A212CAB206259D6001960DA /* RapidCRC.h in Headers */,
 				6B9A04D51FD57C8A00414B1F /* MemoryIndicator.h in Headers */,
 				6B9A04B91FD57C8A00414B1F /* QQLeakPredefines.h in Headers */,
 				6B9A04E01FD57C8A00414B1F /* QQLeakMallocStackTracker.h in Headers */,
 				6B9A04E41FD57C8A00414B1F /* CMemoryChecker.h in Headers */,
 				6B9A04F01FD57C8A00414B1F /* CThreadTrackingHashmap.h in Headers */,
+				4A406D36207A18C900CAFBD2 /* CStackHighSpeedLogger.h in Headers */,
 				4AA4A0871FF1F9F6009F2921 /* COOMDetector.h in Headers */,
 				6B9A04CE1FD57C8A00414B1F /* OOMMemoryStackTracker.h in Headers */,
 				6B9A04C01FD57C8A00414B1F /* CBaseHashmap.h in Headers */,
+				4A6C2A1C209C5438005CCEE9 /* HighSpeedLogger.h in Headers */,
 				6B9A04EC1FD57C8A00414B1F /* CObjcFilter.h in Headers */,
-				6B9A04671FD57C5700414B1F /* libOOMDetector.h in Headers */,
-				6B9A04D01FD57C8A00414B1F /* HighSpeedLogger.h in Headers */,
 				6B9A04C41FD57C8A00414B1F /* CStacksHashmap.h in Headers */,
 				6B9A04BC1FD57C8A00414B1F /* CStackHelper.h in Headers */,
 				6B9A04E21FD57C8A00414B1F /* CHeapChecker.h in Headers */,
 				6B9A04C21FD57C8A00414B1F /* CPtrsHashmap.h in Headers */,
+				4A6C2A20209C6645005CCEE9 /* NSObject+FOOMSwizzle.h in Headers */,
 				4AA4A0831FF13066009F2921 /* CLeakChecker.h in Headers */,
 				6B9A04EE1FD57C8A00414B1F /* CLeakedHashmap.h in Headers */,
 				6B9A04DA1FD57C8A00414B1F /* fishhook.h in Headers */,
@@ -431,6 +463,7 @@
 				6B9A04E81FD57C8A00414B1F /* CSegmentChecker.h in Headers */,
 				6B9A04C81FD57C8A00414B1F /* QQLeakDeviceInfo.h in Headers */,
 				6B9A04EA1FD57C8A00414B1F /* CStackChecker.h in Headers */,
+				4A93E4B1206A1E9A006C0F56 /* CLeakedStacksHashmap.h in Headers */,
 				6B9A04DD1FD57C8A00414B1F /* CMallocHook.h in Headers */,
 				6B9A04DB1FD57C8A00414B1F /* AllocationTracker.h in Headers */,
 			);
@@ -469,10 +502,6 @@
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
 					};
-					6B9A04F81FD5839A00414B1F = {
-						CreatedOnToolsVersion = 9.1;
-						ProvisioningStyle = Automatic;
-					};
 				};
 			};
 			buildConfigurationList = 6B9A045C1FD57C5700414B1F /* Build configuration list for PBXProject "libOOMDetector" */;
@@ -488,7 +517,6 @@
 			projectRoot = "";
 			targets = (
 				6B9A04611FD57C5700414B1F /* libOOMDetector */,
-				6B9A04F81FD5839A00414B1F /* libOOMAggregate */,
 			);
 		};
 /* End PBXProject section */
@@ -503,22 +531,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		6B9A04FC1FD583A700414B1F /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ \"${ACTION}\" = \"build\" ]\nthen\nINSTALL_DIR=${SRCROOT}/Products/${PROJECT_NAME}.framework\n\nDEVICE_DIR=${BUILD_ROOT}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework\n\nSIMULATOR_DIR=${BUILD_ROOT}/${CONFIGURATION}-iphonesimulator/${PROJECT_NAME}.framework\n\n\nif [ -d \"${INSTALL_DIR}\" ]\nthen\nrm -rf \"${INSTALL_DIR}\"\nfi\n\nmkdir -p \"${INSTALL_DIR}\"\n\ncp -R \"${DEVICE_DIR}/\" \"${INSTALL_DIR}/\"\n#ditto \"${DEVICE_DIR}/Headers\" \"${INSTALL_DIR}/Headers\"\n\nlipo -create \"${DEVICE_DIR}/${PROJECT_NAME}\" \"${SIMULATOR_DIR}/${PROJECT_NAME}\" -output \"${DEVICE_DIR}/${PROJECT_NAME}\"\n\n#open \"${DEVICE_DIR}\"\n#open \"${SRCROOT}/Products\"\nfi";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		6B9A045D1FD57C5700414B1F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -526,6 +538,7 @@
 			files = (
 				6B9A04E51FD57C8A00414B1F /* CMemoryChecker.mm in Sources */,
 				6B9A04C91FD57C8A00414B1F /* QQLeakDeviceInfo.m in Sources */,
+				4AB88A2D22B8909800B44FA9 /* fishhook.c in Sources */,
 				6B9A04E11FD57C8A00414B1F /* QQLeakMallocStackTracker.mm in Sources */,
 				6B9A04C31FD57C8A00414B1F /* CPtrsHashmap.mm in Sources */,
 				6B9A04EF1FD57C8A00414B1F /* CLeakedHashmap.mm in Sources */,
@@ -533,24 +546,28 @@
 				6B9A04E71FD57C8A00414B1F /* CRegisterChecker.mm in Sources */,
 				6B9A04E31FD57C8A00414B1F /* CHeapChecker.mm in Sources */,
 				6B9A04DE1FD57C8A00414B1F /* CMallocHook.mm in Sources */,
+				4A212CAA206259D6001960DA /* RapidCRC.c in Sources */,
+				4A406D35207A18C900CAFBD2 /* CStackHighSpeedLogger.mm in Sources */,
 				6B9A04BD1FD57C8A00414B1F /* CStackHelper.mm in Sources */,
 				6B9A04F11FD57C8A00414B1F /* CThreadTrackingHashmap.mm in Sources */,
+				4A6C2A21209C6645005CCEE9 /* NSObject+FOOMSwizzle.m in Sources */,
 				6B9A04D21FD57C8A00414B1F /* OOMDetector.mm in Sources */,
 				6B9A04BF1FD57C8A00414B1F /* CommonMallocLogger.mm in Sources */,
+				4A6C2A18209C44FA005CCEE9 /* FOOMMonitor.mm in Sources */,
 				4AA4A0841FF13066009F2921 /* CLeakChecker.mm in Sources */,
 				6B9A04D81FD57C8A00414B1F /* OOMStatisticsInfoCenter.mm in Sources */,
 				6B9A04ED1FD57C8A00414B1F /* CObjcFilter.mm in Sources */,
+				4A93E4B0206A1E9A006C0F56 /* CLeakedStacksHashmap.mm in Sources */,
 				6B9A04DC1FD57C8A00414B1F /* AllocationTracker.mm in Sources */,
-				6B9A04D91FD57C8A00414B1F /* fishhook.c in Sources */,
 				6B9A04C51FD57C8A00414B1F /* CStacksHashmap.mm in Sources */,
 				6B9A04CB1FD57C8A00414B1F /* QQLeakFileUploadCenter.mm in Sources */,
 				6B9A04CF1FD57C8A00414B1F /* OOMMemoryStackTracker.mm in Sources */,
 				6B9A04D41FD57C8A00414B1F /* OOMDetectorLogger.mm in Sources */,
-				6B9A04D11FD57C8A00414B1F /* HighSpeedLogger.mm in Sources */,
 				6B9A04C71FD57C8A00414B1F /* QQLeakDataUploadCenter.mm in Sources */,
 				6B9A04EB1FD57C8A00414B1F /* CStackChecker.mm in Sources */,
 				6B9A04D61FD57C8A00414B1F /* MemoryIndicator.m in Sources */,
 				6B9A04E91FD57C8A00414B1F /* CSegmentChecker.mm in Sources */,
+				4A6C2A1D209C5438005CCEE9 /* HighSpeedLogger.mm in Sources */,
 				6B9A04C11FD57C8A00414B1F /* CBaseHashmap.mm in Sources */,
 				6B9A04DF1FD57C8A00414B1F /* QQLeakChecker.mm in Sources */,
 			);
@@ -682,7 +699,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = libOOMDetector/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACH_O_TYPE = staticlib;
@@ -709,7 +726,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = libOOMDetector/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACH_O_TYPE = staticlib;
@@ -720,22 +737,6 @@
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
-			};
-			name = Release;
-		};
-		6B9A04F91FD5839A00414B1F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		6B9A04FA1FD5839A00414B1F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -756,15 +757,6 @@
 			buildConfigurations = (
 				6B9A046B1FD57C5700414B1F /* Debug */,
 				6B9A046C1FD57C5700414B1F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		6B9A04FB1FD5839A00414B1F /* Build configuration list for PBXAggregateTarget "libOOMAggregate" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				6B9A04F91FD5839A00414B1F /* Debug */,
-				6B9A04FA1FD5839A00414B1F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

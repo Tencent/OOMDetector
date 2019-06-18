@@ -24,6 +24,7 @@ def translate_stack(list):
 		addr = list[i];
 		command = command + " %s" %(addr);
 	result = os.popen(command).read();
+    #       print "%s" % (command);
 	if result:
 		print "atos success!"
 		return result;
@@ -132,22 +133,23 @@ def translate(begin,key,prefix):
                 result_fo.write( ")\n");
 	print "end translate %s..." %(key);
 
-if __name__ == '__main__':
-    print"Begin Translation......";
-    dsym_path = sys.argv[1];
-    leak_path = sys.argv[2];
-    dsym_path = dsym_path + "/Contents/Resources/DWARF";
-    files = os.listdir(dsym_path);
-    file_name = os.path.basename(leak_path);
-    app_name = files[0];
-    dsym_path = os.path.join(dsym_path,app_name);
-    print "APP Name:%s" %(app_name);
-    leak_fo = open(leak_path,"r");
-    max_length = 10000;
-    translated_file = file_name + "_translated.log";
-    result_fo = open(translated_file,"w");
-    Leak_log = leak_fo.read();
-    translate(0,"stack:","Malloc_size:");
-    print"end Translation......";
+
+print"Begin Translation......";
+dsym_path = sys.argv[1];
+leak_path = sys.argv[2];
+dsym_path = dsym_path + "/Contents/Resources/DWARF";
+files = os.listdir(dsym_path);
+file_name = os.path.basename(leak_path);
+app_name = files[0];
+dsym_path = os.path.join(dsym_path,app_name);
+#app_name = os.path.split("/");
+print "APP Name:%s" %(app_name);
+leak_fo = open(leak_path,"r");
+max_length = 10000;
+translated_file = file_name + "_translated.log";
+result_fo = open(translated_file,"w");
+Leak_log = leak_fo.read();
+translate(0,"stack:","Malloc_size:");
+print"end Translation......";
 
 

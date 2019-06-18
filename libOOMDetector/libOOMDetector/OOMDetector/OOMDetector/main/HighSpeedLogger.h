@@ -1,5 +1,5 @@
 //
-//  CLeakedHashmap.h
+//  HighSpeedLogger.h
 //  QQLeak
 //
 //  Tencent is pleased to support the open source community by making OOMDetector available.
@@ -16,29 +16,31 @@
 //
 //
 
-#ifndef CMergedHashmap_h
-#define CMergedHashmap_h
+#ifndef HighSpeedLogger_h
+#define HighSpeedLogger_h
 
-#import "CBaseHashmap.h"
-#import "CPtrsHashmap.h"
+#import <Foundation/Foundation.h>
+#import <malloc/malloc.h>
 
-typedef struct leaked_ptr_t{
-    uint64_t digest;
-    uint32_t leak_count;
-    vm_address_t address;
-    leaked_ptr_t *next;
-} leaked_ptr_t;
+typedef void (*LogPrinter)(char *log);
 
-class CLeakedHashmap : public CBaseHashmap
+class HighSpeedLogger
 {
 public:
-    CLeakedHashmap(size_t entrys,malloc_zone_t *memory_zone):CBaseHashmap(entrys,memory_zone){};
-    void insertLeakPtrAndIncreaseCountIfExist(uint64_t digest,ptr_log_t *ptr_log);
-    ~CLeakedHashmap();
-protected:
-    leaked_ptr_t *create_hashmap_data(uint64_t digest,ptr_log_t *ptr_log);
-    int compare(leaked_ptr_t *leak_ptr,uint64_t digest);
-    size_t hash_code(uint64_t digest);
+    ~HighSpeedLogger();
+    HighSpeedLogger(malloc_zone_t *zone, NSString *path, size_t mmap_size);
+    BOOL memcpyLogger(const char *content, size_t length);
+    void cleanLogger();
+    void syncLogger();
+    bool isValid();
+    LogPrinter logPrinterCallBack;
+public:
+    char *mmap_ptr;
+    size_t mmap_size;
+    size_t current_len;
+    malloc_zone_t *memory_zone;
+    FILE *mmap_fp;
+    bool isFailed;
 };
 
-#endif /* CMergedHashmap_h */
+#endif /* HighSpeedLogger_h */
