@@ -126,7 +126,7 @@ NSString *const kChunkMallocNoti = @"kChunkMallocNoti";
     }];
 
     // 开启内存泄漏监控，目前只可检测真机运行时的内存泄漏，模拟器暂不支持,这个功能占用的内存较大，建议只在测试阶段使用
-    [detector setupLeakChecker];
+ //   [detector setupLeakChecker];
 
     // 开启MallocStackMonitor用以监控通过malloc方式分配的内存,会增加8%左右的cpu开销和10Mb内存,所以建议抽样开启
     [detector startMallocStackMonitor:30 * 1024 * 1024 logUUID:[[FOOMMonitor getInstance] getLogUUID]];
