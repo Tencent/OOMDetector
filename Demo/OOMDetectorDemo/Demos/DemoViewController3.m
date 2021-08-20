@@ -49,10 +49,12 @@
 
 - (void)test
 {
-    while (1) {
-        NSObject *obj = [[[NSObject alloc] init] retain];
-        [obj class];
-    }
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        while (1) {
+            NSObject *obj = [[[NSObject alloc] init] retain];
+            [obj class];
+        }
+    });
 }
 
 - (NSString *)demoCodeText
